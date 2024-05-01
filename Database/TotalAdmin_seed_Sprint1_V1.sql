@@ -18,7 +18,8 @@ GO
 -- Item Statuses
 INSERT INTO ItemStatus([Name]) 
 VALUES
-	('Pending')
+	('Pending'),
+	('Approved')
 
 
 -- purchase order statuses
@@ -33,7 +34,8 @@ GO
 INSERT INTO PurchaseOrderStatus([Name]) 
 VALUES
 	('Pending'),
-	('Under Review')
+	('Under Review'),
+	('Approved')
 
 -- role
 IF OBJECT_ID('TotalAdmin.dbo.Role', 'U') IS NULL
@@ -60,7 +62,6 @@ IF OBJECT_ID('TotalAdmin.dbo.Department', 'U') IS NULL
 		[Name] NVARCHAR(128) NOT NULL,
 		[Description] NVARCHAR(512) NOT NULL,
 		InvocationDate DATETIME2(7) NOT NULL,
-		IsActive BIT NOT NULL,
 		[RowVersion] INT NOT NULL
 	);
 GO
@@ -69,10 +70,7 @@ GO
 -- employee
 IF OBJECT_ID('TotalAdmin.dbo.Employee', 'U') IS NULL
 	CREATE TABLE Employee(
-		EmployeeId INT IDENTITY(1,1) NOT NULL PRIMARY KEY,
-		-- Computed column for generating unique 8-digit leading 0 number
-		EmployeeNumber AS RIGHT('00000000' + CAST(EmployeeId AS VARCHAR), 8) PERSISTED NOT NULL, 
-		UserName NVARCHAR(50) NOT NULL UNIQUE,
+		EmployeeNumber INT IDENTITY(1,1) NOT NULL PRIMARY KEY,
 		FirstName NVARCHAR(50) NOT NULL,
 		MiddleInitial CHAR(1) NULL,
 		LastName NVARCHAR(50) NOT NULL,
@@ -93,7 +91,7 @@ IF OBJECT_ID('TotalAdmin.dbo.Employee', 'U') IS NULL
 		SupervisorEmpNumber INT NULL,
 		DepartmentId INT NULL,
 		RoleId INT NOT NULL,
-		CONSTRAINT FK_Employee_Employee FOREIGN KEY (SupervisorEmpNumber) REFERENCES Employee(EmployeeId),
+		CONSTRAINT FK_Employee_Employee FOREIGN KEY (SupervisorEmpNumber) REFERENCES Employee(EmployeeNumber),
 		CONSTRAINT FK_Department_Employee FOREIGN KEY (DepartmentId) REFERENCES Department(DepartmentId),
 		CONSTRAINT FK_Role_Employee FOREIGN KEY (RoleId) REFERENCES [Role](RoleId)
 	);
@@ -101,15 +99,13 @@ GO
 -- purchase order
 IF OBJECT_ID('TotalAdmin.dbo.PurchaseOrder', 'U') IS NULL
 	CREATE TABLE PurchaseOrder(
-		PurchaseOrderId INT IDENTITY(1,1) NOT NULL PRIMARY KEY,
-		-- Computed column for generating unique 8-digit leading 0 number
-		PoNumber AS RIGHT('00000100' + CAST(PurchaseOrderId AS VARCHAR), 8) PERSISTED NOT NULL, 
+		PoNumber INT IDENTITY(1,1) NOT NULL PRIMARY KEY,
 		CreationDate DATETIME2(7) NOT NULL,
 		[RowVersion] INT NOT NULL,
 		PurchaseOrderStatusId INT NOT NULL,
-		EmployeeId INT NOT NULL
+		EmployeeNumber INT NOT NULL
 		CONSTRAINT FK_PurchaseOrderStatus_PurchaseOrder FOREIGN KEY (PurchaseOrderStatusId) REFERENCES PurchaseOrderStatus(PoStatusId),
-		CONSTRAINT FK_Employee_PurchaseOrder FOREIGN KEY (EmployeeId) REFERENCES Employee(EmployeeId)
+		CONSTRAINT FK_Employee_PurchaseOrder FOREIGN KEY (EmployeeNumber) REFERENCES Employee(EmployeeNumber)
 	);
 GO
 -- item
@@ -123,9 +119,9 @@ IF OBJECT_ID('TotalAdmin.dbo.Item', 'U') IS NULL
 		Justification NVARCHAR(255),
 		ItemLocation NVARCHAR(255),
 		[RowVersion] INT NOT NULL,
-		PurchaseOrderId INT NOT NULL,
+		PoNumber INT NOT NULL,
 		ItemStatusId INT NOT NULL,
-		CONSTRAINT FK_PurchaseOrder_Item FOREIGN KEY (PurchaseOrderId) REFERENCES PurchaseOrder(PurchaseOrderId),
+		CONSTRAINT FK_PurchaseOrder_Item FOREIGN KEY (PoNumber) REFERENCES PurchaseOrder(PoNumber),
 		CONSTRAINT FK_Item_Status FOREIGN KEY (ItemStatusId) REFERENCES ItemStatus(ItemStatusId)
 	);
 GO
