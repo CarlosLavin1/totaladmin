@@ -5,11 +5,11 @@ using TotalAdmin.Types;
 
 namespace TotalAdmin.Repository
 {
-    public class LoginRepository
+    public class LoginRepository : ILoginRepository
     {
-        private readonly DataAccess db;
+        private readonly IDataAccess db;
 
-        public LoginRepository(DataAccess db)
+        public LoginRepository(IDataAccess db)
         {
             this.db = db;
         }

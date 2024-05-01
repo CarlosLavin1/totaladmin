@@ -5,7 +5,7 @@ using System.Data;
 
 namespace DAL
 {
-    public class DataAccess
+    public class DataAccess : IDataAccess
     {
         #region Fields
 

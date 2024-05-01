@@ -28,12 +28,7 @@ namespace TotalAdmin.API.Controllers
                 return Unauthorized("Invalid login");
             }
 
-            return new LoginOutputDTO()
-            {
-                UserName = user.Email,
-                Token = _tokenService.CreateToken(user),
-                ExpiresIn = 7 * 24 * 60 * 60
-            };
+            return new LoginOutputDTO(user.EmployeeNumber, user.Email, _tokenService.CreateToken(user), 7 * 24 * 60 * 60);
 
         }
     }
