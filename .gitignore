@@ -23,6 +23,9 @@ bower_components/
 
 # IDEs and editors
 .idea/
+.vs/
+.vscode/
+*.code-workspace
 
 # misc
 .sass-cache/
