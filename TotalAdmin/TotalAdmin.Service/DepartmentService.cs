@@ -10,11 +10,11 @@ using TotalAdmin.Types;
 
 namespace TotalAdmin.Service
 {
-    public class DepartmentService
+    public class DepartmentService : IDepartmentService
     {
-        private readonly DepartmentRepository repo;
+        private readonly IDepartmentRepository repo;
 
-        public DepartmentService(DepartmentRepository repo)
+        public DepartmentService(IDepartmentRepository repo)
         {
             this.repo = repo;
         }

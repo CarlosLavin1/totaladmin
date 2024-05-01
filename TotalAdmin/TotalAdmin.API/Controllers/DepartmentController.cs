@@ -9,9 +9,9 @@ namespace TotalAdmin.API.Controllers
     [ApiController]
     public class DepartmentController : Controller
     {
-        private readonly DepartmentService departmentService;
+        private readonly IDepartmentService departmentService;
 
-        public DepartmentController(DepartmentService departmentService)
+        public DepartmentController(IDepartmentService departmentService)
         {
             this.departmentService = departmentService;
         }

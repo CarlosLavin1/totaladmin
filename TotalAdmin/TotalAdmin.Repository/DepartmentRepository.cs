@@ -10,11 +10,11 @@ using TotalAdmin.Types;
 
 namespace TotalAdmin.Repository
 {
-    public class DepartmentRepository
+    public class DepartmentRepository : IDepartmentRepository
     {
-        private readonly DataAccess db;
+        private readonly IDataAccess db;
 
-        public DepartmentRepository(DataAccess db)
+        public DepartmentRepository(IDataAccess db)
         {
             this.db = db;
         }
