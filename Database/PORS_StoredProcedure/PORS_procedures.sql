@@ -77,12 +77,14 @@ BEGIN
 		JOIN 
 			Employee E ON PO.EmployeeNumber = E.EmployeeNumber
 		JOIN 
+			Employee S ON E.SupervisorEmpNumber = S.EmployeeNumber
+		JOIN 
 			PurchaseOrderStatus POS ON PO.PurchaseOrderStatusId = POS.PoStatusId
 		JOIN
 			Department D ON E.DepartmentId = D.DepartmentId
 		WHERE 
 			D.DepartmentId = @DepartmentId AND
-			(POS.[Name] = 'Pending' OR POS.[Name] = 'Under Review')
+			D.InvocationDate <= GETDATE()
 		ORDER BY 
 			PO.CreationDate ASC;
 	END TRY
@@ -150,9 +152,9 @@ BEGIN
 			PurchaseOrderStatus POS ON PO.PurchaseOrderStatusId = POS.PoStatusId
 		WHERE 
 			E.EmployeeNumber = @EmployeeNumber AND
-			(PO.CreationDate >= ISNULL(@StartDate, PO.CreationDate)) AND
-			(PO.CreationDate <= ISNULL(@EndDate, PO.CreationDate)) AND
-			(PO.PoNumber = ISNULL(@PoNumber, PO.PoNumber))
+			(@StartDate IS NULL OR PO.CreationDate >= @StartDate) AND
+			(@EndDate IS NULL OR PO.CreationDate <= @EndDate) AND
+			(@PoNumber IS NULL OR PO.PoNumber = @PoNumber)
 		ORDER BY 
 			PO.CreationDate DESC;
 	END TRY
