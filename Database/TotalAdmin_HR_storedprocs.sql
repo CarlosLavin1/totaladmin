@@ -3,10 +3,10 @@ GO
 
 -- create department
 CREATE OR ALTER PROC spInsertDepartment
+	@DepartmentId INT OUTPUT,
 	@Name NVARCHAR(128),
 	@Description NVARCHAR(512),
-	@InvocationDate DATETIME2(7),
-	@DepartmentId INT OUTPUT
+	@InvocationDate DATETIME2(7)
 AS
 BEGIN
 	BEGIN TRY

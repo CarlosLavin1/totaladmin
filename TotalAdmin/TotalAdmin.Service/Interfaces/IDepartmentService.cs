@@ -14,5 +14,6 @@ namespace TotalAdmin.Service
         Task<List<DepartmentDisplayDTO>> GetActiveDepartments();
 
         Task<Department> AddDepartmentAsync(Department department);
+        Department AddDepartment(Department department);
     }
 }

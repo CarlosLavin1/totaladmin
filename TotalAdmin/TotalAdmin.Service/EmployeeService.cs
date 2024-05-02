@@ -58,7 +58,7 @@ namespace TotalAdmin.Service
             if (GetEmployeesInDepartmentCount(employee.DepartmentId) == 0)
                 employee.AddError(new("Department already has 10 employees", ErrorType.Business));
 
-            return employee.Errors.Any();
+            return !employee.Errors.Any();
         }
 
         private async Task<bool> ValidateEmployeeAsync(Employee employee)
@@ -79,7 +79,7 @@ namespace TotalAdmin.Service
             if (await GetEmployeesInDepartmentCountAsync(employee.DepartmentId) == 0)
                 employee.AddError(new("Department already has 10 employees", ErrorType.Business));
 
-            return employee.Errors.Any();
+            return !employee.Errors.Any();
         }
 
         public async Task<int> GetEmployeesInDepartmentCountAsync(int department)

@@ -32,6 +32,14 @@ namespace TotalAdmin.Service
             return department;
         }
 
+        public Department AddDepartment(Department department)
+        {
+            if (ValidateDepartment(department))
+                return repo.AddDepartment(department);
+
+            return department;
+        }
+
         private bool ValidateDepartment(Department department)
         {
             // Validate Entity
@@ -43,7 +51,7 @@ namespace TotalAdmin.Service
                 department.AddError(new(e.ErrorMessage, ErrorType.Model));
             }
 
-            return department.Errors.Any();
+            return !department.Errors.Any();
         }
     }
 }
