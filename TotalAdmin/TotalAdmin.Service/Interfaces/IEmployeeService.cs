@@ -10,6 +10,9 @@ namespace TotalAdmin.Service
     public interface IEmployeeService
     {
         Task<Employee> AddEmployeeAsync(Employee employee);
+        Employee AddEmployee(Employee employee);
         Task<List<EmployeeDisplayDTO>> SearchEmployeesAsync(int department, int employeeNumber, string? lastName);
+        Task<int> GetEmployeesInDepartmentCountAsync(int department);
+        int GetEmployeesInDepartmentCount(int department);
     }
 }

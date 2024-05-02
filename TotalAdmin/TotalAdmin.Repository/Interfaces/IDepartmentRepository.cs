@@ -11,5 +11,6 @@ namespace TotalAdmin.Repository
     {
         Task<List<DepartmentDisplayDTO>> GetActiveDepartmentsAsync();
         Task<Department> AddDepartmentAsync(Department department);
+        Department AddDepartment(Department department);
     }
 }

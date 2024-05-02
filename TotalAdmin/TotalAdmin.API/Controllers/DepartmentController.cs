@@ -33,19 +33,22 @@ namespace TotalAdmin.API.Controllers
         }
 
         [HttpPost]
-        [ProducesResponseType(StatusCodes.Status201Created)]
+        //[ProducesResponseType(StatusCodes.Status201Created)]
+        [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        public async Task<ActionResult<Department>> Create(Department department)
+        public ActionResult<Department> Create(Department department)
         {
             try
             {
-                department = await departmentService.AddDepartmentAsync(department);
+                department = departmentService.AddDepartment(department);
 
                 if (department.Errors.Count != 0)
                     // return status 400
                     return BadRequest(department);
 
-                return CreatedAtAction("Get", new { id = department.Id }, department);
+                // this returns get route for newly created department
+                //return CreatedAtAction("Get", new { id = department.Id }, department);
+                return Ok(department);
             }
             catch (Exception)
             {

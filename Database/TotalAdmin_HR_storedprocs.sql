@@ -3,10 +3,10 @@ GO
 
 -- create department
 CREATE OR ALTER PROC spInsertDepartment
+	@DepartmentId INT OUTPUT,
 	@Name NVARCHAR(128),
 	@Description NVARCHAR(512),
-	@InvocationDate DATETIME2(7),
-	@DepartmentId INT OUTPUT
+	@InvocationDate DATETIME2(7)
 AS
 BEGIN
 	BEGIN TRY
@@ -53,9 +53,9 @@ GO
 
 -- create employee
 CREATE OR ALTER PROC spInsertEmployee
-	@FirstName NVARCHAR(30),
+	@FirstName NVARCHAR(50),
 	@MiddleInitial CHAR(1),
-	@LastName NVARCHAR(30),
+	@LastName NVARCHAR(60),
 	@Email NVARCHAR(255),
 	@HashedPassword NVARCHAR(255),
 	@StreetAddress NVARCHAR(255),
@@ -134,8 +134,9 @@ CREATE OR ALTER PROC spSearchEmployees
 AS
 BEGIN
     SELECT
-        LastName,
+        EmployeeNumber,
         FirstName,
+		LastName,
         WorkPhoneNumber,
         OfficeLocation,
         JobTitle
@@ -149,6 +150,21 @@ BEGIN
     ORDER BY
         LastName,
         FirstName;
+END
+GO
+
+-- get employees in a department
+CREATE OR ALTER PROC spGetEmployeesInDepartment
+    @DepartmentId INT
+AS
+BEGIN
+    SELECT
+        COUNT(EmployeeNumber)
+    FROM
+        Employee
+    WHERE
+        IsActive = 1
+        AND (DepartmentId = @DepartmentId)
 END
 GO
 
@@ -171,6 +187,7 @@ BEGIN
 		WHERE
 			EmployeeNumber = @EmployeeNumber
 			AND UPPER([HashedPassword]) = UPPER(@HashedPassword)
+			AND IsActive = 1
 	END TRY
 	BEGIN CATCH
 		;THROW
