@@ -134,8 +134,9 @@ CREATE OR ALTER PROC spSearchEmployees
 AS
 BEGIN
     SELECT
-        LastName,
+        EmployeeNumber,
         FirstName,
+		LastName,
         WorkPhoneNumber,
         OfficeLocation,
         JobTitle
