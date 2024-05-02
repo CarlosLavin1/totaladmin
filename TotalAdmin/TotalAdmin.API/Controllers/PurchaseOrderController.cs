@@ -50,11 +50,23 @@ namespace TotalAdmin.API.Controllers
         {
             try
             {
+                // Check for the specific employee
+                if (!filter.EmployeeNumber.HasValue)
+                {
+                    return BadRequest("EmployeeNumber is required.");
+                }
+
+                if (filter.StartDate.HasValue && filter.EndDate.HasValue && filter.StartDate > filter.EndDate)
+                {
+                    return BadRequest("StartDate cannot be later than EndDate.");
+                }
+
+
                 List<PODisplayDTO> purchaseOrders = await service.SearchPurchaseOrders(filter);
 
                 if (purchaseOrders == null || !purchaseOrders.Any())
                 {
-                    return NotFound("No purchase orders found matching the provided filters.");
+                    return NotFound("Purchase orders not found matching the provided filters.");
                 }
 
                 return Ok(purchaseOrders);
