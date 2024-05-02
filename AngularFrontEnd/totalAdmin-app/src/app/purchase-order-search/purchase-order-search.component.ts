@@ -20,6 +20,7 @@ export class PurchaseOrderSearchComponent {
   validationErrors: ValidationError[] = [];
 
   searchResults: PODisplayDTO[] = [];
+  private subscription: Subscription;
 
   searchForm: FormGroup = this.formBuilder.group({
     EmployeeNumber: ['', Validators.required],
@@ -41,6 +42,10 @@ export class PurchaseOrderSearchComponent {
 
   }
 
+  ngOnDestory(): void{
+    this.subscription.unsubscribe();
+  }
+
   onSubmit() {
     if (this.searchForm.valid) {
       const filter: POSearchFiltersDTO = {
@@ -50,19 +55,34 @@ export class PurchaseOrderSearchComponent {
         PONumber: this.searchForm.get('PONumber')?.value
       };
       this.searchPO(filter);
+      console.log(filter.EmployeeNumber + ' ' + filter.PONumber + ' ' + filter.StartDate + ' ' + filter.EndDate);
+      
     }
   }
 
   private searchPO(filter: POSearchFiltersDTO) {
+    this.errors = []
+
     const subscription = this.poService.SearchPurchaseOrders(filter)
       .subscribe({
         next: (results) => {
-          this.searchResults = results;
+          this.searchResults = results || [];
+          console.log(results.toString);
+          console.log('the search results:');
+          this.searchResults.forEach((result) => {
+            console.log(result);
+          });
         },
         error: (error) => {
           console.error('Error searching purchase orders:', error);
-          // Handle error
-          if (error.error.errors) {
+          this.errors = []
+          this.searchResults = [];
+          this.validationErrors = [];
+
+          if (error.status === 404) {
+            this.showErrorMessage('No purchase orders found matching the provided filters.');
+          } 
+          else if (error.error.errors) {
             const validationErrors: ValidationError[] = error.error.errors;
             validationErrors.forEach((error) => {
               this.errors.push(error.description);
@@ -73,5 +93,9 @@ export class PurchaseOrderSearchComponent {
         }
       });
     this.subscriptions.push(subscription);
+  }
+
+  showErrorMessage(message: string) {
+    this.errors.push(message);
   }
 }
