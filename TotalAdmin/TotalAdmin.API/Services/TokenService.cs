@@ -2,11 +2,12 @@
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
+using TotalAdmin.API.Interfaces;
 using TotalAdmin.Model;
 
 namespace TotalAdmin.API.Services
 {
-    public class TokenService
+    public class TokenService : ITokenService
     {
         private readonly IConfiguration _configuration;
 

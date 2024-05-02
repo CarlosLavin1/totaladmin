@@ -3,11 +3,11 @@ using TotalAdmin.Repository;
 
 namespace TotalAdmin.Service
 {
-    public class LoginService
+    public class LoginService : ILoginService
     {
-        private readonly LoginRepository repo;
+        private readonly ILoginRepository repo;
 
-        public LoginService(LoginRepository repo)
+        public LoginService(ILoginRepository repo)
         {
             this.repo = repo;
         }

@@ -2,6 +2,10 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
+using TotalAdmin.API.Interfaces;
+using TotalAdmin.API.Services;
+using TotalAdmin.Model;
+using TotalAdmin.Service;
 
 namespace TotalAdmin.API
 {
@@ -14,6 +18,11 @@ namespace TotalAdmin.API
             // Add services to the container.
 
             builder.Services.AddControllers();
+
+            // Register Dependencies 
+            builder.Services.AddScoped<ITokenService, TokenService>();
+            ServiceCompositionRoot.RegisterDependencies(builder.Services);
+
             // setup roles
             builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             .AddJwtBearer(options =>
