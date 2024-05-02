@@ -18,13 +18,16 @@ namespace TotalAdmin.API.Controllers
         {
             try
             {
+                // Check if the departmentid is provided 
                 if (departmentId.HasValue)
                 {
+                    // Call the service method to fetch the results
                     List<POSearchResultsApiDTO> po = await service.GetPuchaseOrdersForDepartment(departmentId.Value);
 
+                    // Check if the purchase or is null or empty
                     if (po == null || !po.Any())
                     {
-                        return NotFound("No Departments found");
+                        return NotFound("No Purchase Orders for that Department found.");
                     }
 
                     return Ok(po);

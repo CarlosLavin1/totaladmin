@@ -28,6 +28,12 @@ namespace TotalAdmin.Service
             return await repo.ReviewEmployeePO(employeeNumber);
         }
 
+
+        /// <summary>
+        /// Fetehes all purchase order for a specific department
+        /// </summary>
+        /// <param name="departmentId"></param>
+        /// <returns>A list of purchase order search results</returns>
         public async Task<List<POSearchResultsApiDTO>> GetPuchaseOrdersForDepartment(int departmentId)
         {
             return await repo.GetPOSearchResults(departmentId);
