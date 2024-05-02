@@ -10,7 +10,7 @@ namespace TotalAdmin.Model.Entities
     {
         public int Id { get; set; }
         public string Name { get; set; }
-        public int Quantiy { get; set; }
+        public int Quantity { get; set; }
         public string Description { get; set; }
         public decimal Price { get; set; }
         public string Justification { get; set; }
