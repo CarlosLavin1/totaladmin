@@ -6,12 +6,15 @@ namespace TotalAdmin.Model
     public class Employee : BaseEntity
     {
         public int EmployeeNumber { get; set; }
-        [Required] 
+        [Required(ErrorMessage = "Password is required")]
+        [RegularExpression("^(?=.*[A-Z])(?=.*\\d)(?=.*[!@#$%^&*()_+{}\\[\\]:;<>,.?\\/\\\\|-]).{6,}$", ErrorMessage = "Password must have 1 uppercase letter, 1 number, and 1 special character")]
         public string? HashedPassword { get; set;}
         [Required]
+        [StringLength(50, MinimumLength = 2)]
         public string? FirstName { get; set; }
         public char? MiddleInitial { get; set; }
         [Required]
+        [StringLength(50, MinimumLength = 3)]
         public string? LastName { get; set; }
         [Required]
         public DateTime? DateOfBirth { get; set; }
@@ -25,14 +28,16 @@ namespace TotalAdmin.Model
         [Required]
         [MaxLength(9, ErrorMessage = "SIN must be 9 digits")]
         public string? SIN { get; set; }
-        [Required]
+        [Required(ErrorMessage = "Work phone number is required")]
         public string? WorkPhoneNumber { get; set; }
-        [Required]
+        [Required(ErrorMessage = "Cell phone number is required")]
         public string? CellPhoneNumber { get; set; }
         [Required]
+        [EmailAddress]
         public string? Email { get; set; }
         [Required]
         public DateTime? SeniorityDate { get; set; }
+        [Required(ErrorMessage = "Supervisor is required")]
         public int SupervisorEmployeeNumber { get; set; }
         [Required]
         public int DepartmentId { get; set; }

@@ -19,6 +19,44 @@ namespace TotalAdmin.Repository
             this.db = db;
         }
 
+        public Employee AddEmployee(Employee employee)
+        {
+            List<Parm> parms = new()
+            {
+                new("@FirstName", SqlDbType.NVarChar, employee.FirstName, 50),
+                new("@MiddleInitial", SqlDbType.Char, employee.MiddleInitial, 1),
+                new("@LastName", SqlDbType.NVarChar, employee.LastName, 50),
+                new("@Email", SqlDbType.NVarChar, employee.Email, 255),
+                new("@HashedPassword", SqlDbType.NVarChar, employee.HashedPassword, 255),
+                new("@StreetAddress", SqlDbType.NVarChar, employee.StreetAddress, 255),
+                new("@City", SqlDbType.NVarChar, employee.City, 50),
+                new("@PostalCode", SqlDbType.NVarChar, employee.PostalCode, 50),
+                new("@SIN", SqlDbType.NVarChar, employee.SIN, 9),
+                new("@JobTitle", SqlDbType.NVarChar, employee.JobTitle, 60),
+                new("@CompanyStartDate", SqlDbType.DateTime2, employee.SeniorityDate),
+                new("@JobStartDate", SqlDbType.DateTime2, employee.JobStartDate),
+                new("@OfficeLocation", SqlDbType.NVarChar, employee.OfficeLocation, 255),
+                new("@WorkPhoneNumber", SqlDbType.NVarChar, employee.WorkPhoneNumber, 12),
+                new("@CellPhoneNumber", SqlDbType.NVarChar, employee.CellPhoneNumber, 12),
+                new("@IsActive", SqlDbType.Bit, employee.IsActive),
+                new("@SupervisorEmpNumber", SqlDbType.Int, employee.SupervisorEmployeeNumber),
+                new("@DepartmentId", SqlDbType.Int, employee.DepartmentId),
+                new("@RoleId", SqlDbType.Int, employee.RoleId),
+                new("@EmployeeNumber", SqlDbType.Int, employee.EmployeeNumber, 0, ParameterDirection.Output),
+            };
+
+            if (db.ExecuteNonQuery("spInsertEmployee", parms) > 0)
+            {
+                employee.EmployeeNumber = (int?)parms.FirstOrDefault(p => p.Name == "@EmployeeNumber")!.Value ?? 0;
+            }
+            else
+            {
+                throw new DataException("There was an issue adding the record to the database.");
+            }
+
+            return employee;
+        }
+
         public async Task<Employee> AddEmployeeAsync(Employee employee)
         {
             List<Parm> parms = new()
@@ -79,6 +117,26 @@ namespace TotalAdmin.Repository
         public async Task<List<Employee>> GetEmployeeListAsync()
         {
             throw new NotImplementedException();
+        }
+
+        public async Task<int> GetEmployeesInDepartmentCountAsync(int department)
+        {
+            object? count = await db.ExecuteScalarAsync("spGetEmployeesInDepartment", new List<Parm> { new("@DepartmentId", SqlDbType.Int, department) });
+
+            if (count == null)
+                return 0;
+
+            return (int)count;
+        }
+
+        public int GetEmployeesInDepartmentCount(int department)
+        {
+            object? count = db.ExecuteScalar("spGetEmployeesInDepartment", new List<Parm> { new("@DepartmentId", SqlDbType.Int, department) });
+
+            if (count == null)
+                return 0;
+
+            return (int)count;
         }
 
         public async Task<List<EmployeeDisplayDTO>> SearchEmployeesAsync(int department, int employeeNumber, string? lastName)
