@@ -10,22 +10,24 @@ namespace TotalAdmin.API.Controllers
     public class AuthController : Controller
     {
         private readonly ITokenService _tokenService;
-        private readonly LoginService _loginService;
+        private readonly ILoginService _loginService;
 
-        public AuthController(ITokenService tokenService, LoginService loginService)
+        public AuthController(ITokenService tokenService, ILoginService loginService)
         {
             this._tokenService = tokenService;
             this._loginService = loginService;
         }
 
         [HttpPost]
-        public async Task<ActionResult<LoginOutputDTO>> Login(string username, string password)
+        public async Task<ActionResult<LoginOutputDTO>> Login(LoginCredentialsDTO login)
         {
+            string username = login.Username;
+            string password = login.Password;
             UserDTO? user = await _loginService.Login(username, password);
 
             if (user == null)
             {
-                return Unauthorized("Invalid login");
+                return Unauthorized("Invalid login credentials");
             }
 
             return new LoginOutputDTO(user.EmployeeNumber, user.Email, _tokenService.CreateToken(user), 7 * 24 * 60 * 60);

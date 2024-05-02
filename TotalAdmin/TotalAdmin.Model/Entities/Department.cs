@@ -13,5 +13,6 @@ namespace TotalAdmin.Model
         public string? Name { get; set; }
         public string? Description { get; set; }
         public DateTime? InvocationDate { get; set; }
+        public int RowVersion { get; set; }
     }
 }

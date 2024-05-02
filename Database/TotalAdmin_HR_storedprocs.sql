@@ -95,7 +95,8 @@ BEGIN
 			IsActive,
 			SupervisorEmpNumber,
 			DepartmentId,
-			RoleId)
+			RoleId,
+			[RowVersion])
 		 VALUES (
 			@FirstName,
 			@MiddleInitial,
@@ -115,7 +116,8 @@ BEGIN
 			@IsActive,
 			@SupervisorEmpNumber,
 			@DepartmentId,
-			@RoleId)
+			@RoleId,
+			1)
 			SET @EmployeeNumber = SCOPE_IDENTITY()
 	END TRY
 	BEGIN CATCH
@@ -161,13 +163,14 @@ BEGIN
 			EmployeeNumber,
 			FirstName + ' ' + CAST(MiddleInitial AS NVARCHAR(1)) + ' ' + LastName AS FullName,
 			EmailAddress,
-			[Role].RoleName
+			[Role].RoleName,
+			WorkPhoneNumber
 		FROM
 			Employee
 				INNER JOIN [Role] ON Employee.RoleId = [Role].RoleId
 		WHERE
 			EmployeeNumber = @EmployeeNumber
-			AND [HashedPassword] = @HashedPassword
+			AND UPPER([HashedPassword]) = UPPER(@HashedPassword)
 	END TRY
 	BEGIN CATCH
 		;THROW
