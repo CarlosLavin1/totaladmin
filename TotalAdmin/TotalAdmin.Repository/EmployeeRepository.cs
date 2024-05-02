@@ -19,7 +19,7 @@ namespace TotalAdmin.Repository
             this.db = db;
         }
 
-        public Employee AddEmployee(Employee employee)
+        public async Task<Employee> AddEmployeeAsync(Employee employee)
         {
             List<Parm> parms = new()
             {
@@ -45,7 +45,7 @@ namespace TotalAdmin.Repository
                 new("@EmployeeNumber", SqlDbType.Decimal, employee.EmployeeNumber, 0, ParameterDirection.Output),
             };
 
-            if (db.ExecuteNonQuery("spInsertEmployee", parms) > 0)
+            if (await db.ExecuteNonQueryAsync("spInsertEmployee", parms) > 0)
             {
                 employee.EmployeeNumber = (int?)parms.FirstOrDefault(p => p.Name == "@EmployeeNumber")!.Value ?? 0;
             }
@@ -57,9 +57,9 @@ namespace TotalAdmin.Repository
             return employee;
         }
 
-        public Employee? GetEmployeeById(int id)
+        public async Task<Employee?> GetEmployeeByIdAsync(int id)
         {
-            DataTable dt = db.Execute("spGetEmployeeById", new List<Parm> { new("@EmployeeNumber", SqlDbType.Int, id) });
+            DataTable dt = await db.ExecuteAsync("spGetEmployeeById", new List<Parm> { new("@EmployeeNumber", SqlDbType.Int, id) });
 
             if (dt.Rows.Count == 0)
                 return null;
@@ -76,14 +76,36 @@ namespace TotalAdmin.Repository
             };
         }
 
-        public List<Employee> GetEmployeeList()
+        public async Task<List<Employee>> GetEmployeeListAsync()
         {
             throw new NotImplementedException();
         }
 
-        public List<EmployeeDisplayDTO> SearchEmployees(string? department, int employeeNumber, string? name)
+        public async Task<List<EmployeeDisplayDTO>> SearchEmployeesAsync(int department, int employeeNumber, string? lastName)
         {
-            throw new NotImplementedException();
+            List<Parm> parms = new()
+            {
+                new("@EmployeeNumber", SqlDbType.Int, employeeNumber),
+                new("@DepartmentId", SqlDbType.Int, department),
+                new("@LastName", SqlDbType.NVarChar, lastName, 50),
+            };
+
+            DataTable dt = await db.ExecuteAsync("spSearchEmployees", parms);
+
+            return dt.AsEnumerable().Select(row => PopulateEmployeeDisplayDTO(row)).ToList();
+        }
+
+        private EmployeeDisplayDTO PopulateEmployeeDisplayDTO(DataRow row)
+        {
+            return new EmployeeDisplayDTO
+            {
+                 EmployeeNumber = Convert.ToInt32(row["EmployeeNumber"]),
+                 FirstName = row["FirstName"].ToString(),
+                 LastName = row["LastName"].ToString(),
+                 WorkPhone = row["WorkPhoneNumber"].ToString(),
+                 OfficeLocation = row["OfficeLocation"].ToString(),
+                 JobTitle = row["JobTitle"].ToString(),
+            };
         }
     }
 }

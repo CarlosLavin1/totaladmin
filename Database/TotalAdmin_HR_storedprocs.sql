@@ -126,28 +126,27 @@ GO
 
 -- search employees by id and last name
 CREATE OR ALTER PROC spSearchEmployees
-	@EmployeeNumber INT,
-	@LastName NVARCHAR(50)
+    @EmployeeNumber INT = NULL,
+    @DepartmentId INT = NULL,
+	@LastName NVARCHAR(50) = NULL
 AS
 BEGIN
-	BEGIN TRY
-		SELECT
-			EmployeeNumber,
-			FirstName,
-			MiddleInitial,
-			LastName,
-			WorkPhoneNumber,
-			OfficeLocation,
-			JobTitle
-		FROM
-			Employee
-		WHERE
-			EmployeeNumber = @EmployeeNumber
-			OR LastName LIKE @LastName
-	END TRY
-	BEGIN CATCH
-		;THROW
-	END CATCH
+    SELECT
+        LastName,
+        FirstName,
+        WorkPhoneNumber,
+        OfficeLocation,
+        JobTitle
+    FROM
+        Employee
+    WHERE
+        IsActive = 1
+        AND (@EmployeeNumber IS NULL OR @EmployeeNumber = 0 OR EmployeeNumber = @EmployeeNumber)
+        AND (@LastName IS NULL OR LastName LIKE '%' + @LastName + '%')
+        AND (@DepartmentId IS NULL OR @DepartmentId = 0 OR DepartmentId = @DepartmentId)
+    ORDER BY
+        LastName,
+        FirstName;
 END
 GO
 
