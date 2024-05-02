@@ -17,7 +17,11 @@ namespace TotalAdmin.Repository
         private readonly DataAccess db = new();
 
 
-
+        /// <summary>
+        /// Retrieves a list of purchase order detail results
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
         public async Task<List<POSearchResultsApiDTO>> GetPOSearchResults(int? id)
         {
             List<Parm> parms = new()
@@ -25,18 +29,23 @@ namespace TotalAdmin.Repository
                 new Parm("@DepartmentId", SqlDbType.Int, id)
             };
 
+            // Execute the stored procedure
             DataTable dt = await db.ExecuteAsync("spSearchPurchaseOrders", parms);
 
+            // Return an empty list if no results
             if (dt.Rows.Count == 0)
                 return [];
 
-            return dt.AsEnumerable().Select(row => new POSearchResultsApiDTO
-            {
-                PoNumber = Convert.ToInt32(row["PO Number"]),
-                CreationDate = Convert.ToDateTime(row["PO Creation Date"]),
-                SupervisorName = row["Supervisor Name"].ToString(),
-                Status = row["PO Status"].ToString()
-            }).ToList();
+            // Convert into a list of DTO objects with only pending or under review puchase oders
+            return dt.AsEnumerable()
+                .Where(row => row["PO Status"].ToString() == "Pending" || row["PO Status"].ToString() == "Under Review")
+                .Select(row => new POSearchResultsApiDTO
+                {
+                    PoNumber = Convert.ToInt32(row["PO Number"]),
+                    CreationDate = Convert.ToDateTime(row["PO Creation Date"]),
+                    SupervisorName = row["Supervisor Name"].ToString(),
+                    Status = row["PO Status"].ToString()
+                }).ToList();
         }
 
 

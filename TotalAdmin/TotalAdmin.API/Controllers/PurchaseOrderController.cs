@@ -18,13 +18,16 @@ namespace TotalAdmin.API.Controllers
         {
             try
             {
+                // Check if the departmentid is provided 
                 if (departmentId.HasValue)
                 {
+                    // Call the service method to fetch the results
                     List<POSearchResultsApiDTO> po = await service.GetPuchaseOrdersForDepartment(departmentId.Value);
 
+                    // Check if the purchase or is null or empty
                     if (po == null || !po.Any())
                     {
-                        return NotFound("No Departments found");
+                        return NotFound("No Purchase Orders for that Department found.");
                     }
 
                     return Ok(po);
@@ -50,11 +53,23 @@ namespace TotalAdmin.API.Controllers
         {
             try
             {
+                // Check for the specific employee
+                if (!filter.EmployeeNumber.HasValue)
+                {
+                    return BadRequest("EmployeeNumber is required.");
+                }
+
+                if (filter.StartDate.HasValue && filter.EndDate.HasValue && filter.StartDate > filter.EndDate)
+                {
+                    return BadRequest("StartDate cannot be later than EndDate.");
+                }
+
+
                 List<PODisplayDTO> purchaseOrders = await service.SearchPurchaseOrders(filter);
 
                 if (purchaseOrders == null || !purchaseOrders.Any())
                 {
-                    return NotFound("No purchase orders found matching the provided filters.");
+                    return NotFound("Purchase orders not found matching the provided filters.");
                 }
 
                 return Ok(purchaseOrders);

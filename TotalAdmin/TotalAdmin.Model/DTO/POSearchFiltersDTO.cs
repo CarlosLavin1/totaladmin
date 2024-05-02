@@ -8,8 +8,8 @@ namespace TotalAdmin.Model.DTO
 {
     public class POSearchFiltersDTO
     {
-        public DateTime StartDate { get; set; }
-        public DateTime EndDate { get; set; }
+        public DateTime? StartDate { get; set; }
+        public DateTime? EndDate { get; set; }
         public int? PONumber { get; set; }
         public int? EmployeeNumber { get; set; }
     }
