@@ -12,7 +12,7 @@ namespace TotalAdmin.API.Controllers
         private readonly PurchaseOrderService service = new();
 
         // GET: api/PurchaseOrder?departmentId=1
-        [HttpGet]
+        [HttpGet()]
         [ProducesResponseType(StatusCodes.Status200OK)]
         public async Task<ActionResult<List<POSearchResultsApiDTO>>> GetPuchaseOrdersForDepartment(int? departmentId)
         {
@@ -24,7 +24,7 @@ namespace TotalAdmin.API.Controllers
 
                     if (po == null || !po.Any())
                     {
-                        return NotFound("No search found");
+                        return NotFound("No Departments found");
                     }
 
                     return Ok(po);

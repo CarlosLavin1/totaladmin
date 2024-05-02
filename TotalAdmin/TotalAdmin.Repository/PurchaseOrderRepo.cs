@@ -22,7 +22,7 @@ namespace TotalAdmin.Repository
         {
             List<Parm> parms = new()
             {
-                new Parm("@InvocationDate", SqlDbType.DateTime2, id)
+                new Parm("@DepartmentId", SqlDbType.Int, id)
             };
 
             DataTable dt = await db.ExecuteAsync("spSearchPurchaseOrders", parms);
