@@ -38,5 +38,11 @@ namespace TotalAdmin.Model
         public int DepartmentId { get; set; }
         [Required]
         public DateTime? JobStartDate { get; set; }
+        [Required]
+        public string? JobTitle { get; set; }
+        [Required]
+        public string? OfficeLocation { get; set; }
+        public bool IsActive { get; set; }
+        public int RoleId { get; set; }
     }
 }

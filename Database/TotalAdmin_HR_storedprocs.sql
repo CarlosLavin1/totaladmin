@@ -71,7 +71,8 @@ CREATE OR ALTER PROC spInsertEmployee
 	@IsActive BIT,
 	@SupervisorEmpNumber INT,
 	@DepartmentId INT,
-	@RoleId INT
+	@RoleId INT,
+	@EmployeeNumber INT OUTPUT
 AS
 BEGIN
 	BEGIN TRY 
@@ -115,6 +116,7 @@ BEGIN
 			@SupervisorEmpNumber,
 			@DepartmentId,
 			@RoleId)
+			SET @EmployeeNumber = SCOPE_IDENTITY()
 	END TRY
 	BEGIN CATCH
 		;THROW
