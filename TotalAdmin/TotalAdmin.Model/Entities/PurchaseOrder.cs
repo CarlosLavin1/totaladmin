@@ -30,5 +30,7 @@ namespace TotalAdmin.Model.Entities
         [Required(ErrorMessage = "Please select a status.")]
         public int StatusId { get; set; }
 
+        // Navigation property
+        public ICollection<Item>? Items { get; set; }
     }
 }
