@@ -9,7 +9,7 @@ namespace TotalAdmin.Repository
 {
     public interface IEmployeeRepository
     {
-        Employee GetEmployeeById(int id);
+        Employee? GetEmployeeById(int id);
         List<Employee> GetEmployeeList();
         Employee AddEmployee(Employee employee);
         List<EmployeeDisplayDTO> SearchEmployees(string? department, int employeeNumber, string? name);

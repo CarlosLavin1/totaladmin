@@ -1,10 +1,12 @@
 ﻿using DAL;
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using TotalAdmin.Model;
+using TotalAdmin.Types;
 
 namespace TotalAdmin.Repository
 {
@@ -22,9 +24,23 @@ namespace TotalAdmin.Repository
             throw new NotImplementedException();
         }
 
-        public Employee GetEmployeeById(int id)
+        public Employee? GetEmployeeById(int id)
         {
-            throw new NotImplementedException();
+            DataTable dt = db.Execute("spGetEmployeeById", new List<Parm> { new("@EmployeeNumber", SqlDbType.Int, id) });
+
+            if (dt.Rows.Count == 0)
+                return null;
+
+            DataRow row = dt.Rows[0];
+
+            return new Employee
+            {
+                EmployeeNumber = Convert.ToInt32(row["RealtorId"]),
+                FirstName = row["FirstName"].ToString(),
+                MiddleInitial = Convert.ToChar(row["MiddleInitial"]),
+                LastName = row["LastName"].ToString(),
+                DateOfBirth = Convert.ToDateTime(row["DateOrBirth"]),
+            };
         }
 
         public List<Employee> GetEmployeeList()
