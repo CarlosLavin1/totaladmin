@@ -15,6 +15,7 @@ namespace TotalAdmin.Service
 
             // Register services interfaces and implementations
             services.AddScoped<IDepartmentService, DepartmentService>();
+            services.AddScoped<IEmployeeService, EmployeeService>();
             services.AddScoped<ILoginService, LoginService>();
 
             // Register repository dependencies

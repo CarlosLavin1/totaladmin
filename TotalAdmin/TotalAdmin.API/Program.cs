@@ -62,6 +62,11 @@ namespace TotalAdmin.API
                 options.AddPolicy("Regular Employee", policy =>
                     policy.RequireRole("Regular Employee"));
             });
+            builder.Services.AddAuthorization(options =>
+            {
+                options.AddPolicy("CEO", policy =>
+                    policy.RequireRole("CEO"));
+            });
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();

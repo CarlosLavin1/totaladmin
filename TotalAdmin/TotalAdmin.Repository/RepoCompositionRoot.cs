@@ -17,6 +17,7 @@ namespace TotalAdmin.Repository
 
             // register repo interfaces and their implementations
             services.AddScoped<IDepartmentRepository, DepartmentRepository>();
+            services.AddScoped<IEmployeeRepository, EmployeeRepository>();
             services.AddScoped<ILoginRepository, LoginRepository>();
         }
     }

@@ -19,14 +19,47 @@ namespace TotalAdmin.Repository
             this.db = db;
         }
 
-        public Employee AddEmployee(Employee employee)
+        public async Task<Employee> AddEmployeeAsync(Employee employee)
         {
-            throw new NotImplementedException();
+            List<Parm> parms = new()
+            {
+                new("@FirstName", SqlDbType.NVarChar, employee.FirstName, 50),
+                new("@MiddleInitial", SqlDbType.Char, employee.MiddleInitial, 1),
+                new("@LastName", SqlDbType.NVarChar, employee.LastName, 50),
+                new("@Email", SqlDbType.NVarChar, employee.Email, 255),
+                new("@HashedPassword", SqlDbType.NVarChar, employee.HashedPassword, 255),
+                new("@StreetAddress", SqlDbType.NVarChar, employee.StreetAddress, 255),
+                new("@City", SqlDbType.NVarChar, employee.City, 50),
+                new("@PostalCode", SqlDbType.NVarChar, employee.PostalCode, 50),
+                new("@SIN", SqlDbType.NVarChar, employee.SIN, 9),
+                new("@JobTitle", SqlDbType.NVarChar, employee.JobTitle, 60),
+                new("@CompanyStartDate", SqlDbType.DateTime2, employee.SeniorityDate),
+                new("@JobStartDate", SqlDbType.DateTime2, employee.JobStartDate),
+                new("@OfficeLocation", SqlDbType.NVarChar, employee.OfficeLocation, 255),
+                new("@WorkPhoneNumber", SqlDbType.NVarChar, employee.WorkPhoneNumber, 12),
+                new("@CellPhoneNumber", SqlDbType.NVarChar, employee.CellPhoneNumber, 12),
+                new("@IsActive", SqlDbType.Bit, employee.IsActive),
+                new("@SupervisorEmpNumber", SqlDbType.Int, employee.SupervisorEmployeeNumber),
+                new("@DepartmentId", SqlDbType.Int, employee.DepartmentId),
+                new("@RoleId", SqlDbType.Int, employee.RoleId),
+                new("@EmployeeNumber", SqlDbType.Decimal, employee.EmployeeNumber, 0, ParameterDirection.Output),
+            };
+
+            if (await db.ExecuteNonQueryAsync("spInsertEmployee", parms) > 0)
+            {
+                employee.EmployeeNumber = (int?)parms.FirstOrDefault(p => p.Name == "@EmployeeNumber")!.Value ?? 0;
+            }
+            else
+            {
+                throw new DataException("There was an issue adding the record to the database.");
+            }
+
+            return employee;
         }
 
-        public Employee? GetEmployeeById(int id)
+        public async Task<Employee?> GetEmployeeByIdAsync(int id)
         {
-            DataTable dt = db.Execute("spGetEmployeeById", new List<Parm> { new("@EmployeeNumber", SqlDbType.Int, id) });
+            DataTable dt = await db.ExecuteAsync("spGetEmployeeById", new List<Parm> { new("@EmployeeNumber", SqlDbType.Int, id) });
 
             if (dt.Rows.Count == 0)
                 return null;
@@ -43,14 +76,36 @@ namespace TotalAdmin.Repository
             };
         }
 
-        public List<Employee> GetEmployeeList()
+        public async Task<List<Employee>> GetEmployeeListAsync()
         {
             throw new NotImplementedException();
         }
 
-        public List<EmployeeDisplayDTO> SearchEmployees(string? department, int employeeNumber, string? name)
+        public async Task<List<EmployeeDisplayDTO>> SearchEmployeesAsync(int department, int employeeNumber, string? lastName)
         {
-            throw new NotImplementedException();
+            List<Parm> parms = new()
+            {
+                new("@EmployeeNumber", SqlDbType.Int, employeeNumber),
+                new("@DepartmentId", SqlDbType.Int, department),
+                new("@LastName", SqlDbType.NVarChar, lastName, 50),
+            };
+
+            DataTable dt = await db.ExecuteAsync("spSearchEmployees", parms);
+
+            return dt.AsEnumerable().Select(row => PopulateEmployeeDisplayDTO(row)).ToList();
+        }
+
+        private EmployeeDisplayDTO PopulateEmployeeDisplayDTO(DataRow row)
+        {
+            return new EmployeeDisplayDTO
+            {
+                 EmployeeNumber = Convert.ToInt32(row["EmployeeNumber"]),
+                 FirstName = row["FirstName"].ToString(),
+                 LastName = row["LastName"].ToString(),
+                 WorkPhone = row["WorkPhoneNumber"].ToString(),
+                 OfficeLocation = row["OfficeLocation"].ToString(),
+                 JobTitle = row["JobTitle"].ToString(),
+            };
         }
     }
 }

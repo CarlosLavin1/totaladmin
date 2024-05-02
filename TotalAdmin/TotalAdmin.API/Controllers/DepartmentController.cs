@@ -39,7 +39,7 @@ namespace TotalAdmin.API.Controllers
         {
             try
             {
-                department = await departmentService.AddDepartment(department);
+                department = await departmentService.AddDepartmentAsync(department);
 
                 if (department.Errors.Count != 0)
                     // return status 400

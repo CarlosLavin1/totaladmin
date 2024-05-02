@@ -71,7 +71,8 @@ CREATE OR ALTER PROC spInsertEmployee
 	@IsActive BIT,
 	@SupervisorEmpNumber INT,
 	@DepartmentId INT,
-	@RoleId INT
+	@RoleId INT,
+	@EmployeeNumber INT OUTPUT
 AS
 BEGIN
 	BEGIN TRY 
@@ -94,7 +95,8 @@ BEGIN
 			IsActive,
 			SupervisorEmpNumber,
 			DepartmentId,
-			RoleId)
+			RoleId,
+			[RowVersion])
 		 VALUES (
 			@FirstName,
 			@MiddleInitial,
@@ -114,7 +116,9 @@ BEGIN
 			@IsActive,
 			@SupervisorEmpNumber,
 			@DepartmentId,
-			@RoleId)
+			@RoleId,
+			1)
+			SET @EmployeeNumber = SCOPE_IDENTITY()
 	END TRY
 	BEGIN CATCH
 		;THROW
@@ -124,28 +128,27 @@ GO
 
 -- search employees by id and last name
 CREATE OR ALTER PROC spSearchEmployees
-	@EmployeeNumber INT,
-	@LastName NVARCHAR(50)
+    @EmployeeNumber INT = NULL,
+    @DepartmentId INT = NULL,
+	@LastName NVARCHAR(50) = NULL
 AS
 BEGIN
-	BEGIN TRY
-		SELECT
-			EmployeeNumber,
-			FirstName,
-			MiddleInitial,
-			LastName,
-			WorkPhoneNumber,
-			OfficeLocation,
-			JobTitle
-		FROM
-			Employee
-		WHERE
-			EmployeeNumber = @EmployeeNumber
-			OR LastName LIKE @LastName
-	END TRY
-	BEGIN CATCH
-		;THROW
-	END CATCH
+    SELECT
+        LastName,
+        FirstName,
+        WorkPhoneNumber,
+        OfficeLocation,
+        JobTitle
+    FROM
+        Employee
+    WHERE
+        IsActive = 1
+        AND (@EmployeeNumber IS NULL OR @EmployeeNumber = 0 OR EmployeeNumber = @EmployeeNumber)
+        AND (@LastName IS NULL OR LastName LIKE '%' + @LastName + '%')
+        AND (@DepartmentId IS NULL OR @DepartmentId = 0 OR DepartmentId = @DepartmentId)
+    ORDER BY
+        LastName,
+        FirstName;
 END
 GO
 
@@ -160,13 +163,14 @@ BEGIN
 			EmployeeNumber,
 			FirstName + ' ' + CAST(MiddleInitial AS NVARCHAR(1)) + ' ' + LastName AS FullName,
 			EmailAddress,
-			[Role].RoleName
+			[Role].RoleName,
+			WorkPhoneNumber
 		FROM
 			Employee
 				INNER JOIN [Role] ON Employee.RoleId = [Role].RoleId
 		WHERE
 			EmployeeNumber = @EmployeeNumber
-			AND [HashedPassword] = @HashedPassword
+			AND UPPER([HashedPassword]) = UPPER(@HashedPassword)
 	END TRY
 	BEGIN CATCH
 		;THROW
