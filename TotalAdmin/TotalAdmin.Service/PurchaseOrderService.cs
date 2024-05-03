@@ -18,7 +18,7 @@ namespace TotalAdmin.Service
         public async Task<PurchaseOrder> AddPurchaseOrder(PurchaseOrder purchaseOrder)
         {
             if (ValidatePurchaseOrder(purchaseOrder))
-                return await repo.AddAsync(purchaseOrder);
+                return await repo.AddPoAsync(purchaseOrder);
 
             return purchaseOrder;
         }

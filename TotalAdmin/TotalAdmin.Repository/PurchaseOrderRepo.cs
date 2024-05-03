@@ -77,7 +77,7 @@ namespace TotalAdmin.Repository
 
                     Items = g.Select(row => new Item
                     {
-                        Id = Convert.ToInt32(row["ItemId"]),
+                        ItemId = Convert.ToInt32(row["ItemId"]),
                         Name = row["ItemName"].ToString(),
                         Quantity = Convert.ToInt32(row["ItemQuantity"]),
                         Description = row["ItemDescription"].ToString(),
@@ -95,9 +95,15 @@ namespace TotalAdmin.Repository
 
             return purchaseOrders;
         }
-    
 
-        public async Task<PurchaseOrder> AddAsync(PurchaseOrder po)
+
+        /// <summary>
+        /// Adds a new purchase orders
+        /// </summary>
+        /// <param name="po"></param>
+        /// <returns></returns>
+        /// <exception cref="DataException"></exception>
+        public async Task<PurchaseOrder> AddPoAsync(PurchaseOrder po)
         {
             List<Parm> parms = new()
             {
@@ -121,7 +127,7 @@ namespace TotalAdmin.Repository
             return po;
         }
 
-
+        
 
         /// <summary>
         /// Searches for purchase orders based on provided filters
