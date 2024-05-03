@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using TotalAdmin.Model;
 using TotalAdmin.Service;
 
@@ -15,6 +16,7 @@ namespace TotalAdmin.API.Controllers
             this.employeeService = employeeService;
         }
 
+        [Authorize(Roles = "CEO, HR Employee")]
         [HttpPost]
         [ProducesResponseType(StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -37,6 +39,7 @@ namespace TotalAdmin.API.Controllers
             }
         }
 
+        [Authorize(Roles = "CEO")]
         [HttpGet("search")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         public async Task<ActionResult<List<EmployeeDisplayDTO>>> SearchEmployees(EmployeeSearchDTO filters)

@@ -15,6 +15,8 @@ import { ErrorsComponent } from './shared/errors/errors.component';
 import { ActivityComponent } from './shared/activity/activity.component';
 import { HomeComponent } from './home/home.component';
 import { EmployeeCreateComponent } from './employee-create/employee-create.component';
+import { DepartmentCreateComponent } from './department-create/department-create.component';
+import { AuthInterceptor } from './interceptors/auth.interceptor';
 
 @NgModule({
   declarations: [
@@ -25,6 +27,7 @@ import { EmployeeCreateComponent } from './employee-create/employee-create.compo
     ActivityComponent,
     HomeComponent,
     EmployeeCreateComponent,
+    DepartmentCreateComponent,
   ],
   imports: [
     BrowserModule,
@@ -34,7 +37,11 @@ import { EmployeeCreateComponent } from './employee-create/employee-create.compo
     HttpClientModule,
   ],
   providers: [
-   
+    {
+      provide: HTTP_INTERCEPTORS,
+      useClass: AuthInterceptor,
+      multi: true,
+    },
   ],
   bootstrap: [AppComponent]
 })
