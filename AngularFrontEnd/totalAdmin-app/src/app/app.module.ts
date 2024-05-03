@@ -17,6 +17,7 @@ import { HomeComponent } from './home/home.component';
 import { EmployeeCreateComponent } from './employee-create/employee-create.component';
 import { DepartmentCreateComponent } from './department-create/department-create.component';
 import { AuthInterceptor } from './interceptors/auth.interceptor';
+import { AddItemComponent } from './add-item/add-item.component';
 
 @NgModule({
   declarations: [
@@ -28,6 +29,7 @@ import { AuthInterceptor } from './interceptors/auth.interceptor';
     HomeComponent,
     EmployeeCreateComponent,
     DepartmentCreateComponent,
+    AddItemComponent,
   ],
   imports: [
     BrowserModule,
