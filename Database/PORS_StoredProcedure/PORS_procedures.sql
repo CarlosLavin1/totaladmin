@@ -52,7 +52,7 @@ BEGIN
 	BEGIN TRY
 		INSERT INTO Item ([Name], Quantity, [Description], Price, Justification, ItemLocation, [RowVersion], PoNumber, ItemStatusId)
 		VALUES (@Name, @Quantity, @Description, @Price, @Justification, @ItemLocation, @RowVerison, @PoNumber, @StatusId)
-		SET @PoNumber = SCOPE_IDENTITY();
+		SET @ItemId = SCOPE_IDENTITY();
 	END TRY
 	BEGIN CATCH
 		;THROW

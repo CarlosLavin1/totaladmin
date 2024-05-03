@@ -141,6 +141,15 @@ IF OBJECT_ID('TotalAdmin.dbo.PurchaseOrder', 'U') IS NULL
 		CONSTRAINT FK_Employee_PurchaseOrder FOREIGN KEY (EmployeeNumber) REFERENCES Employee(EmployeeNumber)
 	);
 GO
+INSERT INTO PurchaseOrder (CreationDate, [RowVersion], PurchaseOrderStatusId, EmployeeNumber)
+VALUES
+('2024-04-01', 1, 1, 5),
+('2024-03-15', 1, 2, 5),
+('2024-02-28', 1, 3, 3),
+('2024-04-10', 1, 1, 9),
+('2024-03-20', 1, 2, 2);
+
+GO
 -- item
 IF OBJECT_ID('TotalAdmin.dbo.Item', 'U') IS NULL
 	CREATE TABLE Item(
@@ -158,4 +167,10 @@ IF OBJECT_ID('TotalAdmin.dbo.Item', 'U') IS NULL
 		CONSTRAINT FK_Item_Status FOREIGN KEY (ItemStatusId) REFERENCES ItemStatus(ItemStatusId)
 	);
 GO
-
+INSERT INTO Item ([Name], Quantity, [Description], Price, Justification, ItemLocation, [RowVersion], PoNumber, ItemStatusId)
+VALUES
+('Laptop Computers', 10, 'High-performance laptops for IT department', 1512.45, 'Upgrade outdated equipment', 'Main Office IT Room', 1, 3, 1),
+('Office Chairs', 25, 'Ergonomic chairs for new employees', 258.00, 'Improve workplace comfort', 'Executive Conference Room', 1, 2, 1),
+('Projectors', 3, 'Multimedia projectors for conference rooms', 799.00, 'Enhance presentation capabilities', 'Training Room', 1, 3, 2),
+('Printers', 8, 'High-volume printers for office use', 504.99, 'Replace old printers', 'Print Room', 1, 4, 1),
+('Headsets', 20, 'Noise-cancelling headsets for customer support', 158.85, 'Improve communication quality', 'Customer Service Desk', 1, 5, 1);
