@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Http;
 using TotalAdmin.Model;
 using TotalAdmin.Service;
+using Microsoft.AspNetCore.Authorization;
 
 namespace TotalAdmin.API.Controllers
 {
@@ -16,6 +17,7 @@ namespace TotalAdmin.API.Controllers
             this.departmentService = departmentService;
         }
 
+        [Authorize(Roles = "CEO")]
         [HttpGet]
         [ProducesResponseType(StatusCodes.Status200OK)]
         public async Task<ActionResult<List<DepartmentDisplayDTO>>> GetActiveDepartments()
