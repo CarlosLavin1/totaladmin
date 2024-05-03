@@ -15,6 +15,11 @@
                 </li>
                 <li class="nav-item">
                     <a *ngIf="userIsAuthenticated" class="btn btn-info" routerLink="/department">Create Department</a>
+                </li> <li class="nav-item">
+                    <a *ngIf="userIsAuthenticated" class="btn btn-info" routerLink="/item">Create item</a>
+                </li>
+                <li class="nav-item">
+                    <a *ngIf="userIsAuthenticated" class="btn btn-info" routerLink="/purchase-order-search">Search Purchase Orders</a>
                 </li>
                 <li class="nav-item">
                     <button class="btn btn-warning" *ngIf="userIsAuthenticated" (click)="logOut()">Logout</button>
