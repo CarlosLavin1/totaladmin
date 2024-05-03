@@ -17,7 +17,7 @@ namespace TotalAdmin.API.Controllers
             this.departmentService = departmentService;
         }
 
-        [Authorize(Roles = "CEO")]
+        [Authorize]
         [HttpGet]
         [ProducesResponseType(StatusCodes.Status200OK)]
         public async Task<ActionResult<List<DepartmentDisplayDTO>>> GetActiveDepartments()
@@ -34,6 +34,7 @@ namespace TotalAdmin.API.Controllers
             }
         }
 
+        [Authorize]
         [HttpPost]
         //[ProducesResponseType(StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status200OK)]

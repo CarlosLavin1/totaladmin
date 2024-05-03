@@ -50,6 +50,9 @@ namespace TotalAdmin.Service
             {
                 department.AddError(new(e.ErrorMessage, ErrorType.Model));
             }
+            // validate invication date is not in the past
+            if (department.InvocationDate != null && department.InvocationDate < DateTime.Now)
+                department.AddError(new("Invocation date cannot be in the past", ErrorType.Business));
 
             return !department.Errors.Any();
         }
