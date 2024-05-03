@@ -16,7 +16,7 @@ namespace TotalAdmin.API.Controllers
             this.employeeService = employeeService;
         }
 
-        [Authorize(Roles = "CEO, HR Employee")]
+        [Authorize]
         [HttpPost]
         [ProducesResponseType(StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -30,7 +30,8 @@ namespace TotalAdmin.API.Controllers
                     // return status 400
                     return BadRequest(employee);
 
-                return CreatedAtAction("Get", new { id = employee.EmployeeNumber }, employee);
+                //return CreatedAtAction("Get", new { id = employee.EmployeeNumber }, employee);
+                return Ok(employee);
                 // duplicate SIN will throw a unique constraint violation exception from the stored proc
             }
             catch (Exception e)
@@ -39,7 +40,7 @@ namespace TotalAdmin.API.Controllers
             }
         }
 
-        [Authorize(Roles = "CEO")]
+        [Authorize]
         [HttpGet("search")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         public async Task<ActionResult<List<EmployeeDisplayDTO>>> SearchEmployees(EmployeeSearchDTO filters)

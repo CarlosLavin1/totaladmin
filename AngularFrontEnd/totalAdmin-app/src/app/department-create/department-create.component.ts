@@ -37,6 +37,7 @@ export class DepartmentCreateComponent {
     if(this.departmentForm.valid){
       this.errors = [];
       const department: Department = this.departmentForm.value;
+      
       const subscription = this.departmentService.createDepartment(department).subscribe({
         next: () => {
           setTimeout(() => {
