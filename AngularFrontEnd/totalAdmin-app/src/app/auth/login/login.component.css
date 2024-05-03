@@ -1,0 +1,10 @@
+.row {
+    display: flex;
+    gap: 15px;
+    margin-bottom: 10px;
+}
+
+.row mat-form-field,
+button {
+    width: 100%;
+}

@@ -10,11 +10,21 @@ import { HTTP_INTERCEPTORS, HttpClientModule } from '@angular/common/http';
 import { AppComponent } from './app.component';
 import { PurchaseOrderSearchComponent } from './purchase-order-search/purchase-order-search.component';
 import { AppRoutingModule } from './app-routing.module';
+import { LoginComponent } from './auth/login/login.component';
+import { ErrorsComponent } from './shared/errors/errors.component';
+import { ActivityComponent } from './shared/activity/activity.component';
+import { HomeComponent } from './home/home.component';
+import { EmployeeCreateComponent } from './employee-create/employee-create.component';
 
 @NgModule({
   declarations: [
     AppComponent,
     PurchaseOrderSearchComponent,
+    LoginComponent,
+    ErrorsComponent,
+    ActivityComponent,
+    HomeComponent,
+    EmployeeCreateComponent,
   ],
   imports: [
     BrowserModule,

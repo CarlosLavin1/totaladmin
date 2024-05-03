@@ -5,7 +5,7 @@ import { environment } from 'src/environments/environment';
 
 
 export const API_URL = environment.apiUrl;
-
+export const API_URL7161 = environment.apiUrl7161;
 
 @Injectable({
   providedIn: 'root'

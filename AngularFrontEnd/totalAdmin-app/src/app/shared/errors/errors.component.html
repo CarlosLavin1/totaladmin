@@ -1,0 +1,5 @@
+<div *ngIf="messages && messages.length > 0" class="alert alert-danger">
+    <ul>
+        <li *ngFor="let m of messages">{{ m }}</li>
+    </ul>
+</div>
