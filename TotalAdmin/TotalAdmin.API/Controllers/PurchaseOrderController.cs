@@ -10,6 +10,7 @@ namespace TotalAdmin.API.Controllers
     public class PurchaseOrderController : Controller
     {
         private readonly PurchaseOrderService service = new();
+        
 
         // GET: api/PurchaseOrder?departmentId=1
         [HttpGet()]
@@ -85,7 +86,7 @@ namespace TotalAdmin.API.Controllers
         [HttpPost]
         [ProducesResponseType(StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        public async Task<ActionResult<PurchaseOrder>> Create(PurchaseOrder po)
+        public async Task<ActionResult<PurchaseOrder>> Create([FromBody] PurchaseOrder po)
         {
             try
             {
