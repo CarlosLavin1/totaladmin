@@ -1,8 +1,8 @@
 export class PODisplayDTO {
-    PoNumber: number;
-    CreationDate: Date;
-    Status: string;
-    Subtotal: string;
-    Tax: number;
-    GrandTotal: number;
+    poNumber: number;
+    creationDate: Date;
+    status: string;
+    subtotal: number;
+    tax: number;
+    grandTotal: number;
 }

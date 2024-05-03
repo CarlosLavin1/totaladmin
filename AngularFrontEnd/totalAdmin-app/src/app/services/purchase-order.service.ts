@@ -23,7 +23,7 @@ export class PurchaseOrderService extends SharedService {
         .set('StartDate', filter.StartDate ? filter.StartDate.toISOString() : '')
         .set('EndDate', filter.EndDate ? filter.EndDate.toISOString() : '')
     };
-    console.log(options);
+    console.log(options.params.toString());
     return this.http
       .get<PODisplayDTO[]>(`${API_URL}/PurchaseOrder/Search`, options)
       .pipe(catchError(super.handleError));
