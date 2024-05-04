@@ -60,5 +60,22 @@ namespace TotalAdmin.API.Controllers
                 return Problem(title: "An internal error has occurred. Please contact the system administrator.");
             }
         }
+
+        [Authorize(Roles = "HR Employee")]
+        [HttpPost("supervisors")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        public async Task<ActionResult<List<Employee>>> GetSupervisors(int roleId, int departmentId)
+        {
+            try
+            {
+                List<Employee> employees = await employeeService.GetSupervisors(roleId, departmentId);
+
+                return employees;
+            }
+            catch (Exception)
+            {
+                return Problem(title: "An internal error has occurred. Please contact the system administrator.");
+            }
+        }
     }
 }

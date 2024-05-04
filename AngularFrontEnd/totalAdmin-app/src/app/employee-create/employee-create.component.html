@@ -115,13 +115,13 @@
             </div>
         </div>
         <div class="mb-3">
-            <label for="supervisorEmployeeNumber" class="form-label">Supervisor Employee Number</label>
-            <input type="text" class="form-control" id="supervisorEmployeeNumber"
-                formControlName="supervisorEmployeeNumber">
-            <div
-                *ngIf="employeeForm.get('supervisorEmployeeNumber')?.invalid && employeeForm.get('supervisorEmployeeNumber')?.touched">
-                <span class="text-danger">Supervisor Employee Number is required</span>
-            </div>
+            <label for="roleId" class="form-label">Role</label>
+            <select class="form-control" id="roleId" formControlName="roleId">
+                <option value="2">HR Supervisor</option>
+                <option value="3">Supervisor</option>
+                <option value="4">HR Employee</option>
+                <option value="5">Employee</option>
+            </select>
         </div>
         <div class="mb-3">
             <label for="departmentId" class="form-label">Department</label>
@@ -132,13 +132,16 @@
             </select>
         </div>
         <div class="mb-3">
-            <label for="roleId" class="form-label">Role</label>
-            <select class="form-control" id="roleId" formControlName="roleId">
-                <option value="2">HR Supervisor</option>
-                <option value="3">Supervisor</option>
-                <option value="4">HR Employee</option>
-                <option value="5">Employee</option>
+            <label for="supervisorEmployeeNumber" class="form-label">Supervisor Employee Number</label>
+            <select class="form-control" id="supervisorEmployeeNumber" formControlName="supervisorEmployeeNumber">
+                <option *ngFor="let supervisor of supervisors" [value]="supervisor.employeeNumber">
+                    {{ supervisor.firstName }} {{supervisor.lastName}}
+                </option>
             </select>
+            <div
+                *ngIf="employeeForm.get('supervisorEmployeeNumber')?.invalid && employeeForm.get('supervisorEmployeeNumber')?.touched">
+                <span class="text-danger">Supervisor Employee Number is required</span>
+            </div>
         </div>
 
         <button type="submit" class="btn btn-primary mb-5" [disabled]="!employeeForm.valid">Create Employee</button>
