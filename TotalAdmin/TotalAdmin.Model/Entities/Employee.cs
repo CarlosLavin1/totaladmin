@@ -21,7 +21,7 @@ namespace TotalAdmin.Model
         [Required]
         public string? StreetAddress { get; set; }
         [Required]
-        //[RegularExpression("/^[ABCEGHJ-NPRSTVXY]\\d[ABCEGHJ-NPRSTV-Z][ -]?\\d[ABCEGHJ-NPRSTV-Z]\\d$/", ErrorMessage = "Please enter a valid Canadian postal code")]
+        [RegularExpression("^[ABCEGHJKLMNPRSTVWXYZabceghjklmnprstvwxyz]\\d[ABCEGHJKLMNPRSTVWXYZabceghjklmnprstvwxyz][ -]?\\d[ABCEGHJKLMNPRSTVWXYZabceghjklmnprstvwxyz]\\d$", ErrorMessage = "Please enter a valid Canadian postal code")]
         public string? PostalCode { get; set; }
         [Required]
         public string? City { get; set; }

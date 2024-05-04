@@ -132,7 +132,7 @@
             </select>
         </div>
         <div class="mb-3">
-            <label for="supervisorEmployeeNumber" class="form-label">Supervisor Employee Number</label>
+            <label for="supervisorEmployeeNumber" class="form-label">Supervisor</label>
             <select class="form-control" id="supervisorEmployeeNumber" formControlName="supervisorEmployeeNumber">
                 <option *ngFor="let supervisor of supervisors" [value]="supervisor.employeeNumber">
                     {{ supervisor.firstName }} {{supervisor.lastName}}
