@@ -22,6 +22,18 @@ export class AuthGuard {
 
     if (!isAuth) {
       this.router.navigate(['/login']);
+      return false;
+    }
+
+    const requiredRoles = route.data['roles'] as Array<string>;
+    const userRole = this.authService.getRole() ?? ''; 
+
+    // Check if the user's role is one of the required roles
+    const hasAuthorization = requiredRoles ? requiredRoles.includes(userRole) : true;
+
+    if (!hasAuthorization) {
+      this.router.navigate(['/unauthorized']); 
+      return false;
     }
 
     return isAuth;

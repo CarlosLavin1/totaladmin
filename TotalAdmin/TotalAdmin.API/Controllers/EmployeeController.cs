@@ -17,7 +17,7 @@ namespace TotalAdmin.API.Controllers
             this.employeeService = employeeService;
         }
 
-        [Authorize]
+        [Authorize(Roles = "HR Employee")]
         [HttpPost]
         [ProducesResponseType(StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -41,7 +41,7 @@ namespace TotalAdmin.API.Controllers
             }
         }
 
-        [Authorize]
+        [Authorize(Roles = "Employee")]
         [HttpGet("search")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         public async Task<ActionResult<List<EmployeeDisplayDTO>>> SearchEmployees(EmployeeSearchDTO filters)

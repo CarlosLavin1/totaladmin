@@ -107,6 +107,8 @@ export class AuthenticationService extends SharedService {
       this.token = authData!.token;
       this.isAuthenticated = true;
       this.username = authData!.username;
+      this.role = authData!.role;
+      this.employeeNumber = +authData!.employeeNumber!;
       this.authStatusListener.next({
         userName: this.username,
         authenticated: true,
