@@ -30,8 +30,13 @@ namespace TotalAdmin.Service
         public async Task<Employee> AddEmployeeAsync(Employee employee)
         {
             if (await ValidateEmployeeAsync(employee))
+            {
+                // if the password is valid, hash it before sending it to the repo
+                string password = employee.HashedPassword ?? "";
+                employee.HashedPassword = PasswordUtil.HashToSHA256(password); 
                 return await repo.AddEmployeeAsync(employee);
-
+            }
+                
             return employee;
         }
 

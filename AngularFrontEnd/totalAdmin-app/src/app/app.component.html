@@ -11,15 +11,19 @@
                     <a *ngIf="!userIsAuthenticated" class="btn btn-primary" aria-current="page" href="/login">Login</a>
                 </li>
                 <li class="nav-item">
-                    <a *ngIf="userIsAuthenticated" class="btn btn-info" routerLink="/employee">Hire Employee</a>
+                    <a *ngIf="userIsAuthenticated && role == 'HR Employee'" class="btn btn-info"
+                        routerLink="/employee">Hire Employee</a>
                 </li>
                 <li class="nav-item">
-                    <a *ngIf="userIsAuthenticated" class="btn btn-info" routerLink="/department">Create Department</a>
-                </li> <li class="nav-item">
+                    <a *ngIf="userIsAuthenticated && role == 'HR Employee'" class="btn btn-info"
+                        routerLink="/department">Create Department</a>
+                </li>
+                <li class="nav-item">
                     <a *ngIf="userIsAuthenticated" class="btn btn-info" routerLink="/item">Create item</a>
                 </li>
                 <li class="nav-item">
-                    <a *ngIf="userIsAuthenticated" class="btn btn-info" routerLink="/purchase-order-search">Search Purchase Orders</a>
+                    <a *ngIf="userIsAuthenticated" class="btn btn-info" routerLink="/purchase-order-search">Search
+                        Purchase Orders</a>
                 </li>
                 <li class="nav-item">
                     <button class="btn btn-warning" *ngIf="userIsAuthenticated" (click)="logOut()">Logout</button>

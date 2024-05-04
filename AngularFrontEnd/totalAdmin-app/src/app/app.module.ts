@@ -18,6 +18,7 @@ import { EmployeeCreateComponent } from './employee-create/employee-create.compo
 import { DepartmentCreateComponent } from './department-create/department-create.component';
 import { AuthInterceptor } from './interceptors/auth.interceptor';
 import { AddItemComponent } from './add-item/add-item.component';
+import { UnauthorizedComponent } from './unauthorized/unauthorized.component';
 
 @NgModule({
   declarations: [
@@ -30,6 +31,7 @@ import { AddItemComponent } from './add-item/add-item.component';
     EmployeeCreateComponent,
     DepartmentCreateComponent,
     AddItemComponent,
+    UnauthorizedComponent,
   ],
   imports: [
     BrowserModule,

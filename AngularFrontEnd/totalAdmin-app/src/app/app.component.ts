@@ -13,6 +13,7 @@ export class AppComponent {
   userIsAuthenticated: boolean;
   authSubscription: Subscription;
   userName: string | null;
+  role: string;
 
   constructor(private authService: AuthenticationService) {}
 
@@ -21,6 +22,8 @@ export class AppComponent {
 
     this.userIsAuthenticated = this.authService.getIsAuthenticated();
     this.userName = this.authService.getUserName();
+    this.role = this.authService.getRole() ?? '';
+    console.log(this.role);
 
     this.authSubscription = this.authService.getAuthStatusListener().subscribe({
       next: (auth: AuthStatus) => {
