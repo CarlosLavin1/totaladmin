@@ -1,0 +1,41 @@
+<div class="container">
+    <h1>Add Item</h1>
+    <app-errors [messages]="errors"></app-errors>
+    <form [formGroup]="itemForm" (ngSubmit)="onSubmit()">
+        <div class="mb-3">
+            <label for="name" class="form-label">Name</label>
+            <input type="text" class="form-control" id="name" formControlName="name">
+        </div>
+        <div class="mb-3">
+            <label for="quantity" class="form-label">Quantity</label>
+            <input type="number" class="form-control" id="quantity" formControlName="quantity">
+        </div>
+        <div class="mb-3">
+            <label for="description" class="form-label">Description</label>
+            <input type="text" class="form-control" id="description" formControlName="description">
+        </div>
+        <div class="mb-3">
+            <label for="price" class="form-label">Price</label>
+            <input type="number" class="form-control" id="price" formControlName="price">
+        </div>
+        <div class="mb-3">
+            <label for="justification" class="form-label">Justification</label>
+            <input type="text" class="form-control" id="justification" formControlName="justification">
+        </div>
+        <div class="mb-3">
+            <label for="location" class="form-label">Location</label>
+            <input type="text" class="form-control" id="location" formControlName="location">
+        </div>
+        <div class="mb-3">
+            <label for="statusId" class="form-label">Status ID</label>
+            <input type="number" class="form-control" id="statusId" formControlName="statusId">
+        </div>
+        <div class="mb-3">
+            <label for="poNumber" class="form-label">PO Number</label>
+            <input type="number" class="form-control" id="poNumber" formControlName="poNumber">
+        </div>
+
+        <button type="submit" class="btn btn-primary mb-5">Add Item</button>
+    </form>
+</div>
+

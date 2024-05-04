@@ -9,7 +9,7 @@ import { Employee } from '../models/employee';
 })
 export class EmployeeService extends SharedService{
 
-  constructor(private http: HttpClient) {
+  constructor(private http: HttpClient) { 
     super();
   }
 

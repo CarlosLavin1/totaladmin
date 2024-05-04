@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -56,44 +57,52 @@ namespace TotalAdmin.Repository
         /// <returns>A list of purchase orders of the specific employee</returns>
         public async Task<List<PurchaseOrder>> ReviewEmployeePO(int employeeNumber)
         {
-            List<Parm> parms = new()
+            try
             {
-                new Parm("@EmployeeNumber", SqlDbType.Int, employeeNumber)
-            };
-
-
-            DataTable dt = await db.ExecuteAsync("spReviewEmployeePO", parms);
-
-
-            List<PurchaseOrder> purchaseOrders = dt.AsEnumerable()
-                .GroupBy(row => row["PoNumber"]).Select(g =>
-            {
-                DataRow? firstRow = g.First();
-                var purchaseOrder = new PurchaseOrder
+                List<Parm> parms = new()
                 {
-                    PoNumber = Convert.ToInt32(firstRow["PoNumber"]),
-                    CreationDate = Convert.ToDateTime(firstRow["CreationDate"]),
-                    StatusId = Convert.ToInt32(firstRow["StatusId"]),
-
-                    Items = g.Select(row => new Item
-                    {
-                        ItemId = Convert.ToInt32(row["ItemId"]),
-                        Name = row["ItemName"].ToString(),
-                        Quantity = Convert.ToInt32(row["ItemQuantity"]),
-                        Description = row["ItemDescription"].ToString(),
-                        Price = Convert.ToDecimal(row["ItemPrice"]),
-                        Justification = row["ItemJustification"].ToString(),
-                        Location = row["ItemLocation"].ToString(),
-                        StatusId = Convert.ToInt32(row["ItemStatusId"])
-                    }).ToList()
+                    new Parm("@EmployeeNumber", SqlDbType.Int, employeeNumber)
                 };
 
-                // todo add calculation
 
-                return purchaseOrder;
-            }).ToList();
+                DataTable dt = await db.ExecuteAsync("spReviewEmployeePO", parms);
 
-            return purchaseOrders;
+
+                List<PurchaseOrder> purchaseOrders = dt.AsEnumerable()
+                    .GroupBy(row => row["PoNumber"]).Select(g =>
+                    {
+                        DataRow? firstRow = g.First();
+                        var purchaseOrder = new PurchaseOrder
+                        {
+                            PoNumber = Convert.ToInt32(firstRow["PoNumber"]),
+                            CreationDate = Convert.ToDateTime(firstRow["CreationDate"]),
+                            StatusId = Convert.ToInt32(firstRow["PurchaseOrderStatusId"]),
+
+                            Items = g.Select(row => new Item
+                            {
+                                ItemId = Convert.ToInt32(row["ItemId"]),
+                                Name = row["Name"].ToString(),
+                                Quantity = Convert.ToInt32(row["Quantity"]),
+                                Description = row["Description"].ToString(),
+                                Price = Convert.ToDecimal(row["Price"]),
+                                Justification = row["Justification"].ToString(),
+                                Location = row["ItemLocation"].ToString(),
+                                StatusId = Convert.ToInt32(row["ItemStatusId"])
+                            }).ToList()
+                        };
+
+                        // todo add calculation
+
+                        return purchaseOrder;
+                    }).ToList();
+
+                return purchaseOrders;
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine(ex.Message);
+                throw;
+            }
         }
 
 
