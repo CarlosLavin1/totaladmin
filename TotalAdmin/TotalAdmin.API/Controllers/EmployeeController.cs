@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using TotalAdmin.Model;
 using TotalAdmin.Service;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace TotalAdmin.API.Controllers
 {
@@ -48,7 +49,7 @@ namespace TotalAdmin.API.Controllers
             try
             {
                 int department = filters.Department ?? 0;
-                int employeeNumber = filters.EmployeeNumber ?? 0;
+                int employeeNumber = int.TryParse(Convert.ToString(filters.EmployeeNumber), out _) && Convert.ToString(filters.EmployeeNumber ?? 0).Length == 8 ? filters.EmployeeNumber ?? 0 : 0;
                 string? lastName = filters.LastName;
                 List<EmployeeDisplayDTO> employees = await employeeService.SearchEmployeesAsync(department, employeeNumber,lastName);
 

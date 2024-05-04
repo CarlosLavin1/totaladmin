@@ -30,7 +30,7 @@ namespace TotalAdmin.API.Controllers
                 return Unauthorized("Invalid login credentials");
             }
 
-            return new LoginOutputDTO(user.EmployeeNumber, user.Email, _tokenService.CreateToken(user), 7 * 24 * 60 * 60);
+            return new LoginOutputDTO(user.EmployeeNumber, user.Email, _tokenService.CreateToken(user), 7 * 24 * 60 * 60, user.RoleName);
 
         }
     }
