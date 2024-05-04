@@ -25,6 +25,10 @@ namespace TotalAdmin.Model.Entities
         [Display(Name = "Employee Number")]
         [Required(ErrorMessage = "Please select a employee.")]
         public int EmployeeNumber { get; set; }
+        public string EmployeeName { get; set; }
+        public string EmployeeSupervisorName { get; set; }
+        public string EmpDepartmentName { get; set; }
+        public string PurchaseOrderStatus { get; set; }
 
         [Display(Name = "Status")]
         [Required(ErrorMessage = "Please select a status.")]

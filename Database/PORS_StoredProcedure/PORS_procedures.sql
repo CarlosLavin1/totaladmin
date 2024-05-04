@@ -113,11 +113,17 @@ BEGIN
 			I.Price,
 			I.Justification,
 			I.ItemLocation,
-			I.ItemStatusId
+			I.ItemStatusId,
+			S.[Name] AS ItemStatus,
+			PS.[Name] AS PurchaseOrderStatus
 		FROM 
 			PurchaseOrder PO
 		INNER JOIN 
 			Item I ON PO.PoNumber = I.PoNumber
+		INNER JOIN 
+			PurchaseOrderStatus PS ON PO.PurchaseOrderStatusId = PS.PoStatusId
+		INNER JOIN
+			ItemStatus S ON I.ItemStatusId = S.ItemStatusId
 		WHERE 
 			PO.EmployeeNumber = @EmployeeNumber
 		ORDER BY 

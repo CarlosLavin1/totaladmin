@@ -64,34 +64,40 @@ namespace TotalAdmin.Repository
                     new Parm("@EmployeeNumber", SqlDbType.Int, employeeNumber)
                 };
 
-
                 DataTable dt = await db.ExecuteAsync("spReviewEmployeePO", parms);
-
 
                 List<PurchaseOrder> purchaseOrders = dt.AsEnumerable()
                     .GroupBy(row => row["PoNumber"]).Select(g =>
                     {
                         DataRow? firstRow = g.First();
+                        int purchaseOrderNumber = Convert.ToInt32(firstRow["PoNumber"]);
+                        string employeeName = GetEmployeeFullName(employeeNumber).Result;
+                        string empSupervisorName = GetSupervisorFullNameForEmployee(employeeNumber).Result;
+                        string empDepartmentName = GetEmployeeDepartmentByPONumber(purchaseOrderNumber).Result;
                         var purchaseOrder = new PurchaseOrder
                         {
-                            PoNumber = Convert.ToInt32(firstRow["PoNumber"]),
+                            PoNumber = purchaseOrderNumber,
                             CreationDate = Convert.ToDateTime(firstRow["CreationDate"]),
                             StatusId = Convert.ToInt32(firstRow["PurchaseOrderStatusId"]),
+                            PurchaseOrderStatus = Convert.ToString(firstRow["PurchaseOrderStatus"]),
+                            EmployeeName = employeeName,
+                            EmployeeSupervisorName = empSupervisorName,
+                            EmpDepartmentName = empDepartmentName,
 
                             Items = g.Select(row => new Item
                             {
-                                ItemId = Convert.ToInt32(row["ItemId"]),
-                                Name = row["Name"].ToString(),
+                                ItemId = Convert.ToInt32(row["ItemId"] ?? 0),
+                                Name = row["Name"].ToString() ?? "UnKnown",
                                 Quantity = Convert.ToInt32(row["Quantity"]),
-                                Description = row["Description"].ToString(),
+                                Description = row["Description"].ToString() ?? "UnKnown",
                                 Price = Convert.ToDecimal(row["Price"]),
-                                Justification = row["Justification"].ToString(),
-                                Location = row["ItemLocation"].ToString(),
+                                Justification = row["Justification"].ToString() ?? "UnKnown",
+                                Location = row["ItemLocation"].ToString() ?? "UnKnown",
+                                ItemStatus = row["ItemStatus"].ToString() ?? "UnKnown",
                                 StatusId = Convert.ToInt32(row["ItemStatusId"])
                             }).ToList()
                         };
 
-                        // todo add calculation
 
                         return purchaseOrder;
                     }).ToList();
@@ -191,6 +197,8 @@ namespace TotalAdmin.Repository
             return results.ToList();
         }
 
+        #region [PRIVATE METHODS]
+
         /// <summary>
         /// Calculates the subtotal for a given purchase order
         /// </summary>
@@ -239,6 +247,102 @@ namespace TotalAdmin.Repository
             return subtotal + tax;
         }
 
+        /// <summary>
+        ///  Gets the full name for a given employee number
+        /// </summary>
+        /// <param name="employeeNumber"></param>
+        /// <returns></returns>
+        /// <exception cref="Exception"></exception>
+        private async Task<string> GetEmployeeFullName(int employeeNumber)
+        {
+            List<Parm> parms = new()
+            {
+                new Parm("@EmployeeNumber", SqlDbType.Int, employeeNumber)
+            };
 
+            string sql = "SELECT FirstName, LastName FROM Employee WHERE EmployeeNumber = @EmployeeNumber";
+            DataTable dt = await db.ExecuteAsync(sql, parms, CommandType.Text);
+
+            if (dt.Rows.Count > 0)
+            {
+                DataRow row = dt.Rows[0];
+                string firstName = row["FirstName"].ToString();
+                string lastName = row["LastName"].ToString();
+                return $"{firstName} {lastName}";
+            }
+            else
+            {
+                throw new Exception($"Employee with number {employeeNumber} not found.");
+            }
+        }
+
+        /// <summary>
+        /// Gets the full name of the supervisor for a given employee number
+        /// </summary>
+        /// <param name="employeeNumber"></param>
+        /// <returns></returns>
+        /// <exception cref="Exception"></exception>
+        public async Task<string> GetSupervisorFullNameForEmployee(int employeeNumber)
+        {
+            // get supervisor number for the given employee
+            List<Parm> parms = new()
+            {
+                new Parm("@EmployeeNumber", SqlDbType.Int, employeeNumber)
+            };
+
+            string sql = "SELECT SupervisorEmpNumber FROM Employee WHERE EmployeeNumber = @EmployeeNumber";
+            DataTable dt = await db.ExecuteAsync(sql, parms, CommandType.Text);
+
+            if (dt.Rows.Count > 0)
+            {
+                DataRow row = dt.Rows[0];
+                int supervisorNumber = Convert.ToInt32(row["SupervisorEmpNumber"]);
+
+                // get the supervisor's full name using the GetEmployeeFullName method
+                string supervisorFullName = await GetEmployeeFullName(supervisorNumber);
+                return supervisorFullName;
+            }
+            else
+            {
+                throw new Exception($"Employee with number {employeeNumber} not found.");
+            }
+        }
+
+        /// <summary>
+        /// Get the department name for a given purchase order number
+        /// </summary>
+        /// <param name="poNumber"></param>
+        /// <returns></returns>
+        /// <exception cref="Exception"></exception>
+        private async Task<string> GetEmployeeDepartmentByPONumber(int poNumber)
+        {
+            List<Parm> parms = new()
+            {
+                new Parm("@PoNumber", SqlDbType.Int, poNumber)
+            };
+
+            //  Retrieves the department name associated with a given PO number
+            string sql = @"
+                SELECT d.Name 
+                FROM PurchaseOrder po 
+                JOIN Employee e ON po.EmployeeNumber = e.EmployeeNumber 
+                JOIN Department d ON e.DepartmentId = d.DepartmentId 
+                WHERE po.PoNumber = @PoNumber";
+
+            DataTable dt = await db.ExecuteAsync(sql, parms, CommandType.Text);
+
+            if (dt.Rows.Count > 0)
+            {
+                DataRow row = dt.Rows[0];
+                string departmentName = row["Name"].ToString();
+                return departmentName;
+            }
+            else
+            {
+                throw new Exception($"Purchase order with number {poNumber} not found.");
+            }
+        }
+
+        #endregion
     }
 }
