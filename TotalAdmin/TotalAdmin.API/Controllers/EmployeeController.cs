@@ -1,7 +1,9 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Data.SqlClient;
 using TotalAdmin.Model;
 using TotalAdmin.Service;
+using TotalAdmin.Types;
 using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace TotalAdmin.API.Controllers
@@ -34,6 +36,18 @@ namespace TotalAdmin.API.Controllers
                 //return CreatedAtAction("Get", new { id = employee.EmployeeNumber }, employee);
                 return Ok(employee);
                 // duplicate SIN will throw a unique constraint violation exception from the stored proc
+            }
+            catch (SqlException e)
+            {
+                if(e.Number == 2627 || e.Number == 2601)
+                {
+                    employee.AddError(new("SIN already exists in the database", ErrorType.Business));
+                    return BadRequest(employee);
+                } else
+                {
+                    employee.AddError(new("An internal error has occurred, please refresh the page", ErrorType.Business));
+                    return BadRequest(employee);
+                }
             }
             catch (Exception e)
             {
