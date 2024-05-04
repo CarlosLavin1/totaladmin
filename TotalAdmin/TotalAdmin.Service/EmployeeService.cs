@@ -55,6 +55,11 @@ namespace TotalAdmin.Service
             return await repo.GetSupervisors(roleId, departmentId);
         }
 
+        public Employee? GetEmployeeById(int employeeNumber)
+        {
+            return repo.GetEmployeeById(employeeNumber);
+        }
+
         private bool ValidateEmployee(Employee employee)
         {
             // Validate Entity
@@ -70,14 +75,29 @@ namespace TotalAdmin.Service
                 employee.AddError(new("Employee must be at least 16 years of age", ErrorType.Model));
 
             // validate job start date is after seniority date
-            if (employee.JobStartDate != null && employee.SeniorityDate != null && employee.JobStartDate >= employee.SeniorityDate)
+            if (employee.JobStartDate != null && employee.SeniorityDate != null && employee.JobStartDate <= employee.SeniorityDate)
                 employee.AddError(new("Job start date cannot be before seniority date", ErrorType.Business));
 
             // validate supervisor does not already have 10 employees
             if (GetEmployeesForSupervisorCount(employee.SupervisorEmployeeNumber) >= 10)
                 employee.AddError(new("Supervisor already has 10 employees, add another supervisor for this department", ErrorType.Business));
 
+            //validate supervisor exists in db
+            if (GetEmployeeById(employee.SupervisorEmployeeNumber) == null)
+            {
+                employee.AddError(new("Supervisor employee number does not exist in database", ErrorType.Model));
+                return false;
+            }
             //validate employee and supervisor have same department and roles match
+            Employee supervisor = GetEmployeeById(employee.SupervisorEmployeeNumber)!;
+            if (supervisor.DepartmentId != employee.DepartmentId || (supervisor.DepartmentId != 1 && (employee.RoleId == 2 || employee.RoleId == 3)))
+                employee.AddError(new("Supervisor must belong to the same department", ErrorType.Business));
+            if (supervisor.RoleId == 1 && (employee.RoleId == 4 || employee.RoleId == 5))
+                employee.AddError(new("Only supervisor's can be supervised by the CEO", ErrorType.Business));
+            if (supervisor.RoleId == 2 && employee.RoleId != 4)
+                employee.AddError(new("HR employee's must be supervised by HR supervisors", ErrorType.Business));
+            if (supervisor.RoleId == 3 && employee.RoleId != 5)
+                employee.AddError(new("Employee's must be supervised by supervisors", ErrorType.Business));
 
             return !employee.Errors.Any();
         }

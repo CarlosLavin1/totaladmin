@@ -63,6 +63,7 @@ CREATE OR ALTER PROC spInsertEmployee
 	@PostalCode NVARCHAR(7),
 	@SIN NVARCHAR(9),
 	@JobTitle NVARCHAR(60),
+	@DateOfBirth DATETIME2(7),
 	@CompanyStartDate DATETIME2(7),
 	@JobStartDate DATETIME2(7),
 	@OfficeLocation NVARCHAR(255),
@@ -87,6 +88,7 @@ BEGIN
 			PostalCode,
 			[SIN],
 			JobTitle,
+			DateOfBirth,
 			CompanyStartDate,
 			JobStartDate,
 			OfficeLocation,
@@ -108,6 +110,7 @@ BEGIN
 			@PostalCode,
 			@SIN,
 			@JobTitle,
+			@DateOfBirth,
 			@CompanyStartDate,
 			@JobStartDate,
 			@OfficeLocation,
@@ -204,17 +207,44 @@ CREATE OR ALTER PROC spGetSupervisors
 	@RoleId INT
 AS
 BEGIN
-	SELECT
-		*
-	FROM
-		Employee
-	WHERE
-		IsActive = 1
-		AND RoleId = @RoleId
-		AND DepartmentId = @DepartmentId
+	IF @RoleId = 2 OR @RoleId = 3 -- Supervisors have to be supervised by the ceo
+		BEGIN
+			SELECT
+				*
+			FROM
+				Employee
+			WHERE
+				IsActive = 1
+				AND RoleId = 1
+		END
+	ELSE
+		BEGIN
+			IF @RoleId = 4  -- HR employee
+				BEGIN
+					SELECT
+					*
+					FROM
+						Employee
+					WHERE
+						IsActive = 1
+						AND RoleId = 2
+						AND DepartmentId = @DepartmentId
+				END
+			ELSE -- roleId 5 Employee
+				BEGIN
+					SELECT
+					*
+					FROM
+						Employee
+					WHERE
+						IsActive = 1
+						AND RoleId = 3
+						AND DepartmentId = @DepartmentId
+				END
+		END
 END
 GO
-
+-- select * from Role
 -- login
 CREATE OR ALTER PROC spLogin
 	@EmployeeNumber INT,

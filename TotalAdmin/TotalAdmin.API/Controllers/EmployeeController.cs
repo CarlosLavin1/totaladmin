@@ -64,11 +64,11 @@ namespace TotalAdmin.API.Controllers
         [Authorize(Roles = "HR Employee")]
         [HttpPost("supervisors")]
         [ProducesResponseType(StatusCodes.Status200OK)]
-        public async Task<ActionResult<List<Employee>>> GetSupervisors(int roleId, int departmentId)
+        public async Task<ActionResult<List<Employee>>> GetSupervisors(SupervisorSearchDTO supervisorSearchDTO)
         {
             try
             {
-                List<Employee> employees = await employeeService.GetSupervisors(roleId, departmentId);
+                List<Employee> employees = await employeeService.GetSupervisors(supervisorSearchDTO.RoleId, supervisorSearchDTO.DepartmentId);
 
                 return employees;
             }
