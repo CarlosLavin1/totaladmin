@@ -34,6 +34,7 @@ namespace TotalAdmin.Repository
                 new("@SIN", SqlDbType.NVarChar, employee.SIN, 9),
                 new("@JobTitle", SqlDbType.NVarChar, employee.JobTitle, 60),
                 new("@CompanyStartDate", SqlDbType.DateTime2, employee.SeniorityDate),
+                new("@DateOfBirth", SqlDbType.DateTime2, employee.DateOfBirth),
                 new("@JobStartDate", SqlDbType.DateTime2, employee.JobStartDate),
                 new("@OfficeLocation", SqlDbType.NVarChar, employee.OfficeLocation, 255),
                 new("@WorkPhoneNumber", SqlDbType.NVarChar, employee.WorkPhoneNumber, 12),
@@ -72,6 +73,7 @@ namespace TotalAdmin.Repository
                 new("@SIN", SqlDbType.NVarChar, employee.SIN, 9),
                 new("@JobTitle", SqlDbType.NVarChar, employee.JobTitle, 60),
                 new("@CompanyStartDate", SqlDbType.DateTime2, employee.SeniorityDate),
+                new("@DateOfBirth", SqlDbType.DateTime2, employee.DateOfBirth),
                 new("@JobStartDate", SqlDbType.DateTime2, employee.JobStartDate),
                 new("@OfficeLocation", SqlDbType.NVarChar, employee.OfficeLocation, 255),
                 new("@WorkPhoneNumber", SqlDbType.NVarChar, employee.WorkPhoneNumber, 12),
@@ -106,11 +108,15 @@ namespace TotalAdmin.Repository
 
             return new Employee
             {
-                EmployeeNumber = Convert.ToInt32(row["RealtorId"]),
+                EmployeeNumber = Convert.ToInt32(row["EmployeeNumber"]),
                 FirstName = row["FirstName"].ToString(),
-                MiddleInitial = Convert.ToChar(row["MiddleInitial"]),
+                MiddleInitial = row["MiddleInitial"] != DBNull.Value ? Convert.ToChar(row["MiddleInitial"]) : '\0',
                 LastName = row["LastName"].ToString(),
-                DateOfBirth = Convert.ToDateTime(row["DateOrBirth"]),
+                DateOfBirth = Convert.ToDateTime(row["DateOfBirth"]),
+                Email = row["EmailAddress"].ToString(),
+                SupervisorEmployeeNumber = row["SupervisorEmpNumber"] != DBNull.Value ? Convert.ToInt32(row["SupervisorEmpNumber"]) : 0,
+                DepartmentId = row["DepartmentId"] != DBNull.Value ? Convert.ToInt32(row["DepartmentId"]) : 0,
+                RoleId = Convert.ToInt32(row["RoleId"])
             };
         }
 
@@ -125,14 +131,15 @@ namespace TotalAdmin.Repository
 
             return new Employee
             {
-                EmployeeNumber = Convert.ToInt32(row["RealtorId"]),
+                EmployeeNumber = Convert.ToInt32(row["EmployeeNumber"]),
                 FirstName = row["FirstName"].ToString(),
-                MiddleInitial = Convert.ToChar(row["MiddleInitial"]),
+                MiddleInitial = row["MiddleInitial"] != DBNull.Value ? Convert.ToChar(row["MiddleInitial"]) : '\0',
                 LastName = row["LastName"].ToString(),
-                DateOfBirth = Convert.ToDateTime(row["DateOrBirth"]),
+                DateOfBirth = Convert.ToDateTime(row["DateOfBirth"]),
                 Email = row["EmailAddress"].ToString(),
-                SupervisorEmployeeNumber = Convert.ToInt32(row["SupervisorEmpNumber"]),
-                DepartmentId = Convert.ToInt32(row["DepartmentId"])
+                SupervisorEmployeeNumber = row["SupervisorEmpNumber"] != DBNull.Value ? Convert.ToInt32(row["SupervisorEmpNumber"]) : 0,
+                DepartmentId = row["DepartmentId"] != DBNull.Value ? Convert.ToInt32(row["DepartmentId"]) : 0,
+                RoleId = Convert.ToInt32(row["RoleId"])
             };
         }
 
@@ -219,11 +226,17 @@ namespace TotalAdmin.Repository
             {
                 EmployeeNumber = Convert.ToInt32(row["EmployeeNumber"]),
                 FirstName = row["FirstName"].ToString(),
+                MiddleInitial = row["MiddleInitial"] != DBNull.Value ? Convert.ToChar(row["MiddleInitial"]) : '\0',
                 LastName = row["LastName"].ToString(),
                 RoleId = Convert.ToInt32(row["RoleId"]),
                 WorkPhoneNumber = row["WorkPhoneNumber"].ToString(),
                 OfficeLocation = row["OfficeLocation"].ToString(),
                 JobTitle = row["JobTitle"].ToString(),
+                DepartmentId = row["DepartmentId"] != DBNull.Value ? Convert.ToInt32(row["DepartmentId"]) : 0,
+                DateOfBirth = Convert.ToDateTime(row["DateOfBirth"]),
+                StreetAddress = row["StreetAddress"].ToString(),
+                City = row["City"].ToString(),
+                SupervisorEmployeeNumber = row["SupervisorEmpNumber"] != DBNull.Value ? Convert.ToInt32(row["SupervisorEmpNumber"]) : 0,
             };
         }
 

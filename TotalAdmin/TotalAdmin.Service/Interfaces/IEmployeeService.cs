@@ -17,5 +17,6 @@ namespace TotalAdmin.Service
         Task<int> GetEmployeesForSupervisorCountAsync(int supervisor);
         int GetEmployeesForSupervisorCount(int supervisor);
         Task<List<Employee>> GetSupervisors(int roleId, int departmentId);
+        Employee? GetEmployeeById(int employeeNumber);
     }
 }
