@@ -22,8 +22,13 @@ namespace TotalAdmin.Service
         public Employee AddEmployee(Employee employee)
         {
             if (ValidateEmployee(employee))
+            {
+                // if the password is valid, hash it before sending it to the repo
+                string password = employee.HashedPassword ?? "";
+                employee.HashedPassword = PasswordUtil.HashToSHA256(password);
                 return repo.AddEmployee(employee);
-
+            }
+                
             return employee;
         }
 
@@ -45,6 +50,11 @@ namespace TotalAdmin.Service
             return await repo.SearchEmployeesAsync(department, employeeNumber, lastName);
         }
 
+        public async Task<List<Employee>> GetSupervisors(int roleId, int departmentId)
+        {
+            return await repo.GetSupervisors(roleId, departmentId);
+        }
+
         private bool ValidateEmployee(Employee employee)
         {
             // Validate Entity
@@ -63,9 +73,11 @@ namespace TotalAdmin.Service
             if (employee.JobStartDate != null && employee.SeniorityDate != null && employee.JobStartDate >= employee.SeniorityDate)
                 employee.AddError(new("Job start date cannot be before seniority date", ErrorType.Business));
 
-            // validate department does not already have 10 employees
-            if (GetEmployeesInDepartmentCount(employee.DepartmentId) == 0)
-                employee.AddError(new("Department already has 10 employees", ErrorType.Business));
+            // validate supervisor does not already have 10 employees
+            if (GetEmployeesForSupervisorCount(employee.SupervisorEmployeeNumber) >= 10)
+                employee.AddError(new("Supervisor already has 10 employees, add another supervisor for this department", ErrorType.Business));
+
+            //validate employee and supervisor have same department and roles match
 
             return !employee.Errors.Any();
         }
@@ -84,9 +96,9 @@ namespace TotalAdmin.Service
             if (employee.JobStartDate != null && employee.SeniorityDate != null && employee.JobStartDate >= employee.SeniorityDate)
                 employee.AddError(new("Job start date cannot be before seniority date", ErrorType.Business));
 
-            // validate department does not already have 10 employees
-            if (await GetEmployeesInDepartmentCountAsync(employee.DepartmentId) == 0)
-                employee.AddError(new("Department already has 10 employees", ErrorType.Business));
+            // validate supervisor does not already have 10 employees
+            if (await GetEmployeesForSupervisorCountAsync(employee.SupervisorEmployeeNumber) >= 10)
+                employee.AddError(new("Supervisor already has 10 employees, add another supervisor for this department", ErrorType.Business));
 
             return !employee.Errors.Any();
         }
@@ -99,6 +111,16 @@ namespace TotalAdmin.Service
         public int GetEmployeesInDepartmentCount(int department)
         {
             return repo.GetEmployeesInDepartmentCount(department);
+        }
+
+        public async Task<int> GetEmployeesForSupervisorCountAsync(int supervisor)
+        {
+            return await repo.GetEmployeesForSupervisorCountAsync(supervisor);
+        }
+
+        public int GetEmployeesForSupervisorCount(int supervisor)
+        {
+            return repo.GetEmployeesForSupervisorCount(supervisor);
         }
     }
 }

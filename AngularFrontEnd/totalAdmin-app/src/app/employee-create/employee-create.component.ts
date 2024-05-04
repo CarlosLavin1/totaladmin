@@ -16,6 +16,7 @@ import { Subscription } from 'rxjs';
 export class EmployeeCreateComponent {
   private employeeNumber: number;
   departments: DepartmentListDto[] = [];
+  supervisors: Employee[] = [];
   subscriptions: Subscription[] = [];
   errors: string[] = []
 
@@ -50,10 +51,33 @@ export class EmployeeCreateComponent {
     this.departmentService.getActiveDepartments().subscribe((depts) => {
       this.departments = depts;
     });
+
+    // Listen to changes in role and department
+    this.employeeForm.get('roleId')!.valueChanges.subscribe(roleId => {
+      this.updateSupervisors();
+    });
+
+    this.employeeForm.get('departmentId')!.valueChanges.subscribe(departmentId => {
+      this.updateSupervisors();
+    });
   }
 
   ngOnDestroy() {
     this.subscriptions.forEach((subscription) => subscription.unsubscribe());
+  }
+
+  updateSupervisors() {
+    const roleId = this.employeeForm.get('roleId')!.value;
+    const departmentId = this.employeeForm.get('departmentId')!.value;
+    if (roleId && departmentId) {
+      // get relevant supervisors from service
+      const roleIdInt: number = +roleId;
+      const departmentIdInt: number = +departmentId;
+      console.log('supervisors updated role: ' + roleIdInt + ' department: ' + departmentIdInt)
+      this.employeeService.getSupervisors(roleIdInt, departmentIdInt).subscribe(supervisors => {
+        this.supervisors = supervisors;
+      });
+    }
   }
 
   onSubmit(): void {

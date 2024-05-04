@@ -168,6 +168,53 @@ BEGIN
 END
 GO
 
+-- get employees for a supervisor
+CREATE OR ALTER PROC spGetEmployeesForSupervisorCount
+    @SupervisorEmployeeNumber INT
+AS
+BEGIN
+    SELECT
+        COUNT(EmployeeNumber)
+    FROM
+        Employee
+    WHERE
+        IsActive = 1
+        AND (SupervisorEmpNumber = @SupervisorEmployeeNumber)
+END
+GO
+
+-- get employee by id
+CREATE OR ALTER PROC spGetEmployeeById
+    @EmployeeNumber INT
+AS
+BEGIN
+    SELECT
+        *
+    FROM
+        Employee
+    WHERE
+        IsActive = 1
+        AND (EmployeeNumber = @EmployeeNumber)
+END
+GO
+
+-- get supervisors for a department and role
+CREATE OR ALTER PROC spGetSupervisors
+	@DepartmentId INT,
+	@RoleId INT
+AS
+BEGIN
+	SELECT
+		*
+	FROM
+		Employee
+	WHERE
+		IsActive = 1
+		AND RoleId = @RoleId
+		AND DepartmentId = @DepartmentId
+END
+GO
+
 -- login
 CREATE OR ALTER PROC spLogin
 	@EmployeeNumber INT,

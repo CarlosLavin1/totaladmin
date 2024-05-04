@@ -16,4 +16,8 @@ export class EmployeeService extends SharedService{
   createEmployee(employeeData: Employee): Observable<Employee> {
     return this.http.post<Employee>(`${API_URL7161}/employee`, employeeData).pipe(catchError(super.handleError));
   }
+
+  getSupervisors(roleId: number, departmentId: number): Observable<Employee[]>{
+    return this.http.post<Employee[]>(`${API_URL7161}/employee/supervisors`, {roleId, departmentId}).pipe(catchError(super.handleError));
+  }
 }

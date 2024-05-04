@@ -114,6 +114,28 @@ namespace TotalAdmin.Repository
             };
         }
 
+        public Employee? GetEmployeeById(int id)
+        {
+            DataTable dt = db.Execute("spGetEmployeeById", new List<Parm> { new("@EmployeeNumber", SqlDbType.Int, id) });
+
+            if (dt.Rows.Count == 0)
+                return null;
+
+            DataRow row = dt.Rows[0];
+
+            return new Employee
+            {
+                EmployeeNumber = Convert.ToInt32(row["RealtorId"]),
+                FirstName = row["FirstName"].ToString(),
+                MiddleInitial = Convert.ToChar(row["MiddleInitial"]),
+                LastName = row["LastName"].ToString(),
+                DateOfBirth = Convert.ToDateTime(row["DateOrBirth"]),
+                Email = row["EmailAddress"].ToString(),
+                SupervisorEmployeeNumber = Convert.ToInt32(row["SupervisorEmpNumber"]),
+                DepartmentId = Convert.ToInt32(row["DepartmentId"])
+            };
+        }
+
         public async Task<List<Employee>> GetEmployeeListAsync()
         {
             throw new NotImplementedException();
@@ -151,6 +173,58 @@ namespace TotalAdmin.Repository
             DataTable dt = await db.ExecuteAsync("spSearchEmployees", parms);
 
             return dt.AsEnumerable().Select(row => PopulateEmployeeDisplayDTO(row)).ToList();
+        }
+
+        public async Task<int> GetEmployeesForSupervisorCountAsync(int supervisor)
+        {
+            List<Parm> parms = new()
+            {
+                new("@SupervisorEmployeeNumber", SqlDbType.Int, supervisor)
+            };
+            object? count = await db.ExecuteScalarAsync("spGetEmployeesForSupervisorCount", parms);
+            if (count == null)
+                return 0;
+
+            return (int)count;
+        }
+
+        public int GetEmployeesForSupervisorCount(int supervisor)
+        {
+            List<Parm> parms = new()
+            {
+                new("@SupervisorEmployeeNumber", SqlDbType.Int, supervisor)
+            };
+            object? count = db.ExecuteScalar("spGetEmployeesForSupervisorCount", parms);
+            if (count == null)
+                return 0;
+
+            return (int)count;
+        }
+
+        public async Task<List<Employee>> GetSupervisors(int roleId, int departmentId)
+        {
+            List<Parm> parms = new()
+            {
+                new("@DepartmentId", SqlDbType.Int, departmentId),
+                new("@RoleId", SqlDbType.Int, roleId),
+            };
+
+            DataTable dt = await db.ExecuteAsync("spGetSupervisors", parms);
+            return dt.AsEnumerable().Select(row => PopulateEmployee(row)).ToList();
+        }
+
+        private Employee PopulateEmployee(DataRow row)
+        {
+            return new()
+            {
+                EmployeeNumber = Convert.ToInt32(row["EmployeeNumber"]),
+                FirstName = row["FirstName"].ToString(),
+                LastName = row["LastName"].ToString(),
+                RoleId = Convert.ToInt32(row["RoleId"]),
+                WorkPhoneNumber = row["WorkPhoneNumber"].ToString(),
+                OfficeLocation = row["OfficeLocation"].ToString(),
+                JobTitle = row["JobTitle"].ToString(),
+            };
         }
 
         private EmployeeDisplayDTO PopulateEmployeeDisplayDTO(DataRow row)
