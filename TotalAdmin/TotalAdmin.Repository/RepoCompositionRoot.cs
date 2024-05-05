@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using TotalAdmin.Repository.Interfaces;
 
 namespace TotalAdmin.Repository
 {
@@ -19,6 +20,7 @@ namespace TotalAdmin.Repository
             services.AddScoped<IDepartmentRepository, DepartmentRepository>();
             services.AddScoped<IEmployeeRepository, EmployeeRepository>();
             services.AddScoped<ILoginRepository, LoginRepository>();
+            services.AddScoped<IPurchaseOrderRepo, PurchaseOrderRepo>();
         }
     }
 }

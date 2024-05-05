@@ -7,13 +7,20 @@ using System.Threading.Tasks;
 using TotalAdmin.Model.DTO;
 using TotalAdmin.Model.Entities;
 using TotalAdmin.Repository;
+using TotalAdmin.Repository.Interfaces;
+using TotalAdmin.Service.Interfaces;
 using TotalAdmin.Types;
 
 namespace TotalAdmin.Service
 {
-    public class PurchaseOrderService
+    public class PurchaseOrderService : IPurchaseOrderService
     {
-        public readonly PurchaseOrderRepo repo = new();
+        private readonly IPurchaseOrderRepo repo;
+
+        public PurchaseOrderService(IPurchaseOrderRepo repo)
+        {
+            this.repo = repo;
+        }
 
         public async Task<PurchaseOrder> AddPurchaseOrder(PurchaseOrder purchaseOrder)
         {

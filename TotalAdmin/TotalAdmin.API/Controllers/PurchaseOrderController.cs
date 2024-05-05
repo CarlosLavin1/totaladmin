@@ -2,6 +2,7 @@
 using TotalAdmin.Model.DTO;
 using TotalAdmin.Model.Entities;
 using TotalAdmin.Service;
+using TotalAdmin.Service.Interfaces;
 
 namespace TotalAdmin.API.Controllers
 {
@@ -9,8 +10,13 @@ namespace TotalAdmin.API.Controllers
     [ApiController]
     public class PurchaseOrderController : Controller
     {
-        private readonly PurchaseOrderService service = new();
-        
+        private readonly IPurchaseOrderService service;
+
+        public PurchaseOrderController(IPurchaseOrderService s)
+        {
+            this.service = s;
+        }
+
 
         // GET: api/PurchaseOrder?departmentId=1
         [HttpGet()]

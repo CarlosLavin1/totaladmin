@@ -8,15 +8,16 @@ using System.Text;
 using System.Threading.Tasks;
 using TotalAdmin.Model.DTO;
 using TotalAdmin.Model.Entities;
+using TotalAdmin.Repository.Interfaces;
 using TotalAdmin.Types;
 
 namespace TotalAdmin.Repository
 {
-    public class PurchaseOrderRepo
+    public class PurchaseOrderRepo : IPurchaseOrderRepo
     {
         // Access the database from the Dal
         private readonly DataAccess db = new();
-
+        
 
         /// <summary>
         /// Retrieves a list of purchase order detail results
