@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using TotalAdmin.Model.DTO;
 using TotalAdmin.Model.Entities;
 using TotalAdmin.Service;
@@ -19,6 +20,7 @@ namespace TotalAdmin.API.Controllers
 
 
         // GET: api/PurchaseOrder?departmentId=1
+        [Authorize]
         [HttpGet()]
         [ProducesResponseType(StatusCodes.Status200OK)]
         public async Task<ActionResult<List<POSearchResultsApiDTO>>> GetPuchaseOrdersForDepartment(int? departmentId)
@@ -53,6 +55,7 @@ namespace TotalAdmin.API.Controllers
 
 
         // GET: api/PurchaseOrder/Search
+        [Authorize]
         [HttpGet("Search")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -89,6 +92,7 @@ namespace TotalAdmin.API.Controllers
 
 
         // POST: api/purchaseOrder
+        [Authorize]
         [HttpPost]
         [ProducesResponseType(StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -128,6 +132,7 @@ namespace TotalAdmin.API.Controllers
 
 
         // GET: api/PurchaseOrder/Employee
+        [Authorize]
         [HttpGet("Employee")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
