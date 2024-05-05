@@ -90,18 +90,22 @@ namespace TotalAdmin.API.Controllers
         {
             try
             {
+                if (po == null) 
+                    return BadRequest("Purchase order cannot be null.");
+
+
                 po = await service.AddPurchaseOrder(po);
 
                 if (po.Errors.Count != 0)
                     return BadRequest(po);
 
+
+                return CreatedAtAction(nameof(Create), po);
             }
             catch (Exception)
             {
                 return Problem(title: "An internal error has occurred. Please contact the system administrator");
             }
-
-            return Ok(po);
         }
 
 

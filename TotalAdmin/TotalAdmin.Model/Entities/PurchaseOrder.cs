@@ -36,5 +36,6 @@ namespace TotalAdmin.Model.Entities
 
         // Navigation property
         public ICollection<Item>? Items { get; set; }
+        public bool HasMergeOccurred { get; set; }
     }
 }
