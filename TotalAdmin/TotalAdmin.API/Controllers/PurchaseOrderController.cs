@@ -82,7 +82,7 @@ namespace TotalAdmin.API.Controllers
         }
 
 
-        // POST: api/PurchaseOrder
+        // POST: api/purchaseOrder
         [HttpPost]
         [ProducesResponseType(StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -100,7 +100,19 @@ namespace TotalAdmin.API.Controllers
                     return BadRequest(po);
 
 
-                return CreatedAtAction(nameof(Create), po);
+                string formattedNumber = po.PoNumber.ToString("D2");
+
+
+                // Create the formatted PO number
+                string formattedPoNumber = "00001" + formattedNumber;
+
+                var response = new
+                {
+                    PurchaseOrder = po,
+                    FormattedPoNumber = formattedPoNumber
+                };
+
+                return CreatedAtAction(nameof(Create), response);
             }
             catch (Exception)
             {

@@ -22,11 +22,9 @@ namespace TotalAdmin.Service
                 // Add the purchase order using the repo method
                 var addedPurchaseOrder = await repo.AddPoAsync(purchaseOrder);
 
-                // Fetch all items from the database
-                var allItems = await repo.GetAllItems();
-
-                // Update the quantities in the addedPurchaseOrder
-                addedPurchaseOrder = await UpdateQuantitiesInPurchaseOrder(addedPurchaseOrder);
+                if (addedPurchaseOrder.HasMergeOccurred)
+                    // Update the quantities in the addedPurchaseOrder
+                    addedPurchaseOrder = await UpdateQuantitiesInPurchaseOrder(addedPurchaseOrder);
 
                 return addedPurchaseOrder;
             }

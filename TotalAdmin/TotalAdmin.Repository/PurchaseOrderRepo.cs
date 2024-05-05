@@ -122,7 +122,6 @@ namespace TotalAdmin.Repository
         {
             try
             {
-                //todi create a po number 8-digit
                 // Fetch all items from the database
                 var allItems = await GetAllItems();
 
@@ -161,7 +160,11 @@ namespace TotalAdmin.Repository
 
                 if (await db.ExecuteNonQueryAsync("spAddPurchaseOrder", parms) > 0)
                 {
-                    po.PoNumber = (int?)parms.FirstOrDefault(p => p.Name == "@PoNumber")!.Value ?? 0;
+                    // Get the PO number as an integer
+                    int poNumberInt = po.PoNumber = (int?)parms.FirstOrDefault(p => p.Name == "@PoNumber")!.Value ?? 0;
+
+                    // Assign the PO number to the PurchaseOrder object
+                    po.PoNumber = poNumberInt;
                 }
                 else
                 {
