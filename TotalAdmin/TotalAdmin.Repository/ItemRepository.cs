@@ -32,8 +32,6 @@ namespace TotalAdmin.Repository
                 new("@Price", SqlDbType.Money, item.Price),
                 new("@Justification", SqlDbType.NVarChar, item.Justification, 255),
                 new("@ItemLocation", SqlDbType.NVarChar, item.Location, 255),
-                new("@RowVerison", SqlDbType.Int, item.RowVersion),
-                new("@PoNumber", SqlDbType.Int, item.PoNumber),
                 new("@StatusId", SqlDbType.Int, item.StatusId)
             };
 

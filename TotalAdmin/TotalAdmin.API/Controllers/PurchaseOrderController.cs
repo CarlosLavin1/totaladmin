@@ -1,7 +1,9 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using TotalAdmin.Model.DTO;
 using TotalAdmin.Model.Entities;
 using TotalAdmin.Service;
+using TotalAdmin.Service.Interfaces;
 
 namespace TotalAdmin.API.Controllers
 {
@@ -9,10 +11,16 @@ namespace TotalAdmin.API.Controllers
     [ApiController]
     public class PurchaseOrderController : Controller
     {
-        private readonly PurchaseOrderService service = new();
-        
+        private readonly IPurchaseOrderService service;
+
+        public PurchaseOrderController(IPurchaseOrderService s)
+        {
+            this.service = s;
+        }
+
 
         // GET: api/PurchaseOrder?departmentId=1
+        [Authorize]
         [HttpGet()]
         [ProducesResponseType(StatusCodes.Status200OK)]
         public async Task<ActionResult<List<POSearchResultsApiDTO>>> GetPuchaseOrdersForDepartment(int? departmentId)
@@ -47,6 +55,7 @@ namespace TotalAdmin.API.Controllers
 
 
         // GET: api/PurchaseOrder/Search
+        [Authorize]
         [HttpGet("Search")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -82,7 +91,8 @@ namespace TotalAdmin.API.Controllers
         }
 
 
-        // POST: api/PurchaseOrder
+        // POST: api/purchaseOrder
+        [Authorize]
         [HttpPost]
         [ProducesResponseType(StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -90,22 +100,39 @@ namespace TotalAdmin.API.Controllers
         {
             try
             {
+                if (po == null) 
+                    return BadRequest("Purchase order cannot be null.");
+
+
                 po = await service.AddPurchaseOrder(po);
 
                 if (po.Errors.Count != 0)
                     return BadRequest(po);
 
+
+                string formattedNumber = po.PoNumber.ToString("D2");
+
+
+                // Create the formatted PO number
+                string formattedPoNumber = "00001" + formattedNumber;
+
+                var response = new
+                {
+                    PurchaseOrder = po,
+                    FormattedPoNumber = formattedPoNumber
+                };
+
+                return CreatedAtAction(nameof(Create), response);
             }
             catch (Exception)
             {
                 return Problem(title: "An internal error has occurred. Please contact the system administrator");
             }
-
-            return Ok(po);
         }
 
 
         // GET: api/PurchaseOrder/Employee
+        [Authorize]
         [HttpGet("Employee")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
