@@ -19,6 +19,8 @@ import { DepartmentCreateComponent } from './department-create/department-create
 import { AuthInterceptor } from './interceptors/auth.interceptor';
 import { AddItemComponent } from './add-item/add-item.component';
 import { UnauthorizedComponent } from './unauthorized/unauthorized.component';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import { MatSnackBarModule } from '@angular/material/snack-bar';
 
 @NgModule({
   declarations: [
@@ -39,6 +41,8 @@ import { UnauthorizedComponent } from './unauthorized/unauthorized.component';
     FormsModule,
     ReactiveFormsModule,
     HttpClientModule,
+    BrowserAnimationsModule, 
+    MatSnackBarModule
   ],
   providers: [
     {

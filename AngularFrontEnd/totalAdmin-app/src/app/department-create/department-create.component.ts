@@ -5,6 +5,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { Department } from '../models/department';
 import { ValidationError } from '../models/validationError';
 import { Subscription } from 'rxjs';
+import { SnackbarService } from '../services/snackbar.service';
 
 @Component({
   selector: 'app-department-create',
@@ -26,7 +27,8 @@ export class DepartmentCreateComponent {
     private formBuilder: FormBuilder,
     private departmentService: DepartmentService,
     private router: Router,
-    private activatedRoute: ActivatedRoute
+    private activatedRoute: ActivatedRoute,
+    private snackbarService: SnackbarService
   ) {}
 
   ngOnDestroy(): void {
@@ -40,10 +42,12 @@ export class DepartmentCreateComponent {
       
       const subscription = this.departmentService.createDepartment(department).subscribe({
         next: () => {
+          this.snackbarService.showSnackBar("Department added successfully", 0);
           setTimeout(() => {
             console.log('Succesfully added department');
             this.router.navigate(['']);
-          }, 1000);
+            this.snackbarService.dismissSnackBar();
+          }, 1800);
         },
         error: (err) => {
           // if err.error.errors exists, then I know its returning a ValidationError array back
