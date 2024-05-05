@@ -122,6 +122,7 @@ namespace TotalAdmin.Repository
         {
             try
             {
+                //todi create a po number 8-digit
                 // Fetch all items from the database
                 var allItems = await GetAllItems();
 
