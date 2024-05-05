@@ -44,6 +44,8 @@ BEGIN
 			Department
 		WHERE
 			InvocationDate <= GETDATE()
+		ORDER BY
+			[Name]
 	END TRY
 	BEGIN CATCH
 		;THROW

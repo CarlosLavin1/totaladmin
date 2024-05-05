@@ -26,11 +26,13 @@ namespace TotalAdmin.Model
         [Required]
         public string? City { get; set; }
         [Required]
-        [MaxLength(9, ErrorMessage = "SIN must be 9 digits")]
+        [RegularExpression("^\\d{9}$", ErrorMessage = "SIN must be a 9 digit number")]
         public string? SIN { get; set; }
         [Required(ErrorMessage = "Work phone number is required")]
+        [RegularExpression("^\\(?([0-9]{3})\\)?[-. ]?([0-9]{3})[-. ]?([0-9]{4})$", ErrorMessage = "Please enter a valid phone number")]
         public string? WorkPhoneNumber { get; set; }
         [Required(ErrorMessage = "Cell phone number is required")]
+        [RegularExpression("^\\(?([0-9]{3})\\)?[-. ]?([0-9]{3})[-. ]?([0-9]{4})$", ErrorMessage = "Please enter a valid phone number")]
         public string? CellPhoneNumber { get; set; }
         [Required]
         [EmailAddress]
