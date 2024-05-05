@@ -70,7 +70,10 @@ class _LoginPageState extends State<LoginPage> {
                           authService.login(employeeNumber, password),
                       (errorMessage) =>
                           ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(content: Text(errorMessage)),
+                            SnackBar(
+                              content: Text(errorMessage),
+                              backgroundColor: Colors.red,
+                            ),
                           ));
                 },
                 child: const Text('Login'),

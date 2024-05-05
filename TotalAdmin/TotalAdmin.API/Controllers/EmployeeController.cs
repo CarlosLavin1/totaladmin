@@ -56,14 +56,14 @@ namespace TotalAdmin.API.Controllers
         }
 
         [Authorize(Roles = "Employee")]
-        [HttpGet("search")]
+        [HttpPost("search")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         public async Task<ActionResult<List<EmployeeDisplayDTO>>> SearchEmployees(EmployeeSearchDTO filters)
         {
             try
             {
                 int department = filters.Department ?? 0;
-                int employeeNumber = int.TryParse(Convert.ToString(filters.EmployeeNumber), out _) && Convert.ToString(filters.EmployeeNumber ?? 0).Length == 8 ? filters.EmployeeNumber ?? 0 : 0;
+                int employeeNumber = filters.EmployeeNumber ?? -999999999;
                 string? lastName = filters.LastName;
                 List<EmployeeDisplayDTO> employees = await employeeService.SearchEmployeesAsync(department, employeeNumber,lastName);
 
