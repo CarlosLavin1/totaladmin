@@ -14,5 +14,9 @@ namespace TotalAdmin.Service
         Task<List<EmployeeDisplayDTO>> SearchEmployeesAsync(int department, int employeeNumber, string? lastName);
         Task<int> GetEmployeesInDepartmentCountAsync(int department);
         int GetEmployeesInDepartmentCount(int department);
+        Task<int> GetEmployeesForSupervisorCountAsync(int supervisor);
+        int GetEmployeesForSupervisorCount(int supervisor);
+        Task<List<Employee>> GetSupervisors(int roleId, int departmentId);
+        Employee? GetEmployeeById(int employeeNumber);
     }
 }

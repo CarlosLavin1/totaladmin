@@ -49,8 +49,8 @@ namespace TotalAdmin.API
             });
             builder.Services.AddAuthorization(options =>
             {
-                options.AddPolicy("Regular Supervisor", policy =>
-                    policy.RequireRole("Regular Supervisor"));
+                options.AddPolicy("Supervisor", policy =>
+                    policy.RequireRole("Supervisor"));
             });
             builder.Services.AddAuthorization(options =>
             {
@@ -59,8 +59,8 @@ namespace TotalAdmin.API
             });
             builder.Services.AddAuthorization(options =>
             {
-                options.AddPolicy("Regular Employee", policy =>
-                    policy.RequireRole("Regular Employee"));
+                options.AddPolicy("Employee", policy =>
+                    policy.RequireRole("Employee"));
             });
             builder.Services.AddAuthorization(options =>
             {

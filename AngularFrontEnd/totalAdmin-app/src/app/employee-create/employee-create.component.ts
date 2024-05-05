@@ -7,6 +7,7 @@ import { DepartmentService } from '../services/department.service';
 import { Router } from '@angular/router';
 import { ValidationError } from '../models/validationError';
 import { Subscription } from 'rxjs';
+import { SnackbarService } from '../services/snackbar.service';
 
 @Component({
   selector: 'app-employee-create',
@@ -16,6 +17,7 @@ import { Subscription } from 'rxjs';
 export class EmployeeCreateComponent {
   private employeeNumber: number;
   departments: DepartmentListDto[] = [];
+  supervisors: Employee[] = [];
   subscriptions: Subscription[] = [];
   errors: string[] = []
 
@@ -42,7 +44,12 @@ export class EmployeeCreateComponent {
     roleId: ['', Validators.required]
   });
 
-  constructor(private router: Router, private formBuilder: FormBuilder, private employeeService: EmployeeService, private departmentService: DepartmentService) {
+  constructor(
+    private router: Router, 
+    private formBuilder: FormBuilder, 
+    private employeeService: EmployeeService, 
+    private departmentService: DepartmentService,
+    private snackBarService: SnackbarService) {
     
   }
   
@@ -50,10 +57,33 @@ export class EmployeeCreateComponent {
     this.departmentService.getActiveDepartments().subscribe((depts) => {
       this.departments = depts;
     });
+
+    // Listen to changes in role and department
+    this.employeeForm.get('roleId')!.valueChanges.subscribe(roleId => {
+      this.updateSupervisors();
+    });
+
+    this.employeeForm.get('departmentId')!.valueChanges.subscribe(departmentId => {
+      this.updateSupervisors();
+    });
   }
 
   ngOnDestroy() {
     this.subscriptions.forEach((subscription) => subscription.unsubscribe());
+  }
+
+  updateSupervisors() {
+    const roleId = this.employeeForm.get('roleId')!.value;
+    const departmentId = this.employeeForm.get('departmentId')!.value;
+    if (roleId && departmentId) {
+      // get relevant supervisors from service
+      const roleIdInt: number = +roleId;
+      const departmentIdInt: number = +departmentId;
+      console.log('supervisors updated role: ' + roleIdInt + ' department: ' + departmentIdInt)
+      this.employeeService.getSupervisors(roleIdInt, departmentIdInt).subscribe(supervisors => {
+        this.supervisors = supervisors;
+      });
+    }
   }
 
   onSubmit(): void {
@@ -72,10 +102,12 @@ export class EmployeeCreateComponent {
       this.employeeService.createEmployee(employee).subscribe({
         next: (res) => {
           console.log(res);
+          this.snackBarService.showSnackBar("Employee added successfully", 0);
           setTimeout(() => {
             console.log('Succesfully added employee');
             this.router.navigate(['']);
-          }, 1000);
+            this.snackBarService.dismissSnackBar(); 
+          }, 1800);
         },
         error: (err) => {
           console.log(err);

@@ -6,5 +6,5 @@ using System.Threading.Tasks;
 
 namespace TotalAdmin.Model
 {
-    public record LoginOutputDTO(int EmployeeNumber, string? Email, string? Token, int ExpiresIn);
+    public record LoginOutputDTO(int EmployeeNumber, string? Email, string? Token, int ExpiresIn, string? Role);
 }

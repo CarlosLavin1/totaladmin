@@ -44,6 +44,8 @@ BEGIN
 			Department
 		WHERE
 			InvocationDate <= GETDATE()
+		ORDER BY
+			[Name]
 	END TRY
 	BEGIN CATCH
 		;THROW
@@ -63,6 +65,7 @@ CREATE OR ALTER PROC spInsertEmployee
 	@PostalCode NVARCHAR(7),
 	@SIN NVARCHAR(9),
 	@JobTitle NVARCHAR(60),
+	@DateOfBirth DATETIME2(7),
 	@CompanyStartDate DATETIME2(7),
 	@JobStartDate DATETIME2(7),
 	@OfficeLocation NVARCHAR(255),
@@ -87,6 +90,7 @@ BEGIN
 			PostalCode,
 			[SIN],
 			JobTitle,
+			DateOfBirth,
 			CompanyStartDate,
 			JobStartDate,
 			OfficeLocation,
@@ -108,6 +112,7 @@ BEGIN
 			@PostalCode,
 			@SIN,
 			@JobTitle,
+			@DateOfBirth,
 			@CompanyStartDate,
 			@JobStartDate,
 			@OfficeLocation,
@@ -168,6 +173,80 @@ BEGIN
 END
 GO
 
+-- get employees for a supervisor
+CREATE OR ALTER PROC spGetEmployeesForSupervisorCount
+    @SupervisorEmployeeNumber INT
+AS
+BEGIN
+    SELECT
+        COUNT(EmployeeNumber)
+    FROM
+        Employee
+    WHERE
+        IsActive = 1
+        AND (SupervisorEmpNumber = @SupervisorEmployeeNumber)
+END
+GO
+
+-- get employee by id
+CREATE OR ALTER PROC spGetEmployeeById
+    @EmployeeNumber INT
+AS
+BEGIN
+    SELECT
+        *
+    FROM
+        Employee
+    WHERE
+        IsActive = 1
+        AND (EmployeeNumber = @EmployeeNumber)
+END
+GO
+
+-- get supervisors for a department and role
+CREATE OR ALTER PROC spGetSupervisors
+	@DepartmentId INT,
+	@RoleId INT
+AS
+BEGIN
+	IF @RoleId = 2 OR @RoleId = 3 -- Supervisors have to be supervised by the ceo
+		BEGIN
+			SELECT
+				*
+			FROM
+				Employee
+			WHERE
+				IsActive = 1
+				AND RoleId = 1
+		END
+	ELSE
+		BEGIN
+			IF @RoleId = 4  -- HR employee
+				BEGIN
+					SELECT
+					*
+					FROM
+						Employee
+					WHERE
+						IsActive = 1
+						AND RoleId = 2
+						AND DepartmentId = @DepartmentId
+				END
+			ELSE -- roleId 5 Employee
+				BEGIN
+					SELECT
+					*
+					FROM
+						Employee
+					WHERE
+						IsActive = 1
+						AND RoleId = 3
+						AND DepartmentId = @DepartmentId
+				END
+		END
+END
+GO
+-- select * from Role
 -- login
 CREATE OR ALTER PROC spLogin
 	@EmployeeNumber INT,

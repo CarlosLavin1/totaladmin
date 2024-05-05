@@ -18,6 +18,9 @@ import { EmployeeCreateComponent } from './employee-create/employee-create.compo
 import { DepartmentCreateComponent } from './department-create/department-create.component';
 import { AuthInterceptor } from './interceptors/auth.interceptor';
 import { AddItemComponent } from './add-item/add-item.component';
+import { UnauthorizedComponent } from './unauthorized/unauthorized.component';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import { MatSnackBarModule } from '@angular/material/snack-bar';
 
 @NgModule({
   declarations: [
@@ -30,6 +33,7 @@ import { AddItemComponent } from './add-item/add-item.component';
     EmployeeCreateComponent,
     DepartmentCreateComponent,
     AddItemComponent,
+    UnauthorizedComponent,
   ],
   imports: [
     BrowserModule,
@@ -37,6 +41,8 @@ import { AddItemComponent } from './add-item/add-item.component';
     FormsModule,
     ReactiveFormsModule,
     HttpClientModule,
+    BrowserAnimationsModule, 
+    MatSnackBarModule
   ],
   providers: [
     {
