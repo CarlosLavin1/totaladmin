@@ -1,0 +1,125 @@
+<div class="container">
+    <h1 class="m-5 fw-bold">Create Purchase Order</h1>
+
+    <app-errors [messages]="errors"></app-errors>
+
+    <form [formGroup]="purchaseOrderForm" (ngSubmit)="onSubmit()">
+        <div class="row">
+            <div class="col-md-6">
+                <div class="mb-3">
+                    <label for="PONumber" class="form-label">PO Number</label>
+                    <input readonly disabled type="text" placeholder="No PO number yet.." class="form-control" id="PONumber"
+                      [value]="purchaseOrder?.formattedPoNumber">
+                  </div>
+            </div>
+            <div class="col-md-6">
+                <div class="mb-3">
+                    <label for="CreationDate" class="form-label">Current Date</label>
+                    <input readonly disabled type="text" class="form-control" id="CreationDate"
+                        [value]="purchaseOrderForm.get('creationDate')?.value | date:'yyyy-MM-dd'">
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="mb-3">
+                    <label for="EmployeeNumber" class="form-label">Employee Number</label>
+                    <input readonly disabled type="text" class="form-control" id="EmployeeNumber"
+                        [value]="employeeNumber">
+                </div>
+            </div>
+        </div>
+
+        <h3 class="m-3 text-center fw-bold">Add Item Information</h3>
+
+
+        <div formArrayName="items">
+            <div *ngFor="let item of items.controls; let i=index" [formGroupName]="i" class="row">
+                <h4 class="fw-bold">Item #{{i + 1}}</h4>
+                <div class="col-md-6">
+                    <div class="mb-3">
+                        <label for="itemName" class="form-label">Name</label>
+                        <input type="text" class="form-control" id="itemName" formControlName="name">
+                        <div *ngIf="item.get('name')?.invalid && item.get('name')?.touched">
+                            <span class="text-danger">Name is required</span>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label for="quantity" class="form-label">Quantity</label>
+                        <input type="number" class="form-control" id="quantity" formControlName="quantity">
+                        <div *ngIf="item.get('quantity')?.invalid && item.get('quantity')?.touched">
+                            <span class="text-danger">Quantity is required</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="mb-3">
+                        <label for="price" class="form-label">Price</label>
+                        <input type="number" class="form-control" id="price" formControlName="price">
+                        <div *ngIf="item.get('price')?.invalid && item.get('price')?.touched">
+                            <span class="text-danger">Price is required</span>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label for="itemLoc" class="form-label">Location</label>
+                        <input class="form-control" id="itemLoc" formControlName="location">
+                        <div *ngIf="item.get('location')?.invalid && item.get('location')?.touched">
+                            <span class="text-danger">Location is required</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="mb-3">
+                    <label for="just" class="form-label">Justification</label>
+                    <textarea class="form-control" id="just" rows="3" formControlName="justification"></textarea>
+                    <div *ngIf="item.get('justification')?.invalid && item.get('justification')?.touched">
+                        <span class="text-danger">Justification is required</span>
+                    </div>
+                </div>
+                <div class="mb-3">
+                    <label for="desc" class="form-label">Description</label>
+                    <textarea class="form-control" id="desc" rows="3" formControlName="description"></textarea>
+                    <div *ngIf="item.get('description')?.invalid && item.get('description')?.touched">
+                        <span class="text-danger">Description is required</span>
+                    </div>
+                   
+                </div>
+               
+            </div>
+           
+        </div>
+
+        <div class="mb-5" >
+            <button type="button" class="btn btn-success mr-2 d-inline" (click)="addItem()">Add Item</button>
+            <button type="submit" class="btn btn-primary d-inline">Submit</button>
+            <div class="d-flex justify-content-end" *ngIf="items.controls.length > 0">
+                <button type="button" class="btn btn-danger d-inline"
+                     (click)="onItemRemove(items.controls.length - 1)">Remove Last Item</button>
+            </div>
+        </div>
+
+    </form>
+    <div class="m-5" *ngIf="displayedItems.length > 0">
+        <table class="table">
+          <thead>
+            <tr class="bg-light-subtle">
+              <th>Item Name</th>
+              <th>QTY</th>
+              <th>Unit Price</th>
+              <th>Subtotal</th>
+              <th>Tax</th>
+              <th>Grand Total</th>
+              <th>PO Num</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let item of displayedItems; let i=index">
+                <td>{{ item.name }}</td>
+                <td>{{ item.quantity }}</td>
+                <td>{{ item.price | currency}}</td>
+                <td>{{ item.subtotal | currency }}</td>
+                <td>{{ item.tax | currency }}</td>
+                <td>{{ item.grandTotal | currency}}</td>
+                <td class="bg-light">{{purchaseOrder?.formattedPoNumber}}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+</div>

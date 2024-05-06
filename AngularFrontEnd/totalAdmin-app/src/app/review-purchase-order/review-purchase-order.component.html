@@ -1,0 +1,84 @@
+<div class="container">
+
+    <h1 class="fw-bold mt-5 text-center">Review Purchase Order</h1>
+
+
+    <form [formGroup]="employeeForm" (ngSubmit)="onSubmit()">
+        <div class="form-group">
+            <label for="employeeNumber">Enter Employee Number</label>
+            <input type="text" id="employeeNumber" placeholder="8-digit number..." formControlName="EmployeeNumber"
+                class="form-control" required>
+        </div>
+        <button type="submit" class="btn btn-primary" [disabled]="!employeeForm.valid">Search</button>
+    </form>
+
+    <div *ngIf="errors.length > 0" class="alert alert-danger">
+        <ul>
+            <li *ngFor="let error of errors">{{error}}</li>
+        </ul>
+    </div>
+
+    <div class="m-5" *ngIf="purchaseOrders.length > 0">
+
+        <h2>Purchase Orders</h2>
+
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Purchase Order Number</th>
+                    <th>Employees Fullname</th>
+                    <th>Employees Supervisorname</th>
+                    <th>Employees Departmentname</th>
+                    <th>Creation Date</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr *ngFor="let purchaseOrder of purchaseOrders">
+                    <td>{{purchaseOrder.poNumber}}</td>
+                    <td>{{purchaseOrder.employeeName}}</td>
+                    <td>{{purchaseOrder.employeeSupervisorName}}</td>
+                    <td>{{purchaseOrder.empDepartmentName}}</td>
+                    <td>{{purchaseOrder.creationDate | date:'shortDate'}}</td>
+                    <td>{{purchaseOrder.purchaseOrderStatus}}</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <div *ngIf="purchaseOrders.length > 0">
+
+            <div *ngIf="purchaseOrders.length > 0">
+                <h2>Items Information</h2>
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Item Name</th>
+                            <th>justification</th>
+                            <th>Description</th>
+                            <th>Price</th>
+                            <th>Quantity</th>
+                            <th>Subtotal</th>
+                            <th>Tax</th>
+                            <th>Grand Total</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <ng-container *ngFor="let purchaseOrder of purchaseOrders">
+                            <tr *ngFor="let item of purchaseOrder.items">
+                                <td>{{item.name}}</td>
+                                <td>{{item.justification}}</td>
+                                <td>{{item.description}}</td>
+                                <td>{{item.price}}</td>
+                                <td>{{item.quantity}}</td>
+                                <td>{{item.subtotal | currency}}</td>
+                                <td>{{item.tax | currency}}</td>
+                                <td>{{item.grandTotal | currency}}</td>
+                            </tr>
+                        </ng-container>
+                    </tbody>
+                </table>
+            </div>
+
+        </div>
+    </div>
+</div>
