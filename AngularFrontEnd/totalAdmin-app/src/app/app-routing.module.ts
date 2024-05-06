@@ -6,7 +6,6 @@ import { HomeComponent } from './home/home.component';
 import { EmployeeCreateComponent } from './employee-create/employee-create.component';
 import { AuthGuard } from './guards/auth.guard';
 import { DepartmentCreateComponent } from './department-create/department-create.component';
-import { AddItemComponent } from './add-item/add-item.component';
 import { CreatePurchaseOrderComponent } from './create-purchase-order/create-purchase-order.component';
 import { UnauthorizedComponent } from './unauthorized/unauthorized.component';
 
@@ -14,9 +13,8 @@ import { UnauthorizedComponent } from './unauthorized/unauthorized.component';
 const routes: Routes = [
   { path: '', component: HomeComponent },
   { path: 'unauthorized', component: UnauthorizedComponent },
-  { path: 'purchase-order-search', component: PurchaseOrderSearchComponent },
-  { path: 'item', component: AddItemComponent},
-  { path: 'purchase-order', component: CreatePurchaseOrderComponent },
+  { path: 'purchase-order-search', component: PurchaseOrderSearchComponent, canActivate: [AuthGuard] },
+  { path: 'purchase-order', component: CreatePurchaseOrderComponent, canActivate: [AuthGuard] },
   { path: 'login', component: LoginComponent },
   { path: 'employee', component: EmployeeCreateComponent, canActivate: [AuthGuard], data: { roles: ['CEO', 'HR Employee']} },
   { path: 'department', component: DepartmentCreateComponent, canActivate: [AuthGuard], data: { roles: ['CEO', 'HR Employee']} },

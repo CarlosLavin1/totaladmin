@@ -4,17 +4,22 @@ import { PurchaseOrder } from '../models/purchase-order';
 import { PurchaseOrderService } from '../services/purchase-order.service';
 import { SnackbarService } from '../services/snackbar.service';
 import { ValidationError } from '../models/validationError';
+import { Item } from '../models/item';
 
 @Component({
   selector: 'app-create-purchase-order',
   templateUrl: './create-purchase-order.component.html',
   styleUrls: ['./create-purchase-order.component.css']
 })
-export class CreatePurchaseOrderComponent implements OnInit {
+export class CreatePurchaseOrderComponent implements OnInit  {
 
-  purchaseOrderForm: FormGroup;
-  errors: string[] = [];
-  employeeNumber = localStorage.getItem('employeeNumber');
+  public purchaseOrderForm: FormGroup;
+  public errors: string[] = [];
+  public displayedItems: Item[] = [];
+
+  
+  public employeeNumber = localStorage.getItem('employeeNumber');
+  public purchaseOrder: PurchaseOrder | null;
 
   constructor(
     private formBuilder: FormBuilder,
@@ -28,7 +33,12 @@ export class CreatePurchaseOrderComponent implements OnInit {
   }
 
   ngOnInit(): void {
+    this.displayedItems = JSON.parse(localStorage.getItem('displayedItems') || '[]');  // Load from local storage
     
+  }
+  
+  ngOnDestory(): void {
+    localStorage.removeItem('displayedItems');
   }
 
   get items(): FormArray {
@@ -36,6 +46,8 @@ export class CreatePurchaseOrderComponent implements OnInit {
   }
 
   public addItem(): void {
+    this.errors = [];
+
     const itemGroup = this.formBuilder.group({
       name: ['', Validators.required],
       quantity: ['', Validators.required],
@@ -47,27 +59,54 @@ export class CreatePurchaseOrderComponent implements OnInit {
     });
 
     this.items.push(itemGroup);
+
+    // Reset the items FormArray after adding a new item
+  this.purchaseOrderForm.setControl('items', this.formBuilder.array(this.items.controls));
   } 
 
+  public onItemRemove(index: number): void {
+    this.items.removeAt(index);
+  }
+
   public onSubmit(): void {
+    this.errors = [];
+
+    console.log('Form Value:', this.purchaseOrderForm.value); 
+    
     // Check if the items FormArray is empty
     if (this.items.controls.length === 0) {
       this.errors.push('Please add at least one item before submitting the form.');
       return;
     }
 
-
+    // this.displayedItems = [...this.displayedItems, ...this.purchaseOrderForm.get('items')?.value];
+    
     if (this.purchaseOrderForm.valid) {
+
       const purchaseOrder = this.preparePurchaseOrderData();
+      console.log("Prepare Purchase Order Data: " + purchaseOrder);
+      
       this.poService.addPurchaseOrder(purchaseOrder).subscribe({
-        next: (res) => {
-          console.log(res);
+        next: (res: PurchaseOrder) => {
+          this.purchaseOrder = res;
+          console.log('Server Response:', res);
+
+          // Update the displayedItems array with the items from the server response
+          if (Array.isArray((res as any).purchaseOrder.items)) {
+            this.displayedItems = [...(res as any).purchaseOrder.items];
+            localStorage.setItem('displayedItems', JSON.stringify(this.displayedItems));  // Save to local storage
+            console.log("The displayed items: ", this.displayedItems);
+          }
+
+          console.log("The ITEMS response are: : " + res.items);
+          // Reset the form
+          this.purchaseOrderForm.setControl('items', this.formBuilder.array([]));
 
           this.snackBarService.showSnackBar("Purchase order added successfully", 0);
           setTimeout(() => {
             console.log('Succesfully added po');
             this.snackBarService.dismissSnackBar(); 
-          }, 1800);
+          }, 5000);
         },
         error:(err) => {
           console.log(err);
@@ -105,9 +144,10 @@ export class CreatePurchaseOrderComponent implements OnInit {
     // Set the items from the form value
     purchaseOrder.items = formValue.items;
 
+    purchaseOrder.formattedPoNumber?.valueOf
+
     purchaseOrder.statusId = 1;
     
     return purchaseOrder;
   }
-  
 }
