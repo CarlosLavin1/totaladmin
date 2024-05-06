@@ -4,6 +4,7 @@ import { HttpClient, HttpParams  } from '@angular/common/http';
 import { Observable, catchError } from 'rxjs';
 import { POSearchFiltersDTO } from '../models/posearch-filters-dto';
 import { PODisplayDTO } from '../models/podisplay-dto';
+import { PurchaseOrder } from '../models/purchase-order';
 
 
 @Injectable({
@@ -27,6 +28,11 @@ export class PurchaseOrderService extends SharedService {
     return this.http
       .get<PODisplayDTO[]>(`${API_URL}/PurchaseOrder/Search`, options)
       .pipe(catchError(super.handleError));
+  }
+
+  public addPurchaseOrder(purchaseOrder: PurchaseOrder): Observable<PurchaseOrder> {
+    return this.http.post<PurchaseOrder>(`${API_URL}/purchaseOrder`,
+    purchaseOrder).pipe(catchError(super.handleError));
   }
   
 }

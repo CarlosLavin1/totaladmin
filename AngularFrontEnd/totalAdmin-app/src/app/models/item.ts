@@ -8,4 +8,7 @@ export class Item {
     location: string;
     statusId: number;
     poNumber: number;
+    subtotal: number;
+    tax: number;
+    grandTotal: number
 }

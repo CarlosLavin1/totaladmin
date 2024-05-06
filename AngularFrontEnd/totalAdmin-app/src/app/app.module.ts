@@ -21,6 +21,8 @@ import { AddItemComponent } from './add-item/add-item.component';
 import { UnauthorizedComponent } from './unauthorized/unauthorized.component';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
+import { CreatePurchaseOrderComponent } from './create-purchase-order/create-purchase-order.component';
+
 
 @NgModule({
   declarations: [
@@ -34,6 +36,7 @@ import { MatSnackBarModule } from '@angular/material/snack-bar';
     DepartmentCreateComponent,
     AddItemComponent,
     UnauthorizedComponent,
+    CreatePurchaseOrderComponent,
   ],
   imports: [
     BrowserModule,
