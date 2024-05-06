@@ -1,6 +1,5 @@
 <div class="container">
     <h1>Hire New Employee</h1>
-    <app-errors [messages]="errors"></app-errors>
     <form [formGroup]="employeeForm" (ngSubmit)="onSubmit()">
         <div class="mb-3">
             <label for="firstName" class="form-label">First Name</label>
@@ -74,21 +73,21 @@
         </div>
         <div class="mb-3">
             <label for="seniorityDate" class="form-label">Seniority Date</label>
-            <input type="datetime-local" class="form-control" id="seniorityDate" formControlName="seniorityDate">
+            <input type="date" class="form-control" id="seniorityDate" formControlName="seniorityDate">
             <div *ngIf="employeeForm.get('seniorityDate')?.invalid && employeeForm.get('seniorityDate')?.touched">
                 <span class="text-danger">Seniority Date is required</span>
             </div>
         </div>
         <div class="mb-3">
             <label for="jobStartDate" class="form-label">Job Start Date</label>
-            <input type="datetime-local" class="form-control" id="jobStartDate" formControlName="jobStartDate">
+            <input type="date" class="form-control" id="jobStartDate" formControlName="jobStartDate">
             <div *ngIf="employeeForm.get('jobStartDate')?.invalid && employeeForm.get('jobStartDate')?.touched">
                 <span class="text-danger">Job Start Date is required</span>
             </div>
         </div>
         <div class="mb-3">
             <label for="dateOfBirth" class="form-label">Date Of Birth</label>
-            <input type="datetime-local" class="form-control" id="dateOfBirth" formControlName="dateOfBirth">
+            <input type="date" class="form-control" id="dateOfBirth" formControlName="dateOfBirth">
             <div *ngIf="employeeForm.get('dateOfBirth')?.invalid && employeeForm.get('dateOfBirth')?.touched">
                 <span class="text-danger">Date Of Birth is required</span>
             </div>
@@ -143,7 +142,7 @@
                 <span class="text-danger">Supervisor Employee Number is required</span>
             </div>
         </div>
-
+        <app-errors [messages]="errors"></app-errors>
         <button type="submit" class="btn btn-primary mb-5" [disabled]="!employeeForm.valid">Create Employee</button>
     </form>
 </div>

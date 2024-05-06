@@ -33,7 +33,7 @@ export class CreatePurchaseOrderComponent implements OnInit  {
   }
 
   ngOnInit(): void {
-    this.displayedItems = JSON.parse(localStorage.getItem('displayedItems') || '[]');  // Load from local storage
+    // this.displayedItems = JSON.parse(localStorage.getItem('displayedItems') || '[]');  // Load from local storage
     
   }
   
@@ -94,7 +94,7 @@ export class CreatePurchaseOrderComponent implements OnInit  {
           // Update the displayedItems array with the items from the server response
           if (Array.isArray((res as any).purchaseOrder.items)) {
             this.displayedItems = [...(res as any).purchaseOrder.items];
-            localStorage.setItem('displayedItems', JSON.stringify(this.displayedItems));  // Save to local storage
+            // localStorage.setItem('displayedItems', JSON.stringify(this.displayedItems));  // Save to local storage
             console.log("The displayed items: ", this.displayedItems);
           }
 
