@@ -22,6 +22,7 @@ import { UnauthorizedComponent } from './unauthorized/unauthorized.component';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { CreatePurchaseOrderComponent } from './create-purchase-order/create-purchase-order.component';
+import { ReviewPurchaseOrderComponent } from './review-purchase-order/review-purchase-order.component';
 
 
 @NgModule({
@@ -37,6 +38,7 @@ import { CreatePurchaseOrderComponent } from './create-purchase-order/create-pur
     AddItemComponent,
     UnauthorizedComponent,
     CreatePurchaseOrderComponent,
+    ReviewPurchaseOrderComponent,
   ],
   imports: [
     BrowserModule,
