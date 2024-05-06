@@ -8,15 +8,16 @@ using System.Text;
 using System.Threading.Tasks;
 using TotalAdmin.Model.DTO;
 using TotalAdmin.Model.Entities;
+using TotalAdmin.Repository.Interfaces;
 using TotalAdmin.Types;
 
 namespace TotalAdmin.Repository
 {
-    public class PurchaseOrderRepo
+    public class PurchaseOrderRepo : IPurchaseOrderRepo
     {
         // Access the database from the Dal
         private readonly DataAccess db = new();
-
+        
 
         /// <summary>
         /// Retrieves a list of purchase order detail results
@@ -64,34 +65,40 @@ namespace TotalAdmin.Repository
                     new Parm("@EmployeeNumber", SqlDbType.Int, employeeNumber)
                 };
 
-
                 DataTable dt = await db.ExecuteAsync("spReviewEmployeePO", parms);
-
 
                 List<PurchaseOrder> purchaseOrders = dt.AsEnumerable()
                     .GroupBy(row => row["PoNumber"]).Select(g =>
                     {
                         DataRow? firstRow = g.First();
+                        int purchaseOrderNumber = Convert.ToInt32(firstRow["PoNumber"]);
+                        string employeeName = GetEmployeeFullName(employeeNumber).Result;
+                        string empSupervisorName = GetSupervisorFullNameForEmployee(employeeNumber).Result;
+                        string empDepartmentName = GetEmployeeDepartmentByPONumber(purchaseOrderNumber).Result;
                         var purchaseOrder = new PurchaseOrder
                         {
-                            PoNumber = Convert.ToInt32(firstRow["PoNumber"]),
+                            PoNumber = purchaseOrderNumber,
                             CreationDate = Convert.ToDateTime(firstRow["CreationDate"]),
                             StatusId = Convert.ToInt32(firstRow["PurchaseOrderStatusId"]),
+                            PurchaseOrderStatus = Convert.ToString(firstRow["PurchaseOrderStatus"]),
+                            EmployeeName = employeeName,
+                            EmployeeSupervisorName = empSupervisorName,
+                            EmpDepartmentName = empDepartmentName,
 
                             Items = g.Select(row => new Item
                             {
-                                ItemId = Convert.ToInt32(row["ItemId"]),
-                                Name = row["Name"].ToString(),
+                                ItemId = Convert.ToInt32(row["ItemId"] ?? 0),
+                                Name = row["Name"].ToString() ?? "UnKnown",
                                 Quantity = Convert.ToInt32(row["Quantity"]),
-                                Description = row["Description"].ToString(),
+                                Description = row["Description"].ToString() ?? "UnKnown",
                                 Price = Convert.ToDecimal(row["Price"]),
-                                Justification = row["Justification"].ToString(),
-                                Location = row["ItemLocation"].ToString(),
+                                Justification = row["Justification"].ToString() ?? "UnKnown",
+                                Location = row["ItemLocation"].ToString() ?? "UnKnown",
+                                ItemStatus = row["ItemStatus"].ToString() ?? "UnKnown",
                                 StatusId = Convert.ToInt32(row["ItemStatusId"])
                             }).ToList()
                         };
 
-                        // todo add calculation
 
                         return purchaseOrder;
                     }).ToList();
@@ -107,35 +114,73 @@ namespace TotalAdmin.Repository
 
 
         /// <summary>
-        /// Adds a new purchase orders
+        /// Adds a new purchase order along with its items
         /// </summary>
         /// <param name="po"></param>
-        /// <returns></returns>
+        /// <returns>The added purchase order with updated properties</returns>
         /// <exception cref="DataException"></exception>
         public async Task<PurchaseOrder> AddPoAsync(PurchaseOrder po)
         {
-            List<Parm> parms = new()
+            try
             {
-                new("@PoNumber", SqlDbType.Int, po.PoNumber, 0, ParameterDirection.Output),
-                new("@CreationDate", SqlDbType.DateTime2, po.CreationDate, 7),
-                new("@RowVersion", SqlDbType.Int, po.RowVersion),
-                new("@PurchaseOrderStatusId", SqlDbType.Int, po.StatusId),
-                new("@EmployeeNumber", SqlDbType.Int, po.EmployeeNumber)
-            };
+                // Fetch all items from the database
+                var allItems = await GetAllItems();
 
-            if (await db.ExecuteNonQueryAsync("spAddPurchaseOrder", parms) > 0)
-            {
-                //po.PoNumber = (int)parms.Where(p => p.Name == "@PoNumber").FirstOrDefault().Value;
-                po.PoNumber = (int?)parms.FirstOrDefault(p => p.Name == "@PoNumber")!.Value ?? 0;
-            }
-            else
-            {
-                throw new DataException("There was an issue adding the record to the database.");
-            }
 
-            return po;
+                // Merge items with the same properties
+                var (mergedItems, hasMergeOccurred) = 
+                    await MergeItems(allItems, (po.Items ?? new List<Item>()).ToList());
+
+
+                // Check if a merge has occurred
+                if (hasMergeOccurred)
+                {
+                    // If a merge has occurred, set the flag
+                    po.HasMergeOccurred = true;
+                }
+
+                // Filter out the existing items from the mergedItems list
+                var newItems = mergedItems
+                    .Where(item => !allItems
+                    .Any(existingItem => existingItem.ItemId == item.ItemId))
+                    .ToList();
+
+
+                // Create a DataTable for the PO items
+                var poItemsTable = await CreatePoItemsDataTableAsync(newItems);
+
+
+                List<Parm> parms = new()
+                {
+                    new("@PoNumber", SqlDbType.Int, po.PoNumber, 0, ParameterDirection.Output),
+                    new("@CreationDate", SqlDbType.DateTime2, po.CreationDate, 7),
+                    new("@PurchaseOrderStatusId", SqlDbType.Int, po.StatusId),
+                    new("@EmployeeNumber", SqlDbType.Int, po.EmployeeNumber),
+                    new("@POItems", SqlDbType.Structured, poItemsTable)
+                };
+
+                if (await db.ExecuteNonQueryAsync("spAddPurchaseOrder", parms) > 0)
+                {
+                    // Get the PO number as an integer
+                    int poNumberInt = po.PoNumber = (int?)parms.FirstOrDefault(p => p.Name == "@PoNumber")!.Value ?? 0;
+
+                    // Assign the PO number to the PurchaseOrder object
+                    po.PoNumber = poNumberInt;
+                }
+                else
+                {
+                    throw new DataException("There was an issue adding the record to the database.");
+                }
+
+                return po;
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine(ex.Message);
+                throw;
+            }
         }
-
+        
         
 
         /// <summary>
@@ -192,6 +237,40 @@ namespace TotalAdmin.Repository
         }
 
         /// <summary>
+        /// Get all the items
+        /// </summary>
+        /// <returns></returns>
+        public async Task<List<Item>> GetAllItems()
+        {
+            try
+            {
+                string sql = "SELECT * FROM Item";
+                DataTable dt = await db.ExecuteAsync(sql, null, CommandType.Text);
+
+                return dt.AsEnumerable()
+                    .Select(row => new Item
+                    {
+                        ItemId = Convert.ToInt32(row["ItemId"] ?? 0),
+                        Name = row["Name"].ToString() ?? "UnKnown",
+                        Quantity = Convert.ToInt32(row["Quantity"]),
+                        Description = row["Description"].ToString() ?? "UnKnown",
+                        Price = Convert.ToDecimal(row["Price"]),
+                        Justification = row["Justification"].ToString() ?? "UnKnown",
+                        Location = row["ItemLocation"].ToString() ?? "UnKnown",
+                        StatusId = Convert.ToInt32(row["ItemStatusId"])
+                    }).ToList();
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine(ex.Message);
+                throw;
+            }
+        }
+
+
+        #region [PRIVATE METHODS]
+
+        /// <summary>
         /// Calculates the subtotal for a given purchase order
         /// </summary>
         /// <param name="poNumber"></param>
@@ -239,6 +318,221 @@ namespace TotalAdmin.Repository
             return subtotal + tax;
         }
 
+        /// <summary>
+        ///  Gets the full name for a given employee number
+        /// </summary>
+        /// <param name="employeeNumber"></param>
+        /// <returns></returns>
+        /// <exception cref="Exception"></exception>
+        private async Task<string> GetEmployeeFullName(int employeeNumber)
+        {
+            List<Parm> parms = new()
+            {
+                new Parm("@EmployeeNumber", SqlDbType.Int, employeeNumber)
+            };
 
+            string sql = "SELECT FirstName, LastName FROM Employee WHERE EmployeeNumber = @EmployeeNumber";
+            DataTable dt = await db.ExecuteAsync(sql, parms, CommandType.Text);
+
+            if (dt.Rows.Count > 0)
+            {
+                DataRow row = dt.Rows[0];
+                string firstName = row["FirstName"].ToString();
+                string lastName = row["LastName"].ToString();
+                return $"{firstName} {lastName}";
+            }
+            else
+            {
+                throw new Exception($"Employee with number {employeeNumber} not found.");
+            }
+        }
+
+        /// <summary>
+        /// Gets the full name of the supervisor for a given employee number
+        /// </summary>
+        /// <param name="employeeNumber"></param>
+        /// <returns></returns>
+        /// <exception cref="Exception"></exception>
+        private async Task<string> GetSupervisorFullNameForEmployee(int employeeNumber)
+        {
+            // get supervisor number for the given employee
+            List<Parm> parms = new()
+            {
+                new Parm("@EmployeeNumber", SqlDbType.Int, employeeNumber)
+            };
+
+            string sql = "SELECT SupervisorEmpNumber FROM Employee WHERE EmployeeNumber = @EmployeeNumber";
+            DataTable dt = await db.ExecuteAsync(sql, parms, CommandType.Text);
+
+            if (dt.Rows.Count > 0)
+            {
+                DataRow row = dt.Rows[0];
+                int supervisorNumber = Convert.ToInt32(row["SupervisorEmpNumber"]);
+
+                // get the supervisor's full name using the GetEmployeeFullName method
+                string supervisorFullName = await GetEmployeeFullName(supervisorNumber);
+                return supervisorFullName;
+            }
+            else
+            {
+                throw new Exception($"Employee with number {employeeNumber} not found.");
+            }
+        }
+
+        /// <summary>
+        /// Get the department name for a given purchase order number
+        /// </summary>
+        /// <param name="poNumber"></param>
+        /// <returns></returns>
+        /// <exception cref="Exception"></exception>
+        private async Task<string> GetEmployeeDepartmentByPONumber(int poNumber)
+        {
+            List<Parm> parms = new()
+            {
+                new Parm("@PoNumber", SqlDbType.Int, poNumber)
+            };
+
+            //  Retrieves the department name associated with a given PO number
+            string sql = @"
+                SELECT d.Name 
+                FROM PurchaseOrder po 
+                    JOIN Employee e ON po.EmployeeNumber = e.EmployeeNumber 
+                    JOIN Department d ON e.DepartmentId = d.DepartmentId 
+                WHERE po.PoNumber = @PoNumber";
+
+            DataTable dt = await db.ExecuteAsync(sql, parms, CommandType.Text);
+
+            if (dt.Rows.Count > 0)
+            {
+                DataRow row = dt.Rows[0];
+                string departmentName = row["Name"].ToString();
+                return departmentName;
+            }
+            else
+            {
+                throw new Exception($"Purchase order with number {poNumber} not found.");
+            }
+        }
+
+        private async Task<bool> UpdateItemAsync(Item item)
+        {
+            try
+            {
+                List<Parm> parms = new()
+                {
+                    new Parm("@ItemId", SqlDbType.Int, item.ItemId),
+                    new Parm("@Quantity", SqlDbType.Int, item.Quantity),
+                };
+
+                string sql = "UPDATE Item SET Quantity = @Quantity WHERE ItemId = @ItemId";
+                int rowsAffected = await db.ExecuteNonQueryAsync(sql, parms, CommandType.Text);
+
+                return rowsAffected > 0;
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine(ex.Message);
+                throw;
+            }
+        }
+
+        /// <summary>
+        /// Merges new items with existing items based on their properties
+        /// </summary>
+        /// <param name="existingItems"></param>
+        /// <param name="newItems"></param>
+        /// <returns>A tuple containing the list of merged items and a boolean indicating if a merge has occurred</returns>
+        private async Task<(List<Item>, bool)> MergeItems(List<Item> existingItems, List<Item> newItems)
+        {
+            var result = new List<Item>();
+            bool hasMergeOccurred = false;
+
+            // Loop over each new item
+            foreach (var newItem in newItems)
+            {
+                // Find an existing item that matches the new item based on their properties
+                var existingItem = existingItems.FirstOrDefault(item =>
+                  item.Name == newItem.Name &&
+                  item.Description == newItem.Description &&
+                  item.Price == newItem.Price &&
+                  item.Justification == newItem.Justification &&
+                  item.Location == newItem.Location);
+
+                if (existingItem != null)
+                {
+                    // If an existing item matches the new item sum the quantity
+                    existingItem.Quantity += newItem.Quantity;
+                    await UpdateItemAsync(existingItem);
+
+                    // Add a new instance of Item with the same properties as the existing item
+                    result.Add(CreateNewItemFromExisting(existingItem));
+
+
+                    hasMergeOccurred = true;
+                }
+                else
+                {
+                    // If no matching existing item is found add copy of new item
+                    result.Add(CreateNewItemFromExisting(newItem));
+                }
+            }
+
+            return (result, hasMergeOccurred);
+        }
+
+        /// <summary>
+        /// Creates a DataTable for the given list of items
+        /// </summary>
+        /// <param name="items"></param>
+        /// <returns>A temporary DB representing the given list of items</returns>
+        private Task<DataTable> CreatePoItemsDataTableAsync(List<Item> items)
+        {
+            DataTable dt = new DataTable();
+            dt.Columns.Add("ItemId", typeof(int));
+            dt.Columns.Add("ItemName", typeof(string));
+            dt.Columns.Add("ItemQty", typeof(int));
+            dt.Columns.Add("ItemDesc", typeof(string));
+            dt.Columns.Add("ItemPrice", typeof(decimal));
+            dt.Columns.Add("ItemJust", typeof(string));
+            dt.Columns.Add("ItemLoc", typeof(string));
+            dt.Columns.Add("ItemStatus", typeof(int));
+            dt.Columns.Add("RowVersion", typeof(int));
+
+            foreach (var item in items)
+            {
+                dt.Rows.Add(
+                    item.ItemId,
+                    item.Name,
+                    item.Quantity,
+                    item.Description,
+                    item.Price,
+                    item.Justification,
+                    item.Location,
+                    item.StatusId,
+                    item.RowVersion);
+            }
+
+            return Task.FromResult(dt);
+        }
+
+        private Item CreateNewItemFromExisting(Item existingItem)
+        {
+            return new Item
+            {
+                ItemId = existingItem.ItemId,
+                Name = existingItem.Name,
+                Quantity = existingItem.Quantity,
+                Description = existingItem.Description,
+                Price = existingItem.Price,
+                Justification = existingItem.Justification,
+                Location = existingItem.Location,
+                ItemStatus = existingItem.ItemStatus,
+                StatusId = existingItem.StatusId,
+                RowVersion = existingItem.RowVersion,
+            };
+        }
+
+
+        #endregion
     }
 }

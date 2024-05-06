@@ -7,22 +7,40 @@ using System.Threading.Tasks;
 using TotalAdmin.Model.DTO;
 using TotalAdmin.Model.Entities;
 using TotalAdmin.Repository;
+using TotalAdmin.Repository.Interfaces;
+using TotalAdmin.Service.Interfaces;
 using TotalAdmin.Types;
 
 namespace TotalAdmin.Service
 {
-    public class PurchaseOrderService
+    public class PurchaseOrderService : IPurchaseOrderService
     {
-        public readonly PurchaseOrderRepo repo = new();
+        private readonly IPurchaseOrderRepo repo;
+
+        public PurchaseOrderService(IPurchaseOrderRepo repo)
+        {
+            this.repo = repo;
+        }
 
         public async Task<PurchaseOrder> AddPurchaseOrder(PurchaseOrder purchaseOrder)
         {
-            if (ValidatePurchaseOrder(purchaseOrder))
-                return await repo.AddPoAsync(purchaseOrder);
+            if (!ValidatePurchaseOrder(purchaseOrder))
+            {
+                // Add the purchase order using the repo method
+                var addedPurchaseOrder = await repo.AddPoAsync(purchaseOrder);
+
+                if (addedPurchaseOrder.HasMergeOccurred)
+                    // Update the quantities in the addedPurchaseOrder
+                    addedPurchaseOrder = await UpdateQuantitiesInPurchaseOrder(addedPurchaseOrder);
+
+                return addedPurchaseOrder;
+            }
 
             return purchaseOrder;
         }
-       
+
+
+
         public async Task<List<PurchaseOrder>> GetPurchaseOrdersForEmployee(int employeeNumber)
         {
             return await repo.ReviewEmployeePO(employeeNumber);
@@ -57,7 +75,60 @@ namespace TotalAdmin.Service
                 po.AddError(new ValidationError(e?.ErrorMessage ?? "null", ErrorType.Model));
             }
 
+            // Check if the purchase order has at least one item
+            if (po.Items == null || !po.Items.Any())
+            {
+                // Add an error to the purchase order
+                po.Errors.Add(new ValidationError("A purchase order requires at least one item in order to be created.", ErrorType.Business));
+            }
+            else
+            {
+                // Validate each item in the purchase order
+                foreach (var item in po.Items)
+                {
+                    isValid = Validator.TryValidateObject(item, new ValidationContext(item), results, true);
+                    if (!isValid)
+                    {
+                        foreach (ValidationResult e in results)
+                        {
+                            po.AddError(new ValidationError(e?.ErrorMessage ?? "null", ErrorType.Model));
+                        }
+                    }
+                }
+            }
+
+            // Check if there are any errors in the Errors list
+            if (po.Errors.Count == 0)
+            {
+                isValid = false;
+            }
+            else
+            {
+                isValid = true;
+            }
+
             return isValid;
         }
+
+        private async Task<PurchaseOrder> UpdateQuantitiesInPurchaseOrder(PurchaseOrder purchaseOrder)
+        {
+            // Fetch all items from the database
+            var allItems = await repo.GetAllItems();
+
+            // Update the quantities in the purchaseOrder
+            foreach (var item in purchaseOrder.Items ?? new List<Item>())
+            {
+                var existingItem = allItems
+                    .FirstOrDefault(eItem => eItem.Name == item.Name && eItem.Description == item.Description);
+
+                if (existingItem != null)
+                {
+                    item.Quantity = existingItem.Quantity;
+                }
+            }
+
+            return purchaseOrder;
+        }
+
     }
 }

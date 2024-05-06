@@ -1,8 +1,12 @@
 <div class="container">
+
+    <h1 class="fw-bold mt-5 text-center">Search Existing Purchase Order</h1>
+
+
     <form [formGroup]="searchForm" (ngSubmit)="onSubmit()">
       <div class="form-group">
         <label for="employeeNumber">Employee Number</label>
-        <input type="text" id="employeeNumber" formControlName="EmployeeNumber" class="form-control" required>
+        <input type="text" id="employeeNumber" placeholder="8-digit number..." formControlName="EmployeeNumber" class="form-control" required>
       </div>
   
       <div class="form-group">

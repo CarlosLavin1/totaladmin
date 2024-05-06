@@ -1,7 +1,64 @@
 USE TotalAdmin
 GO
 
+-- A table-valued parameter to hold a temporary collection of items for a purchase order
+IF NOT EXISTS (SELECT 1 FROM sys.types WHERE name ='PoItemsTableType' AND is_table_type = 1)
+BEGIN
+	CREATE TYPE PoItemsTableType AS TABLE
+		(ItemId INT,
+		ItemName NVARCHAR(45),
+		ItemQty INT,
+		ItemDesc NTEXT,
+		ItemPrice Money,
+		ItemJust NVARCHAR(255),
+		ItemLoc NVARCHAR(255),
+		ItemStatus INT,
+		[RowVersion] INT DEFAULT 1)
+END
+GO
+
 -- Stored procedure to create a PurchaseOrder
+CREATE OR ALTER PROC [dbo].[spAddPurchaseOrder]
+	@PoNumber INT OUTPUT,
+	@CreationDate DATETIME2(7),
+	@PurchaseOrderStatusId INT,
+	@EmployeeNumber int,
+	@POItems PoItemsTableType READONLY -- Contains rows of item thats part of the PO
+AS
+
+BEGIN
+  BEGIN TRAN
+	BEGIN TRY
+		INSERT INTO PurchaseOrder(
+			CreationDate,
+			[RowVersion],
+			PurchaseOrderStatusId,
+			EmployeeNumber)
+		VALUES (
+			@CreationDate,
+			1,
+			@PurchaseOrderStatusId,
+			@EmployeeNumber)
+
+		SET @PoNumber = SCOPE_IDENTITY();
+
+		-- add the the new PO items data
+		INSERT INTO Item
+			SELECT ItemName, ItemQty, ItemDesc, ItemPrice, ItemJust, ItemLoc, [RowVersion], @PoNumber, ItemStatus FROM @POItems
+
+		COMMIT TRAN
+
+	END TRY
+	BEGIN CATCH
+		IF @@TRANCOUNT > 0
+				ROLLBACK TRAN
+		;THROW
+	END CATCH
+
+END
+GO
+
+/* Stored procedure to create a PurchaseOrder
 CREATE OR ALTER PROC [dbo].[spAddPurchaseOrder]
 	@PoNumber INT OUTPUT,
 	@CreationDate DATETIME2(7),
@@ -33,7 +90,6 @@ END
 GO
 
 
-
 GO
 CREATE OR ALTER PROC [dbo].[spAddItem]
 	@ItemId INT OUTPUT,
@@ -59,6 +115,7 @@ BEGIN
 	END CATCH
 END
 GO
+*/
 
 GO
 -- Search purchase orders based on the @DepartmentId id
@@ -113,11 +170,17 @@ BEGIN
 			I.Price,
 			I.Justification,
 			I.ItemLocation,
-			I.ItemStatusId
+			I.ItemStatusId,
+			S.[Name] AS ItemStatus,
+			PS.[Name] AS PurchaseOrderStatus
 		FROM 
 			PurchaseOrder PO
 		INNER JOIN 
 			Item I ON PO.PoNumber = I.PoNumber
+		INNER JOIN 
+			PurchaseOrderStatus PS ON PO.PurchaseOrderStatusId = PS.PoStatusId
+		INNER JOIN
+			ItemStatus S ON I.ItemStatusId = S.ItemStatusId
 		WHERE 
 			PO.EmployeeNumber = @EmployeeNumber
 		ORDER BY 
