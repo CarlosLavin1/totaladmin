@@ -5,19 +5,22 @@ import { PurchaseOrderService } from '../services/purchase-order.service';
 import { SnackbarService } from '../services/snackbar.service';
 import { ValidationError } from '../models/validationError';
 import { Item } from '../models/item';
+import {MatDialogModule} from '@angular/material/dialog';
+
 
 @Component({
   selector: 'app-create-purchase-order',
   templateUrl: './create-purchase-order.component.html',
   styleUrls: ['./create-purchase-order.component.css']
 })
-export class CreatePurchaseOrderComponent implements OnInit  {
+export class CreatePurchaseOrderComponent implements OnInit {
 
   public purchaseOrderForm: FormGroup;
   public errors: string[] = [];
   public displayedItems: Item[] = [];
+  public hasValidationErrors = false;
 
-  
+
   public employeeNumber = localStorage.getItem('employeeNumber');
   public purchaseOrder: PurchaseOrder | null;
 
@@ -33,12 +36,11 @@ export class CreatePurchaseOrderComponent implements OnInit  {
   }
 
   ngOnInit(): void {
-    // this.displayedItems = JSON.parse(localStorage.getItem('displayedItems') || '[]');  // Load from local storage
-    
+    this.displayedItems = JSON.parse(localStorage.getItem('displayedItems') || '[]');  // Load from local storage
+    this.addItem();
   }
-  
+
   ngOnDestory(): void {
-    localStorage.removeItem('displayedItems');
   }
 
   get items(): FormArray {
@@ -47,6 +49,12 @@ export class CreatePurchaseOrderComponent implements OnInit  {
 
   public addItem(): void {
     this.errors = [];
+
+    if (this.items.length > 0 && this.items.at(this.items.length - 1).invalid) {
+      return;
+    }
+
+
 
     const itemGroup = this.formBuilder.group({
       name: ['', Validators.required],
@@ -61,8 +69,8 @@ export class CreatePurchaseOrderComponent implements OnInit  {
     this.items.push(itemGroup);
 
     // Reset the items FormArray after adding a new item
-  this.purchaseOrderForm.setControl('items', this.formBuilder.array(this.items.controls));
-  } 
+    this.purchaseOrderForm.setControl('items', this.formBuilder.array(this.items.controls));
+  }
 
   public onItemRemove(index: number): void {
     this.items.removeAt(index);
@@ -70,48 +78,62 @@ export class CreatePurchaseOrderComponent implements OnInit  {
 
   public onSubmit(): void {
     this.errors = [];
+    this.displayedItems = [];
+    this.hasValidationErrors = false;
 
-    console.log('Form Value:', this.purchaseOrderForm.value); 
-    
+    console.log('Form Value:', this.purchaseOrderForm.value);
+
     // Check if the items FormArray is empty
-    if (this.items.controls.length === 0) {
+    if (this.items.controls.length === 0 || this.items.at(this.items.length - 1).invalid) {
       this.errors.push('Please add at least one item before submitting the form.');
       return;
     }
 
-    // this.displayedItems = [...this.displayedItems, ...this.purchaseOrderForm.get('items')?.value];
-    
+    //this.displayedItems = [...this.displayedItems, ...this.purchaseOrderForm.get('items')?.value];
+
     if (this.purchaseOrderForm.valid) {
 
       const purchaseOrder = this.preparePurchaseOrderData();
-      console.log("Prepare Purchase Order Data: " + purchaseOrder);
-      
+
       this.poService.addPurchaseOrder(purchaseOrder).subscribe({
         next: (res: PurchaseOrder) => {
           this.purchaseOrder = res;
+
           console.log('Server Response:', res);
 
           // Update the displayedItems array with the items from the server response
           if (Array.isArray((res as any).purchaseOrder.items)) {
-            this.displayedItems = [...(res as any).purchaseOrder.items];
-            // localStorage.setItem('displayedItems', JSON.stringify(this.displayedItems));  // Save to local storage
+            this.displayedItems = [...this.displayedItems, ...(res as any).purchaseOrder.items];
+
+            localStorage.setItem('displayedItems', JSON.stringify(this.displayedItems));  // Save to local storage
             console.log("The displayed items: ", this.displayedItems);
           }
 
           console.log("The ITEMS response are: : " + res.items);
-          // Reset the form
-          this.purchaseOrderForm.setControl('items', this.formBuilder.array([]));
+
+          // Clear the fields of the items form
+          this.items.controls.forEach(item => {
+            item.reset();
+            item.get('statusId')?.setValue(1);
+          });
 
           this.snackBarService.showSnackBar("Purchase order added successfully", 0);
           setTimeout(() => {
             console.log('Succesfully added po');
-            this.snackBarService.dismissSnackBar(); 
+            console.log("Valdation erros is:" + this.hasValidationErrors);
+            
+            this.snackBarService.dismissSnackBar();
           }, 5000);
         },
-        error:(err) => {
+        error: (err) => {
+          this.hasValidationErrors = true;
+
           console.log(err);
+
           if (err.error.errors) {
+
             const validationErrors: ValidationError[] = err.error.errors;
+
             validationErrors.forEach((error) => {
               this.errors.push(error.description);
             });
@@ -120,9 +142,15 @@ export class CreatePurchaseOrderComponent implements OnInit  {
           }
         }
       });
+    } else {
+      this.hasValidationErrors = true;
     }
   }
 
+  public allItemsValid(): boolean {
+    return this.items.controls.every(item => item.valid);
+  }
+  
   private preparePurchaseOrderData(): PurchaseOrder {
     const formValue = this.purchaseOrderForm.value;
     const purchaseOrder = new PurchaseOrder();
@@ -135,9 +163,9 @@ export class CreatePurchaseOrderComponent implements OnInit  {
       purchaseOrder.employeeNumber = parseInt(this.employeeNumber, 10);
     } else {
       // Handle the case when employeeNumber is null
-      purchaseOrder.employeeNumber = 0; 
+      purchaseOrder.employeeNumber = 0;
     }
-    
+
     // Set the creationDate to the current date
     purchaseOrder.creationDate = new Date()
 
@@ -147,7 +175,7 @@ export class CreatePurchaseOrderComponent implements OnInit  {
     purchaseOrder.formattedPoNumber?.valueOf
 
     purchaseOrder.statusId = 1;
-    
+
     return purchaseOrder;
   }
 }

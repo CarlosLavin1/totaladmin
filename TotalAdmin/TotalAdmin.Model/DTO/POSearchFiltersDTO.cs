@@ -12,5 +12,6 @@ namespace TotalAdmin.Model.DTO
         public DateTime? EndDate { get; set; }
         public int? PONumber { get; set; }
         public int? EmployeeNumber { get; set; }
+      
     }
 }

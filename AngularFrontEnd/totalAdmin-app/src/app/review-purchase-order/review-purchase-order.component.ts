@@ -4,6 +4,7 @@ import { PurchaseOrder } from '../models/purchase-order';
 import { PurchaseOrderService } from '../services/purchase-order.service';
 import { SnackbarService } from '../services/snackbar.service';
 import { ValidationError } from '../models/validationError';
+import {MatDialogModule} from '@angular/material/dialog';
 
 @Component({
   selector: 'app-review-purchase-order',

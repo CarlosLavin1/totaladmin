@@ -48,7 +48,7 @@
           </thead>
           <tbody>
             <tr *ngFor="let result of searchResults">
-              <td>{{result.poNumber}}</td>
+              <td>{{result.formattedPoNumber}}</td>
               <td>{{result.creationDate| date:'shortDate'}}</td>
               <td>{{result.status}}</td>
               <td>{{result.subtotal| currency}}</td>

@@ -82,7 +82,19 @@ namespace TotalAdmin.API.Controllers
                     return NotFound("Purchase orders not found matching the provided filters.");
                 }
 
-                return Ok(purchaseOrders);
+                var response = purchaseOrders.Select(po => new PODisplayDTO
+                {
+                    PoNumber = po.PoNumber,
+                    CreationDate = po.CreationDate,
+                    Status = po.Status,
+                    Subtotal = po.Subtotal,
+                    Tax = po.Tax,
+                    GrandTotal = po.GrandTotal,
+                    FormattedPoNumber = "00001" + po.PoNumber.ToString("D2")
+                }).ToList();
+
+
+                return Ok(response);
             }
             catch (Exception)
             {
@@ -147,7 +159,24 @@ namespace TotalAdmin.API.Controllers
                     return NotFound("No purchase orders found for the provided employee.");
                 }
 
-                return Ok(purchaseOrders);
+                // Format the PO numbers and include all the purchase order details
+                var response = purchaseOrders.Select(po => new PurchaseOrder
+                {
+                    PoNumber = po.PoNumber,
+                    CreationDate = po.CreationDate,
+                    RowVersion = po.RowVersion,
+                    EmployeeNumber = po.EmployeeNumber,
+                    EmployeeName = po.EmployeeName,
+                    EmployeeSupervisorName = po.EmployeeSupervisorName,
+                    EmpDepartmentName = po.EmpDepartmentName,
+                    PurchaseOrderStatus = po.PurchaseOrderStatus,
+                    StatusId = po.StatusId,
+                    Items = po.Items,
+                    HasMergeOccurred = po.HasMergeOccurred,
+                    FormattedPoNumber = "00001" + po.PoNumber.ToString("D2"),
+                }).ToList();
+
+                return Ok(response);
             }
             catch (Exception)
             {

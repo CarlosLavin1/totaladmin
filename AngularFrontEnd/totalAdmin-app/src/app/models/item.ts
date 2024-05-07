@@ -7,6 +7,7 @@ export class Item {
     justification: string;
     location: string;
     statusId: number;
+    itemStatus: string | null
     poNumber: number;
     subtotal: number;
     tax: number;
