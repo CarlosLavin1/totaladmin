@@ -14,5 +14,6 @@ namespace TotalAdmin.Model.DTO
         public decimal Subtotal { get; set; }
         public decimal Tax { get; set; }
         public decimal GrandTotal { get; set; }
+        public string FormattedPoNumber { get; set; }
     }
 }

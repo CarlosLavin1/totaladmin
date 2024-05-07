@@ -13,6 +13,9 @@ export class PurchaseOrder {
     items: Item[];
     hasMergeOccurred: boolean;
     formattedPoNumber: string | null;
+    subtotal: number;
+    tax: number;
+    grandTotal: number;
 }
 
   

@@ -19,66 +19,55 @@
     </div>
 
     <div class="m-5" *ngIf="purchaseOrders.length > 0">
+        <h2 class="text-center m-3">{{ purchaseOrders.length }} Purchase Orders found</h2>
 
-        <h2>Purchase Orders</h2>
+        <p><strong>Employee Name:</strong> {{purchaseOrders[0].employeeName}}</p>
+        <p><strong>Supervisor Name:</strong> {{purchaseOrders[0].employeeSupervisorName}}</p>
+        <p><strong>Department Name:</strong> {{purchaseOrders[0].empDepartmentName}}</p>
 
-        <table class="table">
-            <thead>
-                <tr>
-                    <th>Purchase Order Number</th>
-                    <th>Employees Fullname</th>
-                    <th>Employees Supervisorname</th>
-                    <th>Employees Departmentname</th>
-                    <th>Creation Date</th>
-                    <th>Status</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr *ngFor="let purchaseOrder of purchaseOrders">
-                    <td>{{purchaseOrder.poNumber}}</td>
-                    <td>{{purchaseOrder.employeeName}}</td>
-                    <td>{{purchaseOrder.employeeSupervisorName}}</td>
-                    <td>{{purchaseOrder.empDepartmentName}}</td>
-                    <td>{{purchaseOrder.creationDate | date:'shortDate'}}</td>
-                    <td>{{purchaseOrder.purchaseOrderStatus}}</td>
-                </tr>
-            </tbody>
-        </table>
+        <div *ngFor="let purchaseOrder of purchaseOrders">
+            <div class="card mb-3">
 
-        <div *ngIf="purchaseOrders.length > 0">
+                <div class="card-header bg-light">
+                    <h5 class="mb-0">
+                        Purchase Order Number: #{{purchaseOrder.formattedPoNumber}}
+                        <small class="text-muted">Creation Date: {{purchaseOrder.creationDate |
+                            date:'shortDate'}}</small>
+                    </h5>
+                </div>
 
-            <div *ngIf="purchaseOrders.length > 0">
-                <h2>Items Information</h2>
-                <table class="table">
-                    <thead>
-                        <tr>
-                            <th>Item Name</th>
-                            <th>justification</th>
-                            <th>Description</th>
-                            <th>Price</th>
-                            <th>Quantity</th>
-                            <th>Subtotal</th>
-                            <th>Tax</th>
-                            <th>Grand Total</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <ng-container *ngFor="let purchaseOrder of purchaseOrders">
-                            <tr *ngFor="let item of purchaseOrder.items">
-                                <td>{{item.name}}</td>
-                                <td>{{item.justification}}</td>
-                                <td>{{item.description}}</td>
-                                <td>{{item.price}}</td>
-                                <td>{{item.quantity}}</td>
-                                <td>{{item.subtotal | currency}}</td>
-                                <td>{{item.tax | currency}}</td>
-                                <td>{{item.grandTotal | currency}}</td>
-                            </tr>
-                        </ng-container>
-                    </tbody>
-                </table>
+                <div class="card-body">
+                    
+                    <p><strong>Status:</strong> {{purchaseOrder.purchaseOrderStatus}}</p>
+                    <div class="card-footer bg-light">
+                        <p><strong>Subtotal:</strong> {{purchaseOrder.subtotal | currency}}</p>
+                        <p><strong>Tax:</strong> {{purchaseOrder.tax | currency}}</p>
+                        <p><strong>Total:</strong> {{purchaseOrder.grandTotal | currency}}</p>
+                    </div>
+
+                    <h6>Items:</h6>
+
+                    <div *ngFor="let item of purchaseOrder.items">
+
+                        <div class="card mb-2">
+                            <div class="card-body">
+                                <div class="card-footer">
+                                    <h6 class="card-title fw-bold text-center">{{ item.name }}</h6>
+                                </div>
+                                <p class="card-text"><strong>Item Status:</strong> {{ item.itemStatus }}</p>
+                                <p class="card-text"><strong>Justification:</strong> {{ item.justification }}</p>
+                                <p class="card-text"><strong>Description:</strong> {{ item.description }}</p>
+                                <p class="card-text"><strong>Price:</strong> {{ item.price | currency }}</p>
+                                <p class="card-text"><strong>QTY:</strong> {{ item.quantity }}</p>
+                                <p class="card-text"><strong>Subtotal:</strong> {{ item.subtotal | currency }}</p>
+                                <p class="card-text"><strong>Tax:</strong> {{ item.tax | currency }}</p>
+                                <p class="card-text"><strong>Grand Total:</strong> {{ item.grandTotal | currency }}</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
             </div>
-
         </div>
     </div>
 </div>

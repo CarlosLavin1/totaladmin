@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -38,5 +39,10 @@ namespace TotalAdmin.Model.Entities
         public ICollection<Item>? Items { get; set; }
         public bool HasMergeOccurred { get; set; }
         public string FormattedPoNumber { get; set; }
+
+        // Derived properties
+        public decimal Subtotal => Items?.Sum(item => item.Subtotal) ?? 0;
+        public decimal Tax => Items?.Sum(item => item.Tax) ?? 0;
+        public decimal GrandTotal => Items?.Sum(item => item.GrandTotal) ?? 0;
     }
 }

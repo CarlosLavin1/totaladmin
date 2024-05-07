@@ -38,6 +38,7 @@ export class AppComponent {
 
   logOut() {
     this.userName = null;
+    localStorage.removeItem('displayedItems'); // Clear displayedItems PO
     this.authService.logout();
   }
 }

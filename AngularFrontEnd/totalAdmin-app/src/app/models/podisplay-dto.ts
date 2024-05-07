@@ -5,4 +5,5 @@ export class PODisplayDTO {
     subtotal: number;
     tax: number;
     grandTotal: number;
-}
+    formattedPoNumber: string | null;
+}   
