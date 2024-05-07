@@ -18,8 +18,8 @@ GO
 -- Item Statuses
 INSERT INTO ItemStatus([Name]) 
 VALUES
-	('Pending'),
-	('Approved')
+	('Pending')
+	
 
 
 -- purchase order statuses
@@ -34,8 +34,8 @@ GO
 INSERT INTO PurchaseOrderStatus([Name]) 
 VALUES
 	('Pending'),
-	('Under Review'),
-	('Approved')
+	('Under Review')
+	
 
 -- role
 IF OBJECT_ID('TotalAdmin.dbo.Role', 'U') IS NULL
@@ -155,7 +155,8 @@ INSERT INTO PurchaseOrder (CreationDate, [RowVersion], PurchaseOrderStatusId, Em
 VALUES
 ('2024-04-01', 1, 1, 5),
 ('2024-03-15', 1, 2, 5),
-('2024-02-28', 1, 3, 3),
+('2024-02-28', 1, 1, 3),
+('2024-05-2', 1, 2, 3),
 ('2024-04-10', 1, 1, 9),
 ('2024-03-20', 1, 2, 2);
 
@@ -181,6 +182,7 @@ INSERT INTO Item ([Name], Quantity, [Description], Price, Justification, ItemLoc
 VALUES
 ('Laptop Computers', 10, 'High-performance laptops for IT department', 1512.45, 'Upgrade outdated equipment', 'Main Office IT Room', 1, 3, 1),
 ('Office Chairs', 25, 'Ergonomic chairs for new employees', 258.00, 'Improve workplace comfort', 'Executive Conference Room', 1, 2, 1),
-('Projectors', 3, 'Multimedia projectors for conference rooms', 799.00, 'Enhance presentation capabilities', 'Training Room', 1, 3, 2),
+('Whiteboard/flipchart', 3, 'Facilitate brainstorming sessions and presentations', 58.08, 'Support collaborative work and visual communication in HR department', 'Warehouse - Office Supplies Section', 1, 4, 1),
+('Projectors', 3, 'Multimedia projectors for conference rooms', 799.00, 'Enhance presentation capabilities', 'Training Room', 1, 3, 1),
 ('Printers', 8, 'High-volume printers for office use', 504.99, 'Replace old printers', 'Print Room', 1, 4, 1),
 ('Headsets', 20, 'Noise-cancelling headsets for customer support', 158.85, 'Improve communication quality', 'Customer Service Desk', 1, 5, 1);
