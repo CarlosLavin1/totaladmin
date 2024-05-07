@@ -13,11 +13,11 @@ import { PODisplayDTO } from '../models/podisplay-dto';
   styleUrls: ['./purchase-order-search.component.css']
 })
 export class PurchaseOrderSearchComponent {
-  private employeNum: number;
   private subscriptions: Subscription[] = [];
   errors: string[] = [];
 
   validationErrors: ValidationError[] = [];
+  public employeeNumber = localStorage.getItem('employeeNumber');
 
   searchResults: PODisplayDTO[] = [];
   private subscription: Subscription;
@@ -39,7 +39,12 @@ export class PurchaseOrderSearchComponent {
   ) { }
 
   ngOnInit(): void {
+    this.activatedRoute.queryParams.subscribe(params => {
+      const poNumber = params['PONumber'];
+      this.searchForm.get('PONumber')?.setValue(poNumber);
+    });
 
+    this.searchForm.get('EmployeeNumber')?.setValue(this.employeeNumber);
   }
 
   ngOnDestory(): void{

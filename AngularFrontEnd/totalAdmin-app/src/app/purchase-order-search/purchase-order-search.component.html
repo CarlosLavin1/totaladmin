@@ -6,7 +6,11 @@
     <form [formGroup]="searchForm" (ngSubmit)="onSubmit()">
       <div class="form-group">
         <label for="employeeNumber">Employee Number</label>
-        <input type="text" id="employeeNumber" placeholder="8-digit number..." formControlName="EmployeeNumber" class="form-control" required>
+        <input type="text" id="employeeNumber" 
+          placeholder="8-digit number..."
+          formControlName="EmployeeNumber"
+          class="form-control"
+          [value]="employeeNumber" required>
       </div>
   
       <div class="form-group">
