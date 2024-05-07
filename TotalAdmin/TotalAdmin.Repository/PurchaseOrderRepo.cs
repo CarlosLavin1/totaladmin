@@ -145,6 +145,12 @@ namespace TotalAdmin.Repository
                     .Any(existingItem => existingItem.ItemId == item.ItemId))
                     .ToList();
 
+                // Check if newItems list is empty
+                if (!newItems.Any())
+                {
+                    // return the PurchaseOrder object as is
+                    return po;
+                }
 
                 // Create a DataTable for the PO items
                 var poItemsTable = await CreatePoItemsDataTableAsync(newItems);
