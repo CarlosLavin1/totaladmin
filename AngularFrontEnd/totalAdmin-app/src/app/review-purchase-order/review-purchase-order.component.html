@@ -7,7 +7,7 @@
         <div class="form-group">
             <label for="employeeNumber">Enter Employee Number</label>
             <input type="text" id="employeeNumber" placeholder="8-digit number..." formControlName="EmployeeNumber"
-                class="form-control" required>
+                class="form-control" [value]="employeeNumber" required>
         </div>
         <button type="submit" class="btn btn-primary" [disabled]="!employeeForm.valid">Search</button>
     </form>
@@ -28,7 +28,7 @@
         <div *ngFor="let purchaseOrder of purchaseOrders">
             <div class="card mb-3">
 
-                <div class="card-header bg-light">
+                <div class="card-header bg-light" (click)="toggleCardBody(purchaseOrder.formattedPoNumber || '')"  title="Click to view details" style="cursor: pointer;">
                     <h5 class="mb-0">
                         Purchase Order Number: #{{purchaseOrder.formattedPoNumber}}
                         <small class="text-muted">Creation Date: {{purchaseOrder.creationDate |
@@ -36,7 +36,7 @@
                     </h5>
                 </div>
 
-                <div class="card-body">
+                <div class="card-body" *ngIf="showCardBody[purchaseOrder.formattedPoNumber || '']">
                     
                     <p><strong>Status:</strong> {{purchaseOrder.purchaseOrderStatus}}</p>
                     <div class="card-footer bg-light">
@@ -54,14 +54,32 @@
                                 <div class="card-footer">
                                     <h6 class="card-title fw-bold text-center">{{ item.name }}</h6>
                                 </div>
-                                <p class="card-text"><strong>Item Status:</strong> {{ item.itemStatus }}</p>
-                                <p class="card-text"><strong>Justification:</strong> {{ item.justification }}</p>
-                                <p class="card-text"><strong>Description:</strong> {{ item.description }}</p>
-                                <p class="card-text"><strong>Price:</strong> {{ item.price | currency }}</p>
-                                <p class="card-text"><strong>QTY:</strong> {{ item.quantity }}</p>
-                                <p class="card-text"><strong>Subtotal:</strong> {{ item.subtotal | currency }}</p>
-                                <p class="card-text"><strong>Tax:</strong> {{ item.tax | currency }}</p>
-                                <p class="card-text"><strong>Grand Total:</strong> {{ item.grandTotal | currency }}</p>
+                                <table class="table">
+                                    <thead>
+                                        <tr>
+                                            <th>QTY</th>
+                                            <th>Description</th>
+                                            <th>Price</th>
+                                            <th>Justification</th>
+                                            <th>Item Status</th>
+                                            <th>Subtotal</th>
+                                            <th>Tax</th>
+                                            <th>Grand Total</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td>{{ item.quantity  }}</td>
+                                            <td>{{ item.description }}</td>
+                                            <td>{{ item.price | currency }}</td>
+                                            <td>{{ item.justification }}</td>
+                                            <td>{{ item.itemStatus }}</td>
+                                            <td>{{ item.subtotal | currency }}</td>
+                                            <td>{{ item.tax | currency }}</td>
+                                            <td>{{ item.grandTotal | currency }}</td>
+                                        <tr>
+                                    </tbody>
+                                </table>
                             </div>
                         </div>
                     </div>

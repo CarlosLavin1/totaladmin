@@ -15,6 +15,9 @@ export class ReviewPurchaseOrderComponent implements OnInit {
     purchaseOrders: PurchaseOrder[] = [];
     employeeForm: FormGroup; 
     errors: string[] = [];
+    showCardBody: { [key: string]: boolean } = {};
+
+    public employeeNumber = localStorage.getItem('employeeNumber');
 
     constructor(
       private formBuilder: FormBuilder, 
@@ -27,6 +30,7 @@ export class ReviewPurchaseOrderComponent implements OnInit {
     }
 
     ngOnInit() {
+      this.employeeForm.get('EmployeeNumber')?.setValue(this.employeeNumber);
     }
 
     
@@ -53,7 +57,7 @@ export class ReviewPurchaseOrderComponent implements OnInit {
 
 
               if (error.status === 404) {
-                this.snackbarService.showSnackBar('No purchase orders found for the provided employee number.', 3000);
+                this.showErrorMessage('No purchase orders found for the provided employee number.');
               } 
               else if (error.error.errors) {
                 const validationErrors: ValidationError[] = error.error.errors;
@@ -69,5 +73,11 @@ export class ReviewPurchaseOrderComponent implements OnInit {
       }
     }
 
+    showErrorMessage(message: string) {
+      this.errors.push(message);
+    }
     
+    toggleCardBody(poNumber: string) {
+      this.showCardBody[poNumber] = !this.showCardBody[poNumber];
+    }
 }

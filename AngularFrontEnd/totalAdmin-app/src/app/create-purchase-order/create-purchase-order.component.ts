@@ -18,7 +18,8 @@ export class CreatePurchaseOrderComponent implements OnInit {
   public purchaseOrderForm: FormGroup;
   public errors: string[] = [];
   public displayedItems: Item[] = [];
-  public hasValidationErrors = false;
+  public hasValidationErrors: boolean = false;
+  public purchaseOrderCreated: boolean = false;
 
 
   public employeeNumber = localStorage.getItem('employeeNumber');
@@ -98,6 +99,7 @@ export class CreatePurchaseOrderComponent implements OnInit {
       this.poService.addPurchaseOrder(purchaseOrder).subscribe({
         next: (res: PurchaseOrder) => {
           this.purchaseOrder = res;
+          this.purchaseOrderCreated = true;
 
           console.log('Server Response:', res);
 
@@ -109,6 +111,8 @@ export class CreatePurchaseOrderComponent implements OnInit {
             console.log("The displayed items: ", this.displayedItems);
           }
 
+          
+          this.hasValidationErrors = false;
           console.log("The ITEMS response are: : " + res.items);
 
           // Clear the fields of the items form
