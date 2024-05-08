@@ -19,6 +19,6 @@ namespace TotalAdmin.Model
         public string? Description { get; set; }
         [Required]
         public DateTime? InvocationDate { get; set; }
-        public int RowVersion { get; set; }
+        public byte[]? RowVersion { get; set; }
     }
 }

@@ -43,7 +43,7 @@ BEGIN
 		FROM
 			Department
 		WHERE
-			InvocationDate <= GETDATE()
+			InvocationDate <= CAST( GETDATE() AS Date )
 		ORDER BY
 			[Name]
 	END TRY
@@ -131,7 +131,7 @@ BEGIN
 END
 GO
 
--- search employees by id and last name
+-- search employees by id, last name, and department
 CREATE OR ALTER PROC spSearchEmployees
     @EmployeeNumber INT = NULL,
     @DepartmentId INT = NULL,
@@ -190,7 +190,7 @@ GO
 
 -- get employee by id
 CREATE OR ALTER PROC spGetEmployeeById
-    @EmployeeNumber INT
+    @EmployeeNumber INT = NULL
 AS
 BEGIN
     SELECT
@@ -246,6 +246,84 @@ BEGIN
 		END
 END
 GO
+
+-- update department
+CREATE OR ALTER PROC spUpdateDepartment
+	@DepartmentId INT OUTPUT,
+	@Name NVARCHAR(128),
+	@Description NVARCHAR(512),
+	@InvocationDate DATETIME2(7),
+	@RowVersion ROWVERSION
+AS
+BEGIN
+	SET NOCOUNT ON;
+	BEGIN TRY
+		UPDATE Department
+		SET
+			[Name] = @Name, 
+			[Description] = @Description, 
+			InvocationDate = @InvocationDate
+		WHERE
+			DepartmentId = @DepartmentId AND
+			[RowVersion] = @RowVersion;
+
+		IF @@ROWCOUNT = 0
+			BEGIN
+				-- No rows updated, possible RowVersion mismatch
+				;THROW 50100, 'The record has been modified by another user since it was last fetched.', 1;
+			END
+		
+	END TRY
+	BEGIN CATCH
+		;THROW
+	END CATCH
+END
+GO
+
+-- get department for employee
+CREATE OR ALTER PROC spGetDepartmentForEmployee
+	@EmployeeNumber INT
+AS
+BEGIN
+	SELECT
+		[Name],
+		[Description],
+		InvocationDate,
+		[RowVersion]
+	FROM Department
+	WHERE DepartmentId = (SELECT DepartmentId FROM Employee WHERE EmployeeNumber = @EmployeeNumber)
+END
+GO
+
+-- search employees by id and last name
+CREATE OR ALTER PROC spSearchEmployeesDirectory
+    @EmployeeNumber INT = NULL,
+	@LastName NVARCHAR(50) = NULL
+AS
+BEGIN
+    SELECT
+        EmployeeNumber,
+        FirstName,
+		MiddleInitial,
+		LastName,
+		StreetAddress,
+		City, 
+		PostalCode,
+        WorkPhoneNumber,
+        CellPhoneNumber,
+        EmailAddress
+    FROM
+        Employee
+    WHERE
+        IsActive = 1
+        AND (@EmployeeNumber IS NULL OR @EmployeeNumber = 0 OR EmployeeNumber = @EmployeeNumber)
+        AND (@LastName IS NULL OR LastName LIKE '%' + @LastName + '%')
+    ORDER BY
+        LastName,
+        FirstName;
+END
+GO
+
 -- select * from Role
 -- login
 CREATE OR ALTER PROC spLogin

@@ -15,5 +15,6 @@ namespace TotalAdmin.Service
 
         Task<Department> AddDepartmentAsync(Department department);
         Department AddDepartment(Department department);
+        Department UpdateDepartment(Department department);
     }
 }

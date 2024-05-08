@@ -40,6 +40,14 @@ namespace TotalAdmin.Service
             return department;
         }
 
+        public Department UpdateDepartment(Department department)
+        {
+            if (ValidateDepartment(department))
+                return repo.UpdateDepartment(department);
+
+            return department;
+        }
+
         private bool ValidateDepartment(Department department)
         {
             // Validate Entity
