@@ -70,7 +70,7 @@ namespace TotalAdmin.API.Controllers
 
                 return employees;
             }
-            catch (Exception)
+            catch (Exception e)
             {
                 return Problem(title: "An internal error has occurred. Please contact the system administrator.");
             }

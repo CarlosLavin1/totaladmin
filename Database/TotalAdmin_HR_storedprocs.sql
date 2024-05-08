@@ -141,10 +141,14 @@ BEGIN
     SELECT
         EmployeeNumber,
         FirstName,
+		MiddleInitial,
 		LastName,
+		StreetAddress,
+		City, 
+		PostalCode,
         WorkPhoneNumber,
-        OfficeLocation,
-        JobTitle
+        CellPhoneNumber,
+        EmailAddress
     FROM
         Employee
     WHERE
