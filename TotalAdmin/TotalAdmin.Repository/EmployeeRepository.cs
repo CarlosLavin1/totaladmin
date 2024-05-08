@@ -250,9 +250,31 @@ namespace TotalAdmin.Repository
         {
             List<Parm> parms = new()
             {
-
+                new("@EmployeeNumber", SqlDbType.Decimal, employee.EmployeeNumber),
+                new("@FirstName", SqlDbType.NVarChar, employee.FirstName, 50),
+                new("@MiddleInitial", SqlDbType.Char, employee.MiddleInitial, 1),
+                new("@LastName", SqlDbType.NVarChar, employee.LastName, 50),
+                new("@Email", SqlDbType.NVarChar, employee.Email, 255),
+                new("@HashedPassword", SqlDbType.NVarChar, employee.HashedPassword, 255),
+                new("@StreetAddress", SqlDbType.NVarChar, employee.StreetAddress, 255),
+                new("@City", SqlDbType.NVarChar, employee.City, 50),
+                new("@PostalCode", SqlDbType.NVarChar, employee.PostalCode, 50),
+                new("@SIN", SqlDbType.NVarChar, employee.SIN, 9),
+                new("@JobTitle", SqlDbType.NVarChar, employee.JobTitle, 60),
+                new("@CompanyStartDate", SqlDbType.DateTime2, employee.SeniorityDate),
+                new("@DateOfBirth", SqlDbType.DateTime2, employee.DateOfBirth),
+                new("@JobStartDate", SqlDbType.DateTime2, employee.JobStartDate),
+                new("@OfficeLocation", SqlDbType.NVarChar, employee.OfficeLocation, 255),
+                new("@WorkPhoneNumber", SqlDbType.NVarChar, employee.WorkPhoneNumber, 12),
+                new("@CellPhoneNumber", SqlDbType.NVarChar, employee.CellPhoneNumber, 12),
+                new("@IsActive", SqlDbType.Bit, employee.IsActive),
+                new("@SupervisorEmpNumber", SqlDbType.Int, employee.SupervisorEmployeeNumber),
+                new("@DepartmentId", SqlDbType.Int, employee.DepartmentId),
+                new("@RoleId", SqlDbType.Int, employee.RoleId),
+                
             };
-            return new();
+            db.ExecuteNonQuery("spUpdateEmployee", parms);
+            return employee;
         }
 
         //private methods
