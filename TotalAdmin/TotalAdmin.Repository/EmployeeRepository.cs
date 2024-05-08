@@ -248,6 +248,10 @@ namespace TotalAdmin.Repository
 
         public Employee UpdateEmployee(Employee employee)
         {
+            List<Parm> parms = new()
+            {
+
+            };
             return new();
         }
 

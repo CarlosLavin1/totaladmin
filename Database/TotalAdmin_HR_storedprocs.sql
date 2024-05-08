@@ -131,6 +131,73 @@ BEGIN
 END
 GO
 
+-- update employee
+CREATE OR ALTER PROC spUpdateEmployee
+	@EmployeeNumber INT,
+	@FirstName NVARCHAR(50),
+	@MiddleInitial CHAR(1),
+	@LastName NVARCHAR(60),
+	@Email NVARCHAR(255),
+	@HashedPassword NVARCHAR(255),
+	@StreetAddress NVARCHAR(255),
+	@City NVARCHAR(50),
+	@PostalCode NVARCHAR(7),
+	@SIN NVARCHAR(9),
+	@JobTitle NVARCHAR(60),
+	@DateOfBirth DATETIME2(7),
+	@CompanyStartDate DATETIME2(7),
+	@JobStartDate DATETIME2(7),
+	@OfficeLocation NVARCHAR(255),
+	@WorkPhoneNumber NVARCHAR(12),
+	@CellPhoneNumber NVARCHAR(12),
+	@IsActive BIT, -- add dates for terminated/retired and change this to status
+	@SupervisorEmpNumber INT,
+	@DepartmentId INT,
+	@RoleId INT,
+	@RowVersion ROWVERSION
+AS
+BEGIN
+	SET NOCOUNT ON;
+	BEGIN TRY
+		UPDATE Employee
+		SET
+			FirstName = @FirstName, 
+			MiddleInitial = @MiddleInitial, 
+			LastName = @LastName,
+			EmailAddress = @Email,
+			HashedPassword = @HashedPassword,
+			StreetAddress = @StreetAddress,
+			City = @City,
+			PostalCode = @PostalCode,
+			[SIN] = @SIN,
+			JobTitle = @JobTitle,
+			DateOfBirth = @DateOfBirth,
+			CompanyStartDate = @CompanyStartDate,
+			JobStartDate = @JobStartDate,
+			OfficeLocation = @OfficeLocation,
+			WorkPhoneNumber = @WorkPhoneNumber,
+			CellPhoneNumber = @CellPhoneNumber,
+			-- status
+			SupervisorEmpNumber = @SupervisorEmpNumber,
+			DepartmentId = @DepartmentId,
+			RoleId = @RoleId
+		WHERE
+			EmployeeNumber = @EmployeeNumber AND
+			[RowVersion] = @RowVersion;
+
+		IF @@ROWCOUNT = 0
+			BEGIN
+				-- No rows updated, possible RowVersion mismatch
+				;THROW 50100, 'The record has been modified by another user since it was last fetched.', 1;
+			END
+		
+	END TRY
+	BEGIN CATCH
+		;THROW
+	END CATCH
+END
+GO
+
 -- search employees by id, last name, and department
 CREATE OR ALTER PROC spSearchEmployees
     @EmployeeNumber INT = NULL,
