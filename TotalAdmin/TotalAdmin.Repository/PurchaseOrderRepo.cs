@@ -458,11 +458,11 @@ namespace TotalAdmin.Repository
             {
                 // Find an existing item that matches the new item based on their properties
                 var existingItem = existingItems.FirstOrDefault(item =>
-                  item.Name == newItem.Name &&
-                  item.Description == newItem.Description &&
+                  item.Name.ToLower().ToLowerInvariant().Trim() == newItem.Name.ToLower().ToLowerInvariant().Trim() &&
+                  item.Description.ToLower().ToLowerInvariant().Trim() == newItem.Description.ToLower().ToLowerInvariant().Trim() &&
                   item.Price == newItem.Price &&
-                  item.Justification == newItem.Justification &&
-                  item.Location == newItem.Location);
+                  item.Justification.ToLower().ToLowerInvariant().Trim() == newItem.Justification.ToLower().ToLowerInvariant().Trim() &&
+                  item.Location.ToLower().ToLowerInvariant().Trim() == newItem.Location.ToLower().ToLowerInvariant().Trim());
 
                 if (existingItem != null)
                 {

@@ -5,7 +5,9 @@ import { PurchaseOrderService } from '../services/purchase-order.service';
 import { SnackbarService } from '../services/snackbar.service';
 import { ValidationError } from '../models/validationError';
 import { Item } from '../models/item';
-import {MatDialogModule} from '@angular/material/dialog';
+import { MatDialogModule } from '@angular/material/dialog';
+import { Router } from '@angular/router';
+import { SharedDataService } from '../services/shared-data.service';
 
 
 @Component({
@@ -22,13 +24,15 @@ export class CreatePurchaseOrderComponent implements OnInit {
   public purchaseOrderCreated: boolean = false;
 
 
-  public employeeNumber = localStorage.getItem('employeeNumber');
+  public employeeNumber = localStorage.getItem('employeeNumber') || '';
   public purchaseOrder: PurchaseOrder | null;
 
   constructor(
     private formBuilder: FormBuilder,
     private poService: PurchaseOrderService,
-    private snackBarService: SnackbarService
+    private snackBarService: SnackbarService,
+    private router: Router,
+    private sharedDataService: SharedDataService
   ) {
     this.purchaseOrderForm = this.formBuilder.group({
       creationDate: [new Date().toISOString().split('T')[0]],
@@ -54,7 +58,6 @@ export class CreatePurchaseOrderComponent implements OnInit {
     if (this.items.length > 0 && this.items.at(this.items.length - 1).invalid) {
       return;
     }
-
 
 
     const itemGroup = this.formBuilder.group({
@@ -90,16 +93,29 @@ export class CreatePurchaseOrderComponent implements OnInit {
       return;
     }
 
-    //this.displayedItems = [...this.displayedItems, ...this.purchaseOrderForm.get('items')?.value];
-
+    
     if (this.purchaseOrderForm.valid) {
 
       const purchaseOrder = this.preparePurchaseOrderData();
 
       this.poService.addPurchaseOrder(purchaseOrder).subscribe({
         next: (res: PurchaseOrder) => {
+          console.log('Server Response:', res);
           this.purchaseOrder = res;
           this.purchaseOrderCreated = true;
+
+
+          // Store the data in the shared service
+          const data = {
+            EmployeeNumber: this.employeeNumber,
+            PONumber: res.formattedPoNumber ? res.formattedPoNumber : ''
+          };
+          this.sharedDataService.setData(data);
+          console.log('Shared data:', data);
+
+
+          // Navigate to the purchase order details page
+          this.router.navigate(['/purchase-order-search']);
 
           console.log('Server Response:', res);
 
@@ -111,7 +127,7 @@ export class CreatePurchaseOrderComponent implements OnInit {
             console.log("The displayed items: ", this.displayedItems);
           }
 
-          
+
           this.hasValidationErrors = false;
           console.log("The ITEMS response are: : " + res.items);
 
@@ -125,7 +141,7 @@ export class CreatePurchaseOrderComponent implements OnInit {
           setTimeout(() => {
             console.log('Succesfully added po');
             console.log("Valdation erros is:" + this.hasValidationErrors);
-            
+
             this.snackBarService.dismissSnackBar();
           }, 5000);
         },
@@ -154,7 +170,7 @@ export class CreatePurchaseOrderComponent implements OnInit {
   public allItemsValid(): boolean {
     return this.items.controls.every(item => item.valid);
   }
-  
+
   private preparePurchaseOrderData(): PurchaseOrder {
     const formValue = this.purchaseOrderForm.value;
     const purchaseOrder = new PurchaseOrder();

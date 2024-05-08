@@ -1,9 +1,9 @@
 <div class="container">
 
-    <h1 class="fw-bold mt-5 text-center">Review Purchase Order</h1>
+    <h1 class="fw-bold mt-5 text-center" *ngIf="showSearchForm" >Review Purchase Orders</h1>
 
 
-    <form [formGroup]="employeeForm" (ngSubmit)="onSubmit()">
+    <form [formGroup]="employeeForm" (ngSubmit)="onSubmit()" *ngIf="showSearchForm">
         <div class="form-group">
             <label for="employeeNumber">Enter Employee Number</label>
             <input type="text" id="employeeNumber" placeholder="8-digit number..." formControlName="EmployeeNumber"
@@ -19,25 +19,26 @@
     </div>
 
     <div class="m-5" *ngIf="purchaseOrders.length > 0">
-        <h2 class="text-center m-3">{{ purchaseOrders.length }} Purchase Orders found</h2>
+        <h2 class="text-start ">{{ purchaseOrders.length }} Purchase Orders found</h2>
 
         <p><strong>Employee Name:</strong> {{purchaseOrders[0].employeeName}}</p>
         <p><strong>Supervisor Name:</strong> {{purchaseOrders[0].employeeSupervisorName}}</p>
         <p><strong>Department Name:</strong> {{purchaseOrders[0].empDepartmentName}}</p>
 
         <div *ngFor="let purchaseOrder of purchaseOrders">
-            <div class="card mb-3">
+            <div class="card mb-3"  #cardElement>
 
-                <div class="card-header bg-light" (click)="toggleCardBody(purchaseOrder.formattedPoNumber || '')"  title="Click to view details" style="cursor: pointer;">
-                    <h5 class="mb-0">
+                <div class="card-header bg-light mice-p" (click)="toggleCardBody(purchaseOrder.formattedPoNumber || '', cardElement)"
+                    title="Click to view details">
+                    <h5 class="mb-0 po-text-link"> {{arrowState[purchaseOrder.formattedPoNumber || ''] || '▶  '}}
                         Purchase Order Number: #{{purchaseOrder.formattedPoNumber}}
                         <small class="text-muted">Creation Date: {{purchaseOrder.creationDate |
                             date:'shortDate'}}</small>
-                    </h5>
+                     </h5>
                 </div>
 
                 <div class="card-body" *ngIf="showCardBody[purchaseOrder.formattedPoNumber || '']">
-                    
+
                     <p><strong>Status:</strong> {{purchaseOrder.purchaseOrderStatus}}</p>
                     <div class="card-footer bg-light">
                         <p><strong>Subtotal:</strong> {{purchaseOrder.subtotal | currency}}</p>
@@ -47,44 +48,33 @@
 
                     <h6>Items:</h6>
 
-                    <div *ngFor="let item of purchaseOrder.items">
-
-                        <div class="card mb-2">
-                            <div class="card-body">
-                                <div class="card-footer">
-                                    <h6 class="card-title fw-bold text-center">{{ item.name }}</h6>
-                                </div>
-                                <table class="table">
-                                    <thead>
-                                        <tr>
-                                            <th>QTY</th>
-                                            <th>Description</th>
-                                            <th>Price</th>
-                                            <th>Justification</th>
-                                            <th>Item Status</th>
-                                            <th>Subtotal</th>
-                                            <th>Tax</th>
-                                            <th>Grand Total</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <tr>
-                                            <td>{{ item.quantity  }}</td>
-                                            <td>{{ item.description }}</td>
-                                            <td>{{ item.price | currency }}</td>
-                                            <td>{{ item.justification }}</td>
-                                            <td>{{ item.itemStatus }}</td>
-                                            <td>{{ item.subtotal | currency }}</td>
-                                            <td>{{ item.tax | currency }}</td>
-                                            <td>{{ item.grandTotal | currency }}</td>
-                                        <tr>
-                                    </tbody>
-                                </table>
-                            </div>
-                        </div>
-                    </div>
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>QTY</th>
+                                <th>Description</th>
+                                <th>Price</th>
+                                <th>Justification</th>
+                                <th>Item Status</th>
+                                <th>Subtotal</th>
+                                <th>Tax</th>
+                                <th>Grand Total</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr *ngFor="let item of purchaseOrder.items">
+                                <td>{{ item.quantity }}</td>
+                                <td>{{ item.description }}</td>
+                                <td>{{ item.price | currency }}</td>
+                                <td>{{ item.justification }}</td>
+                                <td>{{ item.itemStatus }}</td>
+                                <td>{{ item.subtotal | currency }}</td>
+                                <td>{{ item.tax | currency }}</td>
+                                <td>{{ item.grandTotal | currency }}</td>
+                            </tr>
+                        </tbody>
+                    </table>
                 </div>
-
             </div>
         </div>
     </div>

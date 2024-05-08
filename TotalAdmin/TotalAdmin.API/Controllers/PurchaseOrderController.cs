@@ -71,8 +71,14 @@ namespace TotalAdmin.API.Controllers
 
                 if (filter.StartDate.HasValue && filter.EndDate.HasValue && filter.StartDate > filter.EndDate)
                 {
-                    return BadRequest("StartDate cannot be later than EndDate.");
+                    return BadRequest("Start Date cannot be later than End Date.");
                 }
+
+                if (filter.StartDate.HasValue && filter.EndDate.HasValue && filter.StartDate < filter.EndDate)
+                {
+                    return BadRequest("End Date cannot be before than Start Date.");
+                }
+
 
 
                 List<PODisplayDTO> purchaseOrders = await service.SearchPurchaseOrders(filter);

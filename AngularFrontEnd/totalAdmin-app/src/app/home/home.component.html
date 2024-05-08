@@ -1,4 +1,8 @@
 <div class="container">
     <h1 class="text-center">Total Admin Home</h1>
     <p *ngIf="employeeNumber" class="text-center">Welcome, #{{employeeNumber}}</p>
+
+  
+    <app-review-purchase-order *ngIf="showReviewComponent"></app-review-purchase-order>
 </div>
+

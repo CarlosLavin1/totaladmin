@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { AfterViewInit, Component, OnDestroy, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { PurchaseOrderService } from '../services/purchase-order.service';
 import { ValidationError } from '../models/validationError';
@@ -6,13 +6,15 @@ import { Router, ActivatedRoute } from '@angular/router';
 import { Observable, Subscription } from 'rxjs';
 import { POSearchFiltersDTO } from '../models/posearch-filters-dto';
 import { PODisplayDTO } from '../models/podisplay-dto';
+import { SharedDataService } from '../services/shared-data.service';
+import { AuthenticationService } from '../auth/services/authentication.service';
 
 @Component({
   selector: 'app-purchase-order-search',
   templateUrl: './purchase-order-search.component.html',
   styleUrls: ['./purchase-order-search.component.css']
 })
-export class PurchaseOrderSearchComponent {
+export class PurchaseOrderSearchComponent implements OnInit, OnDestroy, AfterViewInit {
   private subscriptions: Subscription[] = [];
   errors: string[] = [];
 
@@ -35,19 +37,44 @@ export class PurchaseOrderSearchComponent {
     private poService: PurchaseOrderService,
     private activatedRoute: ActivatedRoute,
     private router: Router,
+    private sharedDataService: SharedDataService,
+    private authService: AuthenticationService
 
-  ) { }
+  ) {}
 
   ngOnInit(): void {
+    if (!this.checkRole()) {
+      this.searchForm.get('EmployeeNumber')?.disable();
+    }
+    
     this.activatedRoute.queryParams.subscribe(params => {
       const poNumber = params['PONumber'];
       this.searchForm.get('PONumber')?.setValue(poNumber);
     });
-
     this.searchForm.get('EmployeeNumber')?.setValue(this.employeeNumber);
   }
 
-  ngOnDestory(): void{
+  ngAfterViewInit(): void {
+    this.subscription = this.sharedDataService.data.subscribe(data => {
+      if (data) {
+        // Get the values
+        this.searchForm.get('EmployeeNumber')?.setValue(data.EmployeeNumber);
+        
+        if (data.PONumber !== '') {
+          this.searchForm.get('PONumber')?.setValue(data.PONumber);
+        }
+
+        this.onSubmit(); // Trigger the search
+        console.log(data);
+        
+      }
+    });
+
+    console.log(this.sharedDataService);
+    
+  }
+
+  ngOnDestroy(): void{
     this.subscription.unsubscribe();
   }
 
@@ -75,31 +102,39 @@ export class PurchaseOrderSearchComponent {
           console.log(results.toString);
           console.log('the search results:');
           this.searchResults.forEach((result) => {
-            console.log(result);
+            if (results) {
+              console.log(results.toString);
+            }
           });
         },
         error: (error) => {
           console.error('Error searching purchase orders:', error);
+          console.log('Error object:', JSON.stringify(error, null, 2));
           this.errors = []
           this.searchResults = [];
           this.validationErrors = [];
 
           if (error.status === 404) {
             this.showErrorMessage('No purchase orders found matching the provided filters.');
-          } 
+          }
           else if (error.error.errors) {
             const validationErrors: ValidationError[] = error.error.errors;
             validationErrors.forEach((error) => {
               this.errors.push(error.description);
             });
           } else {
-            this.errors.push(error.error.title);
+            this.errors.push(error.error);
           }
         }
       });
     this.subscriptions.push(subscription);
   }
 
+  checkRole(): boolean {
+    const userRole = this.authService.getRole();
+    return userRole === 'Supervisor' || userRole === 'HR Employee' || userRole === 'HR Supervisor';
+  }
+  
   showErrorMessage(message: string) {
     this.errors.push(message);
   }
