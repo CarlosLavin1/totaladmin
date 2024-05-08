@@ -58,5 +58,31 @@ namespace TotalAdmin.API.Controllers
                 return Problem(title: "An internal error has occurred. Please contact the system administrator.");
             }
         }
+
+        [HttpPut("{id}")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        public ActionResult<Department> Update(int id, Department department)
+        {
+            try
+            {
+                if (id != department.Id)
+                    return BadRequest();
+
+                department = departmentService.UpdateDepartment(department);
+
+                if (department.Errors.Count > 0)
+                    // There are arguments that we should return 422 here, however
+                    // 400 is fine
+                    return BadRequest(department);
+
+                return department;
+            }
+            catch (Exception)
+            {
+                return Problem(title: "An internal error has occurred. Please contact the system administrator.");
+            }
+
+        }
     }
 }

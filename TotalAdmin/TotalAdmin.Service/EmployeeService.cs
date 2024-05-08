@@ -45,7 +45,12 @@ namespace TotalAdmin.Service
             return employee;
         }
 
-        public async Task<List<EmployeeDisplayDTO>> SearchEmployeesAsync(int department, int employeeNumber, string? lastName)
+        public Employee UpdateEmployee(Employee employee)
+        {
+            return new();
+        }
+
+        public async Task<List<EmployeeDetailDTO>> SearchEmployeesAsync(int department, int employeeNumber, string? lastName)
         {
             return await repo.SearchEmployeesAsync(department, employeeNumber, lastName);
         }
@@ -58,6 +63,16 @@ namespace TotalAdmin.Service
         public Employee? GetEmployeeById(int employeeNumber)
         {
             return repo.GetEmployeeById(employeeNumber);
+        }
+
+        public async Task<EmployeeDetailDTO?> GetEmployeeDetailById(int? id)
+        {
+            return await repo.GetEmployeeDetailById(id);
+        }
+
+        public async Task<List<EmployeeDetailDTO>> SearchEmployeeDirectory(int employeeNumber, string? lastName)
+        {
+            return await repo.SearchEmployeeDirectory(employeeNumber, lastName);
         }
 
         private bool ValidateEmployee(Employee employee)
