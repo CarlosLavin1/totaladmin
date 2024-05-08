@@ -246,6 +246,11 @@ namespace TotalAdmin.Repository
             return PopulateEmployeeDetailDTO(row);
         }
 
+        public Employee UpdateEmployee(Employee employee)
+        {
+            return new();
+        }
+
         //private methods
         private Employee PopulateEmployee(DataRow row)
         {

@@ -22,5 +22,6 @@ namespace TotalAdmin.Repository
         Task<List<Employee>> GetSupervisors(int roleId, int departmentId);
         Task<List<EmployeeDetailDTO>> SearchEmployeeDirectory(int employeeNumber, string? lastName);
         Task<EmployeeDetailDTO?> GetEmployeeDetailById(int? id);
+        Employee UpdateEmployee(Employee employee);
     }
 }

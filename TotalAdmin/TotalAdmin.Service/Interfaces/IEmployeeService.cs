@@ -20,5 +20,6 @@ namespace TotalAdmin.Service
         Employee? GetEmployeeById(int employeeNumber);
         Task<List<EmployeeDetailDTO>> SearchEmployeeDirectory(int employeeNumber, string? lastName);
         Task<EmployeeDetailDTO?> GetEmployeeDetailById(int? id);
+        Employee UpdateEmployee(Employee employee);
     }
 }
