@@ -13,14 +13,12 @@ BEGIN
 		INSERT INTO Department 
 		([Name], 
 		[Description], 
-		InvocationDate,
-		[RowVersion]
+		InvocationDate
 		)
 		VALUES 
 		(@Name, 
 		@Description, 
-		@InvocationDate,
-		1
+		@InvocationDate
 		)
 		SET @DepartmentId = SCOPE_IDENTITY()
 	END TRY
@@ -71,7 +69,7 @@ CREATE OR ALTER PROC spInsertEmployee
 	@OfficeLocation NVARCHAR(255),
 	@WorkPhoneNumber NVARCHAR(12),
 	@CellPhoneNumber NVARCHAR(12),
-	@IsActive BIT,
+	@StatusId INT,
 	@SupervisorEmpNumber INT,
 	@DepartmentId INT,
 	@RoleId INT,
@@ -96,11 +94,10 @@ BEGIN
 			OfficeLocation,
 			WorkPhoneNumber,
 			CellPhoneNumber,
-			IsActive,
+			StatusId,
 			SupervisorEmpNumber,
 			DepartmentId,
-			RoleId,
-			[RowVersion])
+			RoleId)
 		 VALUES (
 			@FirstName,
 			@MiddleInitial,
@@ -118,11 +115,10 @@ BEGIN
 			@OfficeLocation,
 			@WorkPhoneNumber,
 			@CellPhoneNumber,
-			@IsActive,
+			@StatusId,
 			@SupervisorEmpNumber,
 			@DepartmentId,
-			@RoleId,
-			1)
+			@RoleId)
 			SET @EmployeeNumber = SCOPE_IDENTITY()
 	END TRY
 	BEGIN CATCH
@@ -150,7 +146,9 @@ CREATE OR ALTER PROC spUpdateEmployee
 	@OfficeLocation NVARCHAR(255),
 	@WorkPhoneNumber NVARCHAR(12),
 	@CellPhoneNumber NVARCHAR(12),
-	@IsActive BIT, -- add dates for terminated/retired and change this to status
+	@TerminatedDate DATETIME2(7),
+	@RetiredDate DATETIME2(7),
+	@StatusId INT,
 	@SupervisorEmpNumber INT,
 	@DepartmentId INT,
 	@RoleId INT,
@@ -177,7 +175,9 @@ BEGIN
 			OfficeLocation = @OfficeLocation,
 			WorkPhoneNumber = @WorkPhoneNumber,
 			CellPhoneNumber = @CellPhoneNumber,
-			-- status
+			TerminatedDate = @TerminatedDate,
+			RetiredDate = @RetiredDate,
+			StatusId = @StatusId,
 			SupervisorEmpNumber = @SupervisorEmpNumber,
 			DepartmentId = @DepartmentId,
 			RoleId = @RoleId
@@ -220,7 +220,7 @@ BEGIN
     FROM
         Employee
     WHERE
-        IsActive = 1
+        StatusId = 1
         AND (@EmployeeNumber IS NULL OR @EmployeeNumber = 0 OR EmployeeNumber = @EmployeeNumber)
         AND (@LastName IS NULL OR LastName LIKE '%' + @LastName + '%')
         AND (@DepartmentId IS NULL OR @DepartmentId = 0 OR DepartmentId = @DepartmentId)
@@ -240,7 +240,7 @@ BEGIN
     FROM
         Employee
     WHERE
-        IsActive = 1
+        StatusId = 1
         AND (DepartmentId = @DepartmentId)
 END
 GO
@@ -255,7 +255,7 @@ BEGIN
     FROM
         Employee
     WHERE
-        IsActive = 1
+        StatusId = 1
         AND (SupervisorEmpNumber = @SupervisorEmployeeNumber)
 END
 GO
@@ -270,7 +270,7 @@ BEGIN
     FROM
         Employee
     WHERE
-        IsActive = 1
+        StatusId = 1
         AND (EmployeeNumber = @EmployeeNumber)
 END
 GO
@@ -288,7 +288,7 @@ BEGIN
 			FROM
 				Employee
 			WHERE
-				IsActive = 1
+				StatusId = 1
 				AND RoleId = 1
 		END
 	ELSE
@@ -300,7 +300,7 @@ BEGIN
 					FROM
 						Employee
 					WHERE
-						IsActive = 1
+						StatusId = 1
 						AND RoleId = 2
 						AND DepartmentId = @DepartmentId
 				END
@@ -311,7 +311,7 @@ BEGIN
 					FROM
 						Employee
 					WHERE
-						IsActive = 1
+						StatusId = 1
 						AND RoleId = 3
 						AND DepartmentId = @DepartmentId
 				END
@@ -387,7 +387,7 @@ BEGIN
     FROM
         Employee
     WHERE
-        IsActive = 1
+        StatusId = 1
         AND (@EmployeeNumber IS NULL OR @EmployeeNumber = 0 OR EmployeeNumber = @EmployeeNumber)
         AND (@LastName IS NULL OR LastName LIKE '%' + @LastName + '%')
     ORDER BY
@@ -416,7 +416,7 @@ BEGIN
 		WHERE
 			EmployeeNumber = @EmployeeNumber
 			AND UPPER([HashedPassword]) = UPPER(@HashedPassword)
-			AND IsActive = 1
+			AND StatusId = 1
 	END TRY
 	BEGIN CATCH
 		;THROW
