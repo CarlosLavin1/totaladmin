@@ -41,11 +41,8 @@ import { ItemDialogFormComponent } from './item-dialog-form/item-dialog-form.com
     UnauthorizedComponent,
     CreatePurchaseOrderComponent,
     ReviewPurchaseOrderComponent,
-<<<<<<< HEAD
     DepartmentUpdateComponent,
-=======
     ItemDialogFormComponent
->>>>>>> main
   ],
   imports: [
     BrowserModule,

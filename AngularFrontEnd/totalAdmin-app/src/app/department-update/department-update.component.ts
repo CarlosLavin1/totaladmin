@@ -7,6 +7,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { SnackbarService } from '../services/snackbar.service';
 import { ValidationError } from '../models/validationError';
 import { AuthenticationService } from '../auth/services/authentication.service';
+import { formatDate } from '@angular/common';
 
 @Component({
   selector: 'app-department-update',
@@ -20,10 +21,11 @@ export class DepartmentUpdateComponent {
   errors: string[] = [];
 
   departmentForm: FormGroup = this.formBuilder.group({
-    departmentId: 0,
+    id: 0,
     name: ['', Validators.required],
     description: ['', Validators.required],
-    invocationDate: ['', Validators.required]
+    invocationDate: ['', Validators.required],
+    rowVersion: ''
   });
 
   constructor(
@@ -45,20 +47,24 @@ export class DepartmentUpdateComponent {
   }
 
   loadDepartment(){
-     this.departmentService.getDepartmentForEmployee(this.employeeNumber).subscribe(d => {
+    this.departmentService.getDepartmentForEmployee(this.employeeNumber).subscribe(d => {
+      this.departmentId = d.id;
       console.log(d);
-      this.departmentForm.value.departmentId = d.departmentId;
-      this.departmentForm.value.name = d.name;
-      this.departmentForm.value.description = d.description;
-      this.departmentForm.value.invocationDate = d.invocationDate;
-     });
+      const formattedDate = formatDate(d.invocationDate, 'yyyy-MM-dd', 'en-US');
+      this.departmentForm.patchValue({
+        id: d.id,
+        name: d.name,
+        description: d.description,
+        invocationDate: formattedDate,
+        rowVersion: d.rowVersion
+      });
+    });
   }
 
   onSubmit() {
     if(this.departmentForm.valid){
       this.errors = [];
       const department: Department = this.departmentForm.value;
-      
       const subscription = this.departmentService.updateDepartment(this.departmentId, department).subscribe({
         next: () => {
           this.snackbarService.showSnackBar("Department updated successfully", 0);
