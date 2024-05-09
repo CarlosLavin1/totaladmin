@@ -215,7 +215,8 @@ BEGIN
 		PostalCode,
         WorkPhoneNumber,
         CellPhoneNumber,
-        EmailAddress
+        EmailAddress,
+		JobTitle
     FROM
         Employee
     WHERE

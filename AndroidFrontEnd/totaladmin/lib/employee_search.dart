@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:totaladmin/employee_detail.dart';
 import 'package:totaladmin/services/department_service.dart';
 import 'package:totaladmin/services/employee_service.dart';
 import 'models/department.dart';
@@ -133,14 +134,21 @@ class _EmployeeSearchState extends State<EmployeeSearch> {
                         subtitle: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: <Widget>[
-                            Text(
-                                'Work Phone: ${searchResults[index].workPhone}'),
-                            Text(
-                                'Office Location: ${searchResults[index].officeLocation}'),
                             Text('Job Title: ${searchResults[index].jobTitle}'),
                           ],
                         ),
                         isThreeLine: true,
+                        onTap: () {
+                          // go to employee details page
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => EmployeeDetail(
+                                employee: searchResults[index],
+                              ),
+                            ),
+                          );
+                        },
                       );
                     },
                     separatorBuilder: (context, index) => const Divider(),
