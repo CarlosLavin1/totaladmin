@@ -27,6 +27,8 @@ import { DepartmentUpdateComponent } from './department-update/department-update
 import { ItemDialogFormComponent } from './item-dialog-form/item-dialog-form.component';
 import { ListDepartmentsComponent } from './list-departments/list-departments.component';
 import { ModifyDepartmentComponent } from './modify-department/modify-department.component';
+import { EmployeeSearchComponent } from './employee-search/employee-search.component';
+import { EmployeeDetailsComponent } from './employee-details/employee-details.component';
 
 
 @NgModule({
@@ -46,7 +48,9 @@ import { ModifyDepartmentComponent } from './modify-department/modify-department
     DepartmentUpdateComponent,
     ItemDialogFormComponent,
     ListDepartmentsComponent,
-    ModifyDepartmentComponent
+    ModifyDepartmentComponent,
+    EmployeeSearchComponent,
+    EmployeeDetailsComponent
   ],
   imports: [
     BrowserModule,

@@ -388,9 +388,8 @@ BEGIN
     FROM
         Employee
     WHERE
-        StatusId = 1
-        AND (@EmployeeNumber IS NULL OR @EmployeeNumber = 0 OR EmployeeNumber = @EmployeeNumber)
-        AND (@LastName IS NULL OR LastName LIKE '%' + @LastName + '%')
+        (@EmployeeNumber IS NULL OR @EmployeeNumber = -1 OR EmployeeNumber = @EmployeeNumber)
+        AND (@LastName IS NULL OR @LastName = '' OR LastName LIKE '%' + @LastName + '%')
     ORDER BY
         LastName,
         FirstName;

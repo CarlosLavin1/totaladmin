@@ -12,6 +12,8 @@ import { DepartmentUpdateComponent } from './department-update/department-update
 import { ItemDialogFormComponent } from './item-dialog-form/item-dialog-form.component';
 import { ListDepartmentsComponent } from './list-departments/list-departments.component';
 import { ModifyDepartmentComponent } from './modify-department/modify-department.component';
+import { EmployeeSearchComponent } from './employee-search/employee-search.component';
+import { EmployeeDetailsComponent } from './employee-details/employee-details.component';
 
 // for routing
 const routes: Routes = [
@@ -26,6 +28,8 @@ const routes: Routes = [
   { path: 'update-department', component: DepartmentUpdateComponent, canActivate: [AuthGuard], data: { roles: ['CEO', 'Supervisor']} },
   { path: 'list-departments', component: ListDepartmentsComponent, canActivate: [AuthGuard], data: { roles: ['CEO', 'HR Employee']} },
   { path: 'modify-department/:id', component: ModifyDepartmentComponent, canActivate: [AuthGuard], data: { roles: ['CEO', 'HR Employee']} },
+  { path: 'search-employee', component: EmployeeSearchComponent, canActivate: [AuthGuard], data: { roles: ['CEO', 'HR Employee']} },
+  { path: 'employee-details/:id', component: EmployeeDetailsComponent, canActivate: [AuthGuard], data: { roles: ['CEO', 'HR Employee']} },
   { path: '**', redirectTo: '' },
 ]
 

@@ -100,13 +100,14 @@ namespace TotalAdmin.API.Controllers
         {
             try
             {
-                int employeeNumber = filters.EmployeeNumber ?? -999999999;
+                // user story 37
+                int employeeNumber = filters.EmployeeNumber ?? -1;
                 string? lastName = filters.LastName;
                 List<EmployeeDetailDTO> employees = await employeeService.SearchEmployeeDirectory(employeeNumber, lastName);
 
                 return employees;
             }
-            catch (Exception)
+            catch (Exception e)
             {
                 return Problem(title: "An internal error has occurred. Please contact the system administrator.");
             }
