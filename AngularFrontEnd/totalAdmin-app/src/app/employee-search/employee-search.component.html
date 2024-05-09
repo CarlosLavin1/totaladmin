@@ -13,8 +13,8 @@
 
     <ul *ngIf="employees.length > 0" class="list-group mt-3">
         <li class="list-group-item" *ngFor="let employee of employees">
-            {{ employee.firstName }} {{ employee.middleInitial }} {{ employee.lastName }} - {{ employee.employeeNumber
-            }}
+            <a [routerLink]="['/employee-details', employee.employeeNumber]">{{ employee.firstName }} {{
+                employee.lastName }}</a>
         </li>
     </ul>
     <h2 *ngIf="noResults">No results</h2>

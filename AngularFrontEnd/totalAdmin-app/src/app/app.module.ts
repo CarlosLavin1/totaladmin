@@ -28,6 +28,7 @@ import { ItemDialogFormComponent } from './item-dialog-form/item-dialog-form.com
 import { ListDepartmentsComponent } from './list-departments/list-departments.component';
 import { ModifyDepartmentComponent } from './modify-department/modify-department.component';
 import { EmployeeSearchComponent } from './employee-search/employee-search.component';
+import { EmployeeDetailsComponent } from './employee-details/employee-details.component';
 
 
 @NgModule({
@@ -48,7 +49,8 @@ import { EmployeeSearchComponent } from './employee-search/employee-search.compo
     ItemDialogFormComponent,
     ListDepartmentsComponent,
     ModifyDepartmentComponent,
-    EmployeeSearchComponent
+    EmployeeSearchComponent,
+    EmployeeDetailsComponent
   ],
   imports: [
     BrowserModule,
