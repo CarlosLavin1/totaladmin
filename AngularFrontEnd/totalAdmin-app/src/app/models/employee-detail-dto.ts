@@ -10,4 +10,5 @@ export interface EmployeeDetailDTO {
     cellPhone: string | null;
     email: string | null;
     jobTitle: string | null;
+    showDetails: boolean;
 }

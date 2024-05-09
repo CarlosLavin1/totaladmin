@@ -12,9 +12,11 @@
     </form>
 
     <ul *ngIf="employees.length > 0" class="list-group mt-3">
-        <li class="list-group-item" *ngFor="let employee of employees">
-            <a [routerLink]="['/employee-details', employee.employeeNumber]">{{ employee.firstName }} {{
-                employee.lastName }}</a>
+        <li class="list-group-item employee-item rounded" *ngFor="let employee of employees; let i = index"
+            (click)="toggleDetails(i)">
+            <h5 class="employee-name">{{ employee.firstName }} {{
+                employee.lastName }}</h5>
+            <app-employee-details [employee]="employee" *ngIf="employee.showDetails"></app-employee-details>
         </li>
     </ul>
     <h2 *ngIf="noResults">No results</h2>

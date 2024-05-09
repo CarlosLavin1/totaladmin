@@ -1,1 +1,7 @@
-<p>employee-details works!</p>
+<div *ngIf="employee" class="employee-card">
+    <h2>{{ employee.firstName }} {{ employee.middleInitial }} {{ employee.lastName }}</h2>
+    <p><strong>Address:</strong> {{ employee.streetAddress }}, {{ employee.city }}, {{ employee.postalCode }}</p>
+    <p><strong>Work Phone:</strong> {{ employee.workPhone }}</p>
+    <p><strong>Cell Phone:</strong> {{ employee.cellPhone }}</p>
+    <p><strong>Email:</strong> {{ employee.email }}</p>
+</div>

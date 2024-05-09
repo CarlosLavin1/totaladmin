@@ -35,10 +35,18 @@ export class EmployeeSearchComponent {
     this.employeeService.searchEmployees(lastName, employeeNumber).subscribe({
       next: (data) => {
         console.log(data);
-        this.employees = data; 
+        //this.employees = data; 
+        this.employees = data.map(e => ({
+          ...e,
+          showDetails: false
+        }));
         this.noResults = this.employees.length == 0
       },
       error: (err) => {console.error('Error fetching employees', err); this.noResults = true;}
     });
+  }
+
+  toggleDetails(index: number): void {
+    this.employees[index].showDetails = !this.employees[index].showDetails;
   }
 }
