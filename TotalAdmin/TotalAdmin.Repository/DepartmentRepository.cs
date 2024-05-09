@@ -110,6 +110,26 @@ namespace TotalAdmin.Repository
             };
         }
 
+        public async Task<Department?> GetDepartmentById(int id)
+        {
+            List<Parm> parms = new()
+            {
+                new("@DepartmentId", SqlDbType.Int, id)
+            };
+            DataTable dt = await db.ExecuteAsync("getDepartmentById", parms);
+            if (dt.Rows.Count == 0)
+                return null;
+            DataRow row = dt.Rows[0];
+            return new Department
+            {
+                Id = Convert.ToInt32(row["DepartmentId"]),
+                Name = Convert.ToString(row["Name"]),
+                Description = Convert.ToString(row["Description"]),
+                InvocationDate = Convert.ToDateTime(row["InvocationDate"]),
+                RowVersion = (byte[])row["RowVersion"]
+            };
+        }
+
         public Department UpdateDepartment(Department department)
         {
             List<Parm> parms = new()

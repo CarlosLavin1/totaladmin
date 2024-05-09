@@ -53,6 +53,11 @@ namespace TotalAdmin.Service
             return await repo.GetDepartmentForEmployeeAsync(employeeNumber);
         }
 
+        public async Task<Department?> GetDepartmentById(int id)
+        {
+            return await repo.GetDepartmentById(id);
+        }
+
         private bool ValidateDepartment(Department department)
         {
             // Validate Entity

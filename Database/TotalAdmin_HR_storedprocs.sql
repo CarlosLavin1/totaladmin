@@ -411,6 +411,20 @@ BEGIN
 END
 GO
 
+-- get department by id
+CREATE OR ALTER PROC getDepartmentById
+	@DepartmentId INT
+AS
+BEGIN
+	SELECT
+		*
+	FROM
+		Department
+	WHERE 
+		DepartmentId = @DepartmentId
+END
+GO
+
 -- select * from Role
 -- login
 CREATE OR ALTER PROC spLogin
