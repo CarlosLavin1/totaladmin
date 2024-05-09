@@ -6,6 +6,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { SharedDataService } from '../services/shared-data.service';
 import { ValidationError } from '../models/validationError';
 import { PurchaseOrder } from '../models/purchase-order';
+import { SnackbarService } from '../services/snackbar.service';
 
 @Component({
   selector: 'app-item-dialog-form',
@@ -27,7 +28,8 @@ export class ItemDialogFormComponent implements OnInit {
     private purchaseOrderService: PurchaseOrderService,
     private activatedRoute: ActivatedRoute,
     private sharedDataService: SharedDataService,
-    private router: Router
+    private router: Router,
+    private snackBarService: SnackbarService
   ) {
     this.itemForm = this.formBuilder.group({
       name: ['', Validators.required],
@@ -65,6 +67,13 @@ export class ItemDialogFormComponent implements OnInit {
             this.itemForm.reset();
             this.submitted = false;
             this.router.navigateByUrl('/')
+
+            this.snackBarService.showSnackBar("Purchase order item added successfully", 0);
+            setTimeout(() => {
+              console.log('Succesfully added po');
+
+              this.snackBarService.dismissSnackBar();
+            }, 5000);
           },
           error: (err) => {
             this.submitted = false
