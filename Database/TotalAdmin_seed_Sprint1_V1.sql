@@ -20,7 +20,17 @@ INSERT INTO ItemStatus([Name])
 VALUES
 	('Pending')
 	
-
+-- employee status
+IF OBJECT_ID('TotalAdmin.dbo.EmployeeStatus', 'U') IS NULL
+	CREATE TABLE EmployeeStatus(
+		EmployeeStatusId INT IDENTITY(1,1) NOT NULL PRIMARY KEY,
+		[Name] NVARCHAR(50) NOT NULL
+	);
+GO
+-- Employee Statuses
+INSERT INTO EmployeeStatus([Name]) 
+VALUES
+	('Active'), ('Retired'), ('Terminated')
 
 -- purchase order statuses
 IF OBJECT_ID('TotalAdmin.dbo.PurchaseOrderStatus', 'U') IS NULL
