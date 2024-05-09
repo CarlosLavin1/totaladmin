@@ -39,6 +39,15 @@ export class DepartmentUpdateComponent {
 
   ngOnInit(){
     this.employeeNumber = this.authService.getEmployeeNumber() ?? -1;
+    const idParam = this.activatedRoute.snapshot.paramMap.get('id');
+    if (idParam != null) {
+      this.departmentId = +idParam;
+      if (!isNaN(this.departmentId)) {
+        this.loadDepartment();
+      } else {
+        this.router.navigate(['']);
+      }
+    }
     this.loadDepartment();
   }
 
@@ -47,7 +56,7 @@ export class DepartmentUpdateComponent {
   }
 
   loadDepartment(){
-    this.departmentService.getDepartmentForEmployee(this.employeeNumber).subscribe(d => {
+    const sub = this.departmentService.getDepartmentById(this.departmentId).subscribe(d => {
       this.departmentId = d.id;
       console.log(d);
       const formattedDate = formatDate(d.invocationDate, 'yyyy-MM-dd', 'en-US');
@@ -59,6 +68,7 @@ export class DepartmentUpdateComponent {
         rowVersion: d.rowVersion
       });
     });
+    this.subscriptions.push(sub);
   }
 
   onSubmit() {
