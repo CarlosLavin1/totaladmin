@@ -397,6 +397,34 @@ BEGIN
 END
 GO
 
+-- get old invocation date for department
+CREATE OR ALTER PROC getOldInvocationDateForDepartment
+	@DepartmentId INT
+AS
+BEGIN
+	SELECT
+		InvocationDate
+	FROM
+		Department
+	WHERE 
+		DepartmentId = @DepartmentId
+END
+GO
+
+-- get department by id
+CREATE OR ALTER PROC getDepartmentById
+	@DepartmentId INT
+AS
+BEGIN
+	SELECT
+		*
+	FROM
+		Department
+	WHERE 
+		DepartmentId = @DepartmentId
+END
+GO
+
 -- select * from Role
 -- login
 CREATE OR ALTER PROC spLogin

@@ -10,6 +10,8 @@ import { CreatePurchaseOrderComponent } from './create-purchase-order/create-pur
 import { UnauthorizedComponent } from './unauthorized/unauthorized.component';
 import { DepartmentUpdateComponent } from './department-update/department-update.component';
 import { ItemDialogFormComponent } from './item-dialog-form/item-dialog-form.component';
+import { ListDepartmentsComponent } from './list-departments/list-departments.component';
+import { ModifyDepartmentComponent } from './modify-department/modify-department.component';
 
 // for routing
 const routes: Routes = [
@@ -22,6 +24,8 @@ const routes: Routes = [
   { path: 'employee', component: EmployeeCreateComponent, canActivate: [AuthGuard], data: { roles: ['CEO', 'HR Employee']} },
   { path: 'department', component: DepartmentCreateComponent, canActivate: [AuthGuard], data: { roles: ['CEO', 'HR Employee']} },
   { path: 'update-department', component: DepartmentUpdateComponent, canActivate: [AuthGuard], data: { roles: ['CEO', 'Supervisor']} },
+  { path: 'list-departments', component: ListDepartmentsComponent, canActivate: [AuthGuard], data: { roles: ['CEO', 'HR Employee']} },
+  { path: 'modify-department/:id', component: ModifyDepartmentComponent, canActivate: [AuthGuard], data: { roles: ['CEO', 'HR Employee']} },
   { path: '**', redirectTo: '' },
 ]
 

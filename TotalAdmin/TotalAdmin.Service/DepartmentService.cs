@@ -53,6 +53,16 @@ namespace TotalAdmin.Service
             return await repo.GetDepartmentForEmployeeAsync(employeeNumber);
         }
 
+        public async Task<Department?> GetDepartmentById(int id)
+        {
+            return await repo.GetDepartmentById(id);
+        }
+
+        public DateTime? GetOldInvocationDate(int departmentId)
+        {
+            return repo.GetOldInvocationDate(departmentId);
+        }
+
         private bool ValidateDepartment(Department department)
         {
             // Validate Entity
@@ -83,8 +93,9 @@ namespace TotalAdmin.Service
             }
             // validate invication date is not in the past
             // invocation date can be the same as the one in the database when updating
-            //if (department.InvocationDate != null && department.InvocationDate < DateTime.Now.Date)
-            //    department.AddError(new("Invocation date cannot be in the past", ErrorType.Business));
+            DateTime? oldInvocationDate = GetOldInvocationDate(department.Id);
+            if (oldInvocationDate != null && department.InvocationDate != null && oldInvocationDate.Value.Date != department.InvocationDate.Value.Date && department.InvocationDate.Value.Date < DateTime.Now.Date)
+                department.AddError(new("New invocation date cannot be in the past", ErrorType.Business));
 
             return !department.Errors.Any();
         }

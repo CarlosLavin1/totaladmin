@@ -17,5 +17,7 @@ namespace TotalAdmin.Service
         Department AddDepartment(Department department);
         Department UpdateDepartment(Department department);
         Task<Department?> GetDepartmentForEmployeeAsync(int employeeNumber);
+        Task<Department?> GetDepartmentById(int id);
+        DateTime? GetOldInvocationDate(int departmentId);
     }
 }

@@ -23,6 +23,10 @@
                         routerLink="/update-department">Update My Department</a>
                 </li>
                 <li class="nav-item">
+                    <a *ngIf="userIsAuthenticated && role == 'HR Employee'" class="btn btn-info"
+                        routerLink="/list-departments">Modify Departments</a>
+                </li>
+                <li class="nav-item">
                     <a *ngIf="userIsAuthenticated" class="btn btn-info" routerLink="/purchase-order">Purchase Order</a>
                 </li>
                 <!-- <li class="nav-item">
