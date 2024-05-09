@@ -58,6 +58,32 @@ BEGIN
 END
 GO
 
+
+
+-- Stored procedure to create a AddItems To a PurchaseOrder
+CREATE OR ALTER PROC [dbo].[spAddItemsToPurchaseOrder]
+	@PoNumber INT,
+	@POItems PoItemsTableType READONLY -- Contains rows of item thats part of the PO
+AS
+BEGIN
+  BEGIN TRAN
+	BEGIN TRY
+		-- add the new PO items data
+		INSERT INTO Item
+			SELECT ItemName, ItemQty, ItemDesc, ItemPrice, ItemJust, ItemLoc, [RowVersion], @PoNumber, ItemStatus FROM @POItems
+
+		COMMIT TRAN
+
+	END TRY
+	BEGIN CATCH
+		IF @@TRANCOUNT > 0
+				ROLLBACK TRAN
+		;THROW
+	END CATCH
+END
+GO
+
+
 /* Stored procedure to create a PurchaseOrder
 CREATE OR ALTER PROC [dbo].[spAddPurchaseOrder]
 	@PoNumber INT OUTPUT,

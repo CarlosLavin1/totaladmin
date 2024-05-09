@@ -7,8 +7,8 @@ import { EmployeeCreateComponent } from './employee-create/employee-create.compo
 import { AuthGuard } from './guards/auth.guard';
 import { DepartmentCreateComponent } from './department-create/department-create.component';
 import { CreatePurchaseOrderComponent } from './create-purchase-order/create-purchase-order.component';
-import { ReviewPurchaseOrderComponent } from './review-purchase-order/review-purchase-order.component';
 import { UnauthorizedComponent } from './unauthorized/unauthorized.component';
+import { ItemDialogFormComponent } from './item-dialog-form/item-dialog-form.component';
 
 // for routing
 const routes: Routes = [
@@ -16,7 +16,7 @@ const routes: Routes = [
   { path: 'unauthorized', component: UnauthorizedComponent },
   { path: 'purchase-order-search', component: PurchaseOrderSearchComponent, canActivate: [AuthGuard] },
   { path: 'purchase-order', component: CreatePurchaseOrderComponent, canActivate: [AuthGuard] },
-  { path: 'review-purchase-order', component: ReviewPurchaseOrderComponent, canActivate: [AuthGuard]},
+  { path: 'items', component: ItemDialogFormComponent },
   { path: 'login', component: LoginComponent },
   { path: 'employee', component: EmployeeCreateComponent, canActivate: [AuthGuard], data: { roles: ['CEO', 'HR Employee']} },
   { path: 'department', component: DepartmentCreateComponent, canActivate: [AuthGuard], data: { roles: ['CEO', 'HR Employee']} },
