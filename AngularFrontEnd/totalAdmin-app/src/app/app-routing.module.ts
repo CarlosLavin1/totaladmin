@@ -8,6 +8,7 @@ import { AuthGuard } from './guards/auth.guard';
 import { DepartmentCreateComponent } from './department-create/department-create.component';
 import { CreatePurchaseOrderComponent } from './create-purchase-order/create-purchase-order.component';
 import { UnauthorizedComponent } from './unauthorized/unauthorized.component';
+import { DepartmentUpdateComponent } from './department-update/department-update.component';
 import { ItemDialogFormComponent } from './item-dialog-form/item-dialog-form.component';
 
 // for routing
@@ -20,6 +21,7 @@ const routes: Routes = [
   { path: 'login', component: LoginComponent },
   { path: 'employee', component: EmployeeCreateComponent, canActivate: [AuthGuard], data: { roles: ['CEO', 'HR Employee']} },
   { path: 'department', component: DepartmentCreateComponent, canActivate: [AuthGuard], data: { roles: ['CEO', 'HR Employee']} },
+  { path: 'update-department', component: DepartmentUpdateComponent, canActivate: [AuthGuard], data: { roles: ['CEO', 'Supervisor']} },
   { path: '**', redirectTo: '' },
 ]
 

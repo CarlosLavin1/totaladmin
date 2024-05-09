@@ -12,8 +12,8 @@ namespace TotalAdmin.Repository
         Task<List<DepartmentDisplayDTO>> GetActiveDepartmentsAsync();
         Task<Department> AddDepartmentAsync(Department department);
         Department AddDepartment(Department department);
-        Task<Department> GetDepartmentForEmployeeAsync(int employeeNumber);
-        Department GetDepartmentForEmployee(int employeeNumber);
+        Task<Department?> GetDepartmentForEmployeeAsync(int employeeNumber);
+        Department? GetDepartmentForEmployee(int employeeNumber);
         Department UpdateDepartment(Department department);
     }
 }

@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Globalization;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -69,14 +70,44 @@ namespace TotalAdmin.Repository
             return department;
         }
 
-        public Task<Department> GetDepartmentForEmployeeAsync(int employeeNumber)
+        public async Task<Department?> GetDepartmentForEmployeeAsync(int employeeNumber)
         {
-            throw new NotImplementedException();
+            List<Parm> parms = new()
+            {
+                new("@EmployeeNumber", SqlDbType.Int, employeeNumber)
+            };
+            DataTable dt = await db.ExecuteAsync("spGetDepartmentForEmployee", parms);
+            if (dt.Rows.Count == 0)
+                return null;
+            DataRow row = dt.Rows[0];
+            return new Department
+            {
+                Id = Convert.ToInt32(row["DepartmentId"]),
+                Name = Convert.ToString(row["Name"]),
+                Description = Convert.ToString(row["Description"]),
+                InvocationDate = Convert.ToDateTime(row["InvocationDate"]),
+                RowVersion = (byte[])row["RowVersion"]
+            };
         }
 
-        public Department GetDepartmentForEmployee(int employeeNumber)
+        public Department? GetDepartmentForEmployee(int employeeNumber)
         {
-            throw new NotImplementedException();
+            List<Parm> parms = new()
+            {
+                new("@EmployeeNumber", SqlDbType.Int, employeeNumber)
+            };
+            DataTable dt = db.Execute("spGetDepartmentForEmployee", parms);
+            if (dt.Rows.Count == 0)
+                return null;
+            DataRow row = dt.Rows[0];
+            return new Department
+            {
+                Id = Convert.ToInt32(row["DepartmentId"]),
+                Name = Convert.ToString(row["Name"]),
+                Description = Convert.ToString(row["Description"]),
+                InvocationDate = Convert.ToDateTime(row["InvocationDate"]),
+                RowVersion = (byte[])row["RowVersion"]
+            };
         }
 
         public Department UpdateDepartment(Department department)
