@@ -168,7 +168,7 @@ namespace TotalAdmin.Repository
             return (int)count;
         }
 
-        public async Task<List<EmployeeDisplayDTO>> SearchEmployeesAsync(int department, int employeeNumber, string? lastName)
+        public async Task<List<EmployeeDetailDTO>> SearchEmployeesAsync(int department, int employeeNumber, string? lastName)
         {
             List<Parm> parms = new()
             {
@@ -179,7 +179,7 @@ namespace TotalAdmin.Repository
 
             DataTable dt = await db.ExecuteAsync("spSearchEmployees", parms);
 
-            return dt.AsEnumerable().Select(row => PopulateEmployeeDisplayDTO(row)).ToList();
+            return dt.AsEnumerable().Select(row => PopulateEmployeeDetailDTO(row)).ToList();
         }
 
         public async Task<int> GetEmployeesForSupervisorCountAsync(int supervisor)
@@ -220,6 +220,64 @@ namespace TotalAdmin.Repository
             return dt.AsEnumerable().Select(row => PopulateEmployee(row)).ToList();
         }
 
+        public async Task<List<EmployeeDetailDTO>> SearchEmployeeDirectory(int employeeNumber, string? lastName)
+        {
+            List<Parm> parms = new()
+            {
+                new("@EmployeeNumber", SqlDbType.Int, employeeNumber),
+                new("@LastName", SqlDbType.NVarChar, lastName, 50),
+            };
+            DataTable dt = await db.ExecuteAsync("spSearchEmployeesDirectory", parms);
+            return dt.AsEnumerable().Select(row => PopulateEmployeeDetailDTO(row)).ToList();
+        }
+
+        public async Task<EmployeeDetailDTO?> GetEmployeeDetailById(int? id)
+        {
+            List<Parm> parms = new()
+            {
+                new("@EmployeeNumber", SqlDbType.Int, id)
+            };
+            DataTable dt = await db.ExecuteAsync("spGetEmployeeById", parms);
+            if (dt.Rows.Count == 0)
+                return null;
+
+            DataRow row = dt.Rows[0];
+
+            return PopulateEmployeeDetailDTO(row);
+        }
+
+        public Employee UpdateEmployee(Employee employee)
+        {
+            List<Parm> parms = new()
+            {
+                new("@EmployeeNumber", SqlDbType.Decimal, employee.EmployeeNumber),
+                new("@FirstName", SqlDbType.NVarChar, employee.FirstName, 50),
+                new("@MiddleInitial", SqlDbType.Char, employee.MiddleInitial, 1),
+                new("@LastName", SqlDbType.NVarChar, employee.LastName, 50),
+                new("@Email", SqlDbType.NVarChar, employee.Email, 255),
+                new("@HashedPassword", SqlDbType.NVarChar, employee.HashedPassword, 255),
+                new("@StreetAddress", SqlDbType.NVarChar, employee.StreetAddress, 255),
+                new("@City", SqlDbType.NVarChar, employee.City, 50),
+                new("@PostalCode", SqlDbType.NVarChar, employee.PostalCode, 50),
+                new("@SIN", SqlDbType.NVarChar, employee.SIN, 9),
+                new("@JobTitle", SqlDbType.NVarChar, employee.JobTitle, 60),
+                new("@CompanyStartDate", SqlDbType.DateTime2, employee.SeniorityDate),
+                new("@DateOfBirth", SqlDbType.DateTime2, employee.DateOfBirth),
+                new("@JobStartDate", SqlDbType.DateTime2, employee.JobStartDate),
+                new("@OfficeLocation", SqlDbType.NVarChar, employee.OfficeLocation, 255),
+                new("@WorkPhoneNumber", SqlDbType.NVarChar, employee.WorkPhoneNumber, 12),
+                new("@CellPhoneNumber", SqlDbType.NVarChar, employee.CellPhoneNumber, 12),
+                new("@IsActive", SqlDbType.Bit, employee.IsActive),
+                new("@SupervisorEmpNumber", SqlDbType.Int, employee.SupervisorEmployeeNumber),
+                new("@DepartmentId", SqlDbType.Int, employee.DepartmentId),
+                new("@RoleId", SqlDbType.Int, employee.RoleId),
+                
+            };
+            db.ExecuteNonQuery("spUpdateEmployee", parms);
+            return employee;
+        }
+
+        //private methods
         private Employee PopulateEmployee(DataRow row)
         {
             return new()
@@ -244,13 +302,31 @@ namespace TotalAdmin.Repository
         {
             return new EmployeeDisplayDTO
             {
-                 EmployeeNumber = Convert.ToInt32(row["EmployeeNumber"]),
-                 FirstName = row["FirstName"].ToString(),
-                 LastName = row["LastName"].ToString(),
-                 WorkPhone = row["WorkPhoneNumber"].ToString(),
-                 OfficeLocation = row["OfficeLocation"].ToString(),
-                 JobTitle = row["JobTitle"].ToString(),
+                EmployeeNumber = Convert.ToInt32(row["EmployeeNumber"]),
+                FirstName = row["FirstName"].ToString(),
+                LastName = row["LastName"].ToString(),
+                WorkPhone = row["WorkPhoneNumber"].ToString(),
+                OfficeLocation = row["OfficeLocation"].ToString(),
+                JobTitle = row["JobTitle"].ToString(),
             };
+        }
+
+        private EmployeeDetailDTO PopulateEmployeeDetailDTO(DataRow row)
+        {
+            return new EmployeeDetailDTO
+            (
+                Convert.ToInt32(row["EmployeeNumber"]),
+                row["FirstName"].ToString(),
+                row["MiddleInitial"] != DBNull.Value ? Convert.ToChar(row["MiddleInitial"]) : '\0',
+                row["LastName"].ToString(),
+                row["StreetAddress"].ToString(),
+                row["City"].ToString(),
+                row["PostalCode"].ToString(),
+                row["WorkPhoneNumber"].ToString(),
+                row["CellPhoneNumber"].ToString(),
+                row["EmailAddress"].ToString(),
+                row["JobTitle"].ToString()
+            );
         }
     }
 }

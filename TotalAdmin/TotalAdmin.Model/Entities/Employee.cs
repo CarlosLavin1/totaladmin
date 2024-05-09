@@ -51,6 +51,6 @@ namespace TotalAdmin.Model
         public string? OfficeLocation { get; set; }
         public bool IsActive { get; set; }
         public int RoleId { get; set; }
-        public int RowVersion { get; set; }
+        public byte[]? RowVersion { get; set; }
     }
 }

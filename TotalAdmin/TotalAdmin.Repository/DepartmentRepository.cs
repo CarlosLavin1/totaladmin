@@ -38,7 +38,6 @@ namespace TotalAdmin.Repository
             if (db.ExecuteNonQuery("spInsertDepartment", parms) > 0)
             {
                 department.Id = (int?)parms.FirstOrDefault(p => p.Name == "@DepartmentId")!.Value ?? 0;
-                department.RowVersion = 1;
             }
             else
             {
@@ -67,6 +66,30 @@ namespace TotalAdmin.Repository
                 throw new DataException("There was an issue adding the record to the database.");
             }
 
+            return department;
+        }
+
+        public Task<Department> GetDepartmentForEmployeeAsync(int employeeNumber)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Department GetDepartmentForEmployee(int employeeNumber)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Department UpdateDepartment(Department department)
+        {
+            List<Parm> parms = new()
+            {
+                new("@DepartmentId", SqlDbType.Int, department.Id),
+                new("@Name", SqlDbType.NVarChar, department.Name, 128),
+                new("@Description", SqlDbType.NVarChar, department.Description, 512),
+                new("@InvocationDate", SqlDbType.DateTime2, department.InvocationDate),
+                new("@RowVersion", SqlDbType.Timestamp, department.RowVersion),
+            };
+            db.ExecuteNonQuery("spUpdateDepartment", parms);
             return department;
         }
     }

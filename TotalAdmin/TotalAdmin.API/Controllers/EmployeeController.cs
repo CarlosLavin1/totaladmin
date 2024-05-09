@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Data.SqlClient;
 using TotalAdmin.Model;
@@ -58,18 +59,18 @@ namespace TotalAdmin.API.Controllers
         [Authorize(Roles = "Employee")]
         [HttpPost("search")]
         [ProducesResponseType(StatusCodes.Status200OK)]
-        public async Task<ActionResult<List<EmployeeDisplayDTO>>> SearchEmployees(EmployeeSearchDTO filters)
+        public async Task<ActionResult<List<EmployeeDetailDTO>>> SearchEmployees(EmployeeSearchDTO filters)
         {
             try
             {
                 int department = filters.Department ?? 0;
                 int employeeNumber = filters.EmployeeNumber ?? -999999999;
                 string? lastName = filters.LastName;
-                List<EmployeeDisplayDTO> employees = await employeeService.SearchEmployeesAsync(department, employeeNumber,lastName);
+                List<EmployeeDetailDTO> employees = await employeeService.SearchEmployeesAsync(department, employeeNumber,lastName);
 
                 return employees;
             }
-            catch (Exception)
+            catch (Exception e)
             {
                 return Problem(title: "An internal error has occurred. Please contact the system administrator.");
             }
@@ -85,6 +86,47 @@ namespace TotalAdmin.API.Controllers
                 List<Employee> employees = await employeeService.GetSupervisors(supervisorSearchDTO.RoleId, supervisorSearchDTO.DepartmentId);
 
                 return employees;
+            }
+            catch (Exception)
+            {
+                return Problem(title: "An internal error has occurred. Please contact the system administrator.");
+            }
+        }
+
+        [Authorize(Roles = "HR Employee")]
+        [HttpPost("directory")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        public async Task<ActionResult<List<EmployeeDetailDTO>>> SearchEmployeeDirectory(EmployeeDirectorySearchDTO filters)
+        {
+            try
+            {
+                int employeeNumber = filters.EmployeeNumber ?? -999999999;
+                string? lastName = filters.LastName;
+                List<EmployeeDetailDTO> employees = await employeeService.SearchEmployeeDirectory(employeeNumber, lastName);
+
+                return employees;
+            }
+            catch (Exception)
+            {
+                return Problem(title: "An internal error has occurred. Please contact the system administrator.");
+            }
+        }
+
+        [Authorize(Roles = "Employee")]
+        [HttpGet("detail/{id}")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<ActionResult<EmployeeDetailDTO>> GetEmployeeDetail(int? id)
+        {
+            try
+            {
+                if (id == null)
+                    return NotFound();
+                EmployeeDetailDTO? employee = await employeeService.GetEmployeeDetailById(id);
+
+                if (employee == null)
+                    return NotFound();
+                return employee;
             }
             catch (Exception)
             {
