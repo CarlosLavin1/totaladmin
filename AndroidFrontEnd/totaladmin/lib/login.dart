@@ -19,66 +19,69 @@ class _LoginPageState extends State<LoginPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text("Login"),
-        centerTitle: true,
-        leading: null,
-        automaticallyImplyLeading: false,
-      ),
-      body: Form(
-        key: _formKey,
-        child: Padding(
-          padding: const EdgeInsets.all(20.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: <Widget>[
-              TextFormField(
-                controller: _employeeNumberController,
-                decoration: const InputDecoration(
-                  labelText: 'Employee Number',
+    return WillPopScope(
+      onWillPop: () async => false,
+      child: Scaffold(
+        appBar: AppBar(
+          title: const Text("Login"),
+          centerTitle: true,
+          leading: null,
+          automaticallyImplyLeading: false,
+        ),
+        body: Form(
+          key: _formKey,
+          child: Padding(
+            padding: const EdgeInsets.all(20.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: <Widget>[
+                TextFormField(
+                  controller: _employeeNumberController,
+                  decoration: const InputDecoration(
+                    labelText: 'Employee Number',
+                  ),
+                  keyboardType: TextInputType.number,
+                  inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Please enter your employee number';
+                    }
+                    return null;
+                  },
                 ),
-                keyboardType: TextInputType.number,
-                inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Please enter your employee number';
-                  }
-                  return null;
-                },
-              ),
-              TextFormField(
-                controller: _passwordController,
-                decoration: const InputDecoration(
-                  labelText: 'Password',
+                TextFormField(
+                  controller: _passwordController,
+                  decoration: const InputDecoration(
+                    labelText: 'Password',
+                  ),
+                  obscureText: true,
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Please enter your password';
+                    }
+                    return null;
+                  },
                 ),
-                obscureText: true,
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Please enter your password';
-                  }
-                  return null;
-                },
-              ),
-              ElevatedButton(
-                onPressed: () async {
-                  AuthLogic.logIn(
-                      context,
-                      _employeeNumberController,
-                      _passwordController,
-                      (employeeNumber, password) =>
-                          authService.login(employeeNumber, password),
-                      (errorMessage) =>
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(
-                              content: Text(errorMessage),
-                              backgroundColor: Colors.red,
-                            ),
-                          ));
-                },
-                child: const Text('Login'),
-              ),
-            ],
+                ElevatedButton(
+                  onPressed: () async {
+                    AuthLogic.logIn(
+                        context,
+                        _employeeNumberController,
+                        _passwordController,
+                        (employeeNumber, password) =>
+                            authService.login(employeeNumber, password),
+                        (errorMessage) =>
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Text(errorMessage),
+                                backgroundColor: Colors.red,
+                              ),
+                            ));
+                  },
+                  child: const Text('Login'),
+                ),
+              ],
+            ),
           ),
         ),
       ),

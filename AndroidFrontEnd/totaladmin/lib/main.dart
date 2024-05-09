@@ -95,26 +95,13 @@ class _HomePageState extends State<HomePage> {
               ),
               if (role.startsWith("Employee")) ...[
                 ListTile(
-                  leading: const Icon(Icons.dashboard),
+                  leading: const Icon(Icons.search),
                   title: const Text('Employee Search'),
                   onTap: () {
                     Navigator.push(
                       context,
                       MaterialPageRoute(
                         builder: (context) => const EmployeeSearch(),
-                      ),
-                    );
-                  },
-                ),
-                ListTile(
-                  leading: const Icon(Icons.people),
-                  title: const Text('Department List'),
-                  onTap: () {
-                    // go to dept list page
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => const DepartmentList(),
                       ),
                     );
                   },
