@@ -49,7 +49,9 @@ namespace TotalAdmin.Model
         public string? JobTitle { get; set; }
         [Required]
         public string? OfficeLocation { get; set; }
-        public bool IsActive { get; set; }
+        public DateTime? RetiredDate { get; set; }
+        public DateTime? TerminatedDate { get; set; }
+        public int StatusId { get; set; }
         public int RoleId { get; set; }
         public byte[]? RowVersion { get; set; }
     }

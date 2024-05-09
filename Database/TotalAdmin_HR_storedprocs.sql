@@ -270,8 +270,7 @@ BEGIN
     FROM
         Employee
     WHERE
-        StatusId = 1
-        AND (EmployeeNumber = @EmployeeNumber)
+		EmployeeNumber = @EmployeeNumber
 END
 GO
 

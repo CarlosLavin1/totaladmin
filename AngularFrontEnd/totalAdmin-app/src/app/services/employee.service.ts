@@ -25,4 +25,12 @@ export class EmployeeService extends SharedService{
   searchEmployees(lastName: string, employeeNumber: number): Observable<EmployeeDetailDTO[]>{
     return this.http.post<EmployeeDetailDTO[]>(`${API_URL7161}/employee/directory`, {lastName, employeeNumber}).pipe(catchError(super.handleError));
   }
+
+  getEmployeeById(employeeNumber: number): Observable<Employee>{
+    return this.http.get<Employee>(`${API_URL7161}/employee/${employeeNumber}`).pipe(catchError(super.handleError));
+  }
+
+  updateEmployee(employeeNumber: number, employee: Employee): Observable<Employee>{
+    return this.http.put<Employee>(`${API_URL7161}/employee/${employeeNumber}`, employee).pipe(catchError(super.handleError));
+  }
 }

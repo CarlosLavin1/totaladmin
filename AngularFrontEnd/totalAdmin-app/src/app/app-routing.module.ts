@@ -14,6 +14,7 @@ import { ListDepartmentsComponent } from './list-departments/list-departments.co
 import { ModifyDepartmentComponent } from './modify-department/modify-department.component';
 import { EmployeeSearchComponent } from './employee-search/employee-search.component';
 import { EmployeeDetailsComponent } from './employee-details/employee-details.component';
+import { UpdatePersonalInfoComponent } from './update-personal-info/update-personal-info.component';
 
 // for routing
 const routes: Routes = [
@@ -30,6 +31,7 @@ const routes: Routes = [
   { path: 'modify-department/:id', component: ModifyDepartmentComponent, canActivate: [AuthGuard], data: { roles: ['CEO', 'HR Employee']} },
   { path: 'search-employee', component: EmployeeSearchComponent, canActivate: [AuthGuard], data: { roles: ['CEO', 'HR Employee']} },
   { path: 'employee-details/:id', component: EmployeeDetailsComponent, canActivate: [AuthGuard], data: { roles: ['CEO', 'HR Employee']} },
+  { path: 'update-personal-info/:id', component: UpdatePersonalInfoComponent, canActivate: [AuthGuard], data: { roles: ['CEO', 'Employee']} },
   { path: '**', redirectTo: '' },
 ]
 

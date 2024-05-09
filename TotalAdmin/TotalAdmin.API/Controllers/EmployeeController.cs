@@ -20,6 +20,23 @@ namespace TotalAdmin.API.Controllers
             this.employeeService = employeeService;
         }
 
+        [HttpGet("{id}")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        public ActionResult<Employee> Get(int id)
+        {
+            try
+            {
+                Employee? e = employeeService.GetEmployeeById(id);
+                if (e == null) 
+                    return NotFound();
+                return Ok(e);
+            }
+            catch (Exception ex)
+            {
+                return Problem(title: "An internal error has occurred. Please contact the system administrator.");
+            }
+        }
+
         [Authorize(Roles = "HR Employee")]
         [HttpPost]
         [ProducesResponseType(StatusCodes.Status201Created)]

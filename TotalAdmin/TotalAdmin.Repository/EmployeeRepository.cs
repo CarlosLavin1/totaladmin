@@ -39,7 +39,7 @@ namespace TotalAdmin.Repository
                 new("@OfficeLocation", SqlDbType.NVarChar, employee.OfficeLocation, 255),
                 new("@WorkPhoneNumber", SqlDbType.NVarChar, employee.WorkPhoneNumber, 12),
                 new("@CellPhoneNumber", SqlDbType.NVarChar, employee.CellPhoneNumber, 12),
-                new("@IsActive", SqlDbType.Bit, employee.IsActive),
+                new("@StatusId", SqlDbType.Bit, 1),
                 new("@SupervisorEmpNumber", SqlDbType.Int, employee.SupervisorEmployeeNumber),
                 new("@DepartmentId", SqlDbType.Int, employee.DepartmentId),
                 new("@RoleId", SqlDbType.Int, employee.RoleId),
@@ -78,7 +78,7 @@ namespace TotalAdmin.Repository
                 new("@OfficeLocation", SqlDbType.NVarChar, employee.OfficeLocation, 255),
                 new("@WorkPhoneNumber", SqlDbType.NVarChar, employee.WorkPhoneNumber, 12),
                 new("@CellPhoneNumber", SqlDbType.NVarChar, employee.CellPhoneNumber, 12),
-                new("@IsActive", SqlDbType.Bit, employee.IsActive),
+                new("@StatusId", SqlDbType.Int, 1),
                 new("@SupervisorEmpNumber", SqlDbType.Int, employee.SupervisorEmployeeNumber),
                 new("@DepartmentId", SqlDbType.Int, employee.DepartmentId),
                 new("@RoleId", SqlDbType.Int, employee.RoleId),
@@ -267,17 +267,21 @@ namespace TotalAdmin.Repository
                 new("@OfficeLocation", SqlDbType.NVarChar, employee.OfficeLocation, 255),
                 new("@WorkPhoneNumber", SqlDbType.NVarChar, employee.WorkPhoneNumber, 12),
                 new("@CellPhoneNumber", SqlDbType.NVarChar, employee.CellPhoneNumber, 12),
-                new("@IsActive", SqlDbType.Bit, employee.IsActive),
+                new("@TerminatedDate", SqlDbType.DateTime2, employee.TerminatedDate),
+                new("@RetiredDate", SqlDbType.DateTime2, employee.RetiredDate),
+                new("@StatusId", SqlDbType.Bit, employee.StatusId),
                 new("@SupervisorEmpNumber", SqlDbType.Int, employee.SupervisorEmployeeNumber),
                 new("@DepartmentId", SqlDbType.Int, employee.DepartmentId),
                 new("@RoleId", SqlDbType.Int, employee.RoleId),
-                
+                new("@RowVersion", SqlDbType.Timestamp, employee.RowVersion),
+
             };
             db.ExecuteNonQuery("spUpdateEmployee", parms);
             return employee;
         }
 
         //private methods
+        // add all employee props
         private Employee PopulateEmployee(DataRow row)
         {
             return new()
