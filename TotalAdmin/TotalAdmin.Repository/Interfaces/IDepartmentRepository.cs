@@ -16,5 +16,6 @@ namespace TotalAdmin.Repository
         Department? GetDepartmentForEmployee(int employeeNumber);
         Department UpdateDepartment(Department department);
         Task<Department?> GetDepartmentById(int id);
+        DateTime? GetOldInvocationDate(int departmentId);
     }
 }

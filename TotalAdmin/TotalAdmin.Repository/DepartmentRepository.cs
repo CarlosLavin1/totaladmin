@@ -143,5 +143,18 @@ namespace TotalAdmin.Repository
             db.ExecuteNonQuery("spUpdateDepartment", parms);
             return department;
         }
+
+        public DateTime? GetOldInvocationDate(int departmentId)
+        {
+            List<Parm> parms = new()
+            {
+                new("@DepartmentId", SqlDbType.Int, departmentId)
+            };
+            DataTable dt = db.Execute("getOldInvocationDateForDepartment", parms);
+            if (dt.Rows.Count == 0)
+                return null;
+            DataRow row = dt.Rows[0];
+            return Convert.ToDateTime(row["InvocationDate"]);
+        }
     }
 }
