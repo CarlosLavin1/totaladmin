@@ -108,7 +108,8 @@ export class CreatePurchaseOrderComponent implements OnInit {
           // Store the data in the shared service
           const data = {
             EmployeeNumber: this.employeeNumber,
-            PONumber: res.formattedPoNumber ? res.formattedPoNumber : ''
+            PONumber: res.formattedPoNumber ? res.formattedPoNumber : '',
+            autoSearch: true
           };
           this.sharedDataService.setData(data);
           console.log('Shared data:', data);

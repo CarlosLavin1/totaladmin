@@ -17,7 +17,7 @@ namespace TotalAdmin.Repository
     {
         // Access the database from the Dal
         private readonly DataAccess db = new();
-        
+
 
         /// <summary>
         /// Retrieves a list of purchase order detail results
@@ -128,7 +128,7 @@ namespace TotalAdmin.Repository
 
 
                 // Merge items with the same properties
-                var (mergedItems, hasMergeOccurred) = 
+                var (mergedItems, hasMergeOccurred) =
                     await MergeItems(allItems, (po.Items ?? new List<Item>()).ToList());
 
 
@@ -186,8 +186,40 @@ namespace TotalAdmin.Repository
                 throw;
             }
         }
-        
-        
+
+        /// <summary>
+        /// Adds items to an existing purchase order
+        /// </summary>
+        /// <param name="poNumber"></param>
+        /// <param name="item"></param>
+        /// <returns>Returns the added item</returns>
+        public async Task<bool> AddItemsToPurchaseOrderAsync(int poNumber, Item item)
+        {
+            try
+            {
+
+                // Create a DataTable for the PO items
+                var poItemsTable = await CreateItemsDataTableAsync(item);
+
+                List<Parm> parms = new()
+                {
+                    new("@PoNumber", SqlDbType.Int, poNumber),
+                    new("@POItems", SqlDbType.Structured, poItemsTable)
+                };
+
+                // Execute the stored procedure
+                int rowsAffected = await db.ExecuteNonQueryAsync("spAddItemsToPurchaseOrder", parms);
+
+                return rowsAffected > 0;
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine(ex.Message);
+                throw;
+            }
+        }
+
+
 
         /// <summary>
         /// Searches for purchase orders based on provided filters
@@ -517,6 +549,39 @@ namespace TotalAdmin.Repository
                     item.StatusId,
                     item.RowVersion);
             }
+
+            return Task.FromResult(dt);
+        }
+
+
+        /// <summary>
+        /// Creates a DataTable for the given item
+        /// </summary>
+        /// <param name="items"></param>
+        /// <returns>A temporary DB representing the given list of items</returns>
+        private Task<DataTable> CreateItemsDataTableAsync(Item item)
+        {
+            DataTable dt = new DataTable();
+            dt.Columns.Add("ItemId", typeof(int));
+            dt.Columns.Add("ItemName", typeof(string));
+            dt.Columns.Add("ItemQty", typeof(int));
+            dt.Columns.Add("ItemDesc", typeof(string));
+            dt.Columns.Add("ItemPrice", typeof(decimal));
+            dt.Columns.Add("ItemJust", typeof(string));
+            dt.Columns.Add("ItemLoc", typeof(string));
+            dt.Columns.Add("ItemStatus", typeof(int));
+            dt.Columns.Add("RowVersion", typeof(int));
+
+            dt.Rows.Add(
+                item.ItemId,
+                item.Name,
+                item.Quantity,
+                item.Description,
+                item.Price,
+                item.Justification,
+                item.Location,
+                item.StatusId,
+                item.RowVersion);
 
             return Task.FromResult(dt);
         }

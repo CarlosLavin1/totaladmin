@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, OnDestroy, OnInit } from '@angular/core';
+import { AfterViewInit, Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { PurchaseOrderService } from '../services/purchase-order.service';
 import { ValidationError } from '../models/validationError';
@@ -8,6 +8,8 @@ import { POSearchFiltersDTO } from '../models/posearch-filters-dto';
 import { PODisplayDTO } from '../models/podisplay-dto';
 import { SharedDataService } from '../services/shared-data.service';
 import { AuthenticationService } from '../auth/services/authentication.service';
+import { ItemDialogFormComponent } from '../item-dialog-form/item-dialog-form.component';
+
 
 @Component({
   selector: 'app-purchase-order-search',
@@ -15,6 +17,9 @@ import { AuthenticationService } from '../auth/services/authentication.service';
   styleUrls: ['./purchase-order-search.component.css']
 })
 export class PurchaseOrderSearchComponent implements OnInit, OnDestroy, AfterViewInit {
+  @ViewChild(ItemDialogFormComponent) modalDialog!: ItemDialogFormComponent;
+  
+
   private subscriptions: Subscription[] = [];
   errors: string[] = [];
 
@@ -25,7 +30,7 @@ export class PurchaseOrderSearchComponent implements OnInit, OnDestroy, AfterVie
   private subscription: Subscription;
 
   searchForm: FormGroup = this.formBuilder.group({
-    EmployeeNumber: ['', Validators.required],
+    EmployeeNumber: [{value:'',  disabled: !this.checkRole()},  Validators.required],
     StartDate: [''],
     EndDate: [''],
     PONumber: ['']
@@ -38,15 +43,15 @@ export class PurchaseOrderSearchComponent implements OnInit, OnDestroy, AfterVie
     private activatedRoute: ActivatedRoute,
     private router: Router,
     private sharedDataService: SharedDataService,
-    private authService: AuthenticationService
-
+    private authService: AuthenticationService,
   ) {}
+
 
   ngOnInit(): void {
     if (!this.checkRole()) {
       this.searchForm.get('EmployeeNumber')?.disable();
     }
-    
+
     this.activatedRoute.queryParams.subscribe(params => {
       const poNumber = params['PONumber'];
       this.searchForm.get('PONumber')?.setValue(poNumber);
@@ -56,7 +61,7 @@ export class PurchaseOrderSearchComponent implements OnInit, OnDestroy, AfterVie
 
   ngAfterViewInit(): void {
     this.subscription = this.sharedDataService.data.subscribe(data => {
-      if (data) {
+      if (data && data.autoSearch) {
         // Get the values
         this.searchForm.get('EmployeeNumber')?.setValue(data.EmployeeNumber);
         
@@ -77,6 +82,7 @@ export class PurchaseOrderSearchComponent implements OnInit, OnDestroy, AfterVie
   ngOnDestroy(): void{
     this.subscription.unsubscribe();
   }
+
 
   onSubmit() {
     if (this.searchForm.valid) {
@@ -129,6 +135,13 @@ export class PurchaseOrderSearchComponent implements OnInit, OnDestroy, AfterVie
       });
     this.subscriptions.push(subscription);
   }
+
+  navigateToAddItem(poNumber: number) {
+    this.sharedDataService.setPONumber(poNumber.toString(), false);
+
+    this.router.navigate(['/items', { poNumber: poNumber }]);
+  }
+  
 
   checkRole(): boolean {
     const userRole = this.authService.getRole();

@@ -39,6 +39,21 @@ namespace TotalAdmin.Service
             return purchaseOrder;
         }
 
+        /// <summary>
+        /// Adds item to an existing purchase order.
+        /// </summary>
+        /// <param name="poNumber"></param>
+        /// <param name="items"></param>
+        /// <returns>True if the items were added otherwise false</returns>
+        public async Task<bool> AddItem(int poNumber, Item item)
+        {
+            if (!ValidateItem(item))
+                return false;
+          
+           await repo.AddItemsToPurchaseOrderAsync(poNumber, item);
+           return true;
+        }
+
 
 
         public async Task<List<PurchaseOrder>> GetPurchaseOrdersForEmployee(int employeeNumber)
@@ -109,6 +124,24 @@ namespace TotalAdmin.Service
 
             return isValid;
         }
+
+
+        private bool ValidateItem(Item item)
+        {
+            List<ValidationResult> results = new();
+            bool isValid = Validator.TryValidateObject(item, new ValidationContext(item), results, true);
+            if (!isValid)
+            {
+                foreach (ValidationResult e in results)
+                {
+                    item.AddError(new ValidationError(e?.ErrorMessage ?? "null", ErrorType.Model));
+                }
+            }
+
+            return isValid;
+        }
+
+
 
         private async Task<PurchaseOrder> UpdateQuantitiesInPurchaseOrder(PurchaseOrder purchaseOrder)
         {

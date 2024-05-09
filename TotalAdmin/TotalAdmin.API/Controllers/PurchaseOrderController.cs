@@ -148,6 +148,33 @@ namespace TotalAdmin.API.Controllers
             }
         }
 
+        [Authorize]
+        [HttpPost("AddItems")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        public async Task<IActionResult> AddItemsToPurchaseOrder(int poNumber, [FromBody] Item item)
+        {
+            try
+            {
+                if (poNumber <= 0)
+                    return BadRequest("Invalid purchase order number.");
+
+                if (item == null)
+                    return BadRequest("Items cannot be null or empty.");
+
+                bool result = await service.AddItem(poNumber, item);
+
+                if (result)
+                    return Ok("Items added successfully.");
+                else
+                    return BadRequest("Failed to add items to the purchase order.");
+            }
+            catch (Exception)
+            {
+                return Problem(title: "An internal error has occurred. Please contact the system administrator");
+            }
+        }
+
 
         // GET: api/PurchaseOrder/Employee
         [Authorize]
