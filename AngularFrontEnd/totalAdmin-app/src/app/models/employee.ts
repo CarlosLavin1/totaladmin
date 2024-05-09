@@ -16,8 +16,11 @@ export class Employee {
     officeLocation: string;
     workPhoneNumber: string;
     cellPhoneNumber: string;
-    isActive: boolean;
-    supervisorEmployeeNumber: number
-    departmentId: number
-    roleId: number
+    retiredDate: Date | null;
+    terminatedDate: Date | null;
+    statusId: number;
+    supervisorEmployeeNumber: number;
+    departmentId: number;
+    roleId: number;
+    rowVersion: any;
   }

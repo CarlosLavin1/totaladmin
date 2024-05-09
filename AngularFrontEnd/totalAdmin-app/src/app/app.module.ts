@@ -29,6 +29,7 @@ import { ListDepartmentsComponent } from './list-departments/list-departments.co
 import { ModifyDepartmentComponent } from './modify-department/modify-department.component';
 import { EmployeeSearchComponent } from './employee-search/employee-search.component';
 import { EmployeeDetailsComponent } from './employee-details/employee-details.component';
+import { UpdatePersonalInfoComponent } from './update-personal-info/update-personal-info.component';
 
 
 @NgModule({
@@ -50,7 +51,8 @@ import { EmployeeDetailsComponent } from './employee-details/employee-details.co
     ListDepartmentsComponent,
     ModifyDepartmentComponent,
     EmployeeSearchComponent,
-    EmployeeDetailsComponent
+    EmployeeDetailsComponent,
+    UpdatePersonalInfoComponent
   ],
   imports: [
     BrowserModule,
