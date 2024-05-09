@@ -18,6 +18,22 @@ namespace TotalAdmin.API.Controllers
             this.departmentService = departmentService;
         }
 
+        [HttpGet("employee/{id}")]
+        public async Task<ActionResult<Department>> GetDepartmentForEmployee(int id)
+        {
+            try
+            {
+                Department? d = await departmentService.GetDepartmentForEmployeeAsync(id);
+                if (d == null)
+                    return NotFound();
+                return Ok(d);
+            }
+            catch (Exception e)
+            {
+                return Problem(title: "An internal error has occurred. Please contact the system administrator.");
+            }
+        }
+
         [Authorize(Roles = "Employee, HR Employee")]
         [HttpGet]
         [ProducesResponseType(StatusCodes.Status200OK)]

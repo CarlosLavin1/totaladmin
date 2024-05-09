@@ -99,7 +99,7 @@ export class AuthenticationService extends SharedService {
     const authData = this.getAuthData();
 
     if (!authData) return;
-
+    console.log(authData);
     const now = new Date();
     const expiresIn = authData!.expirationDate.getTime() - now.getTime();
 

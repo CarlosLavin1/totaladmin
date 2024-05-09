@@ -23,6 +23,7 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { CreatePurchaseOrderComponent } from './create-purchase-order/create-purchase-order.component';
 import { ReviewPurchaseOrderComponent } from './review-purchase-order/review-purchase-order.component';
+import { DepartmentUpdateComponent } from './department-update/department-update.component';
 
 
 @NgModule({
@@ -39,6 +40,7 @@ import { ReviewPurchaseOrderComponent } from './review-purchase-order/review-pur
     UnauthorizedComponent,
     CreatePurchaseOrderComponent,
     ReviewPurchaseOrderComponent,
+    DepartmentUpdateComponent,
   ],
   imports: [
     BrowserModule,

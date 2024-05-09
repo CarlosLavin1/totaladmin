@@ -358,6 +358,7 @@ CREATE OR ALTER PROC spGetDepartmentForEmployee
 AS
 BEGIN
 	SELECT
+		DepartmentId,
 		[Name],
 		[Description],
 		InvocationDate,
