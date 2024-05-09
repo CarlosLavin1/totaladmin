@@ -71,8 +71,14 @@ namespace TotalAdmin.API.Controllers
 
                 if (filter.StartDate.HasValue && filter.EndDate.HasValue && filter.StartDate > filter.EndDate)
                 {
-                    return BadRequest("StartDate cannot be later than EndDate.");
+                    return BadRequest("Start Date cannot be later than End Date.");
                 }
+
+                if (filter.StartDate.HasValue && filter.EndDate.HasValue && filter.StartDate < filter.EndDate)
+                {
+                    return BadRequest("End Date cannot be before than Start Date.");
+                }
+
 
 
                 List<PODisplayDTO> purchaseOrders = await service.SearchPurchaseOrders(filter);
@@ -135,6 +141,33 @@ namespace TotalAdmin.API.Controllers
                 };
 
                 return CreatedAtAction(nameof(Create), response);
+            }
+            catch (Exception)
+            {
+                return Problem(title: "An internal error has occurred. Please contact the system administrator");
+            }
+        }
+
+        [Authorize]
+        [HttpPost("AddItems")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        public async Task<IActionResult> AddItemsToPurchaseOrder(int poNumber, [FromBody] Item item)
+        {
+            try
+            {
+                if (poNumber <= 0)
+                    return BadRequest("Invalid purchase order number.");
+
+                if (item == null)
+                    return BadRequest("Items cannot be null or empty.");
+
+                bool result = await service.AddItem(poNumber, item);
+
+                if (result)
+                    return Ok("Items added successfully.");
+                else
+                    return BadRequest("Failed to add items to the purchase order.");
             }
             catch (Exception)
             {

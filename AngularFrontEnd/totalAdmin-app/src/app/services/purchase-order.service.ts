@@ -5,6 +5,7 @@ import { Observable, catchError } from 'rxjs';
 import { POSearchFiltersDTO } from '../models/posearch-filters-dto';
 import { PODisplayDTO } from '../models/podisplay-dto';
 import { PurchaseOrder } from '../models/purchase-order';
+import { Item } from '../models/item';
 
 
 @Injectable({
@@ -45,5 +46,13 @@ export class PurchaseOrderService extends SharedService {
       .get<PurchaseOrder[]>(`${API_URL}/PurchaseOrder/Employee`, options)
       .pipe(catchError(super.handleError));
   }
+
+  public AddItemsToPurchaseOrder(poNumber: number, item: Item): Observable<any> {
+    return this.http
+      .post(`${API_URL}/PurchaseOrder/AddItems?poNumber=${poNumber}`, item, {responseType: 'text'})
+      .pipe(catchError(super.handleError));
+  }
+  
+
 
 }
