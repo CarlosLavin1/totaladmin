@@ -42,7 +42,7 @@ namespace TotalAdmin.Service
 
         public Department UpdateDepartment(Department department)
         {
-            if (ValidateDepartment(department))
+            if (ValidateDepartmentUpdate(department))
                 return repo.UpdateDepartment(department);
 
             return department;
@@ -64,8 +64,27 @@ namespace TotalAdmin.Service
                 department.AddError(new(e.ErrorMessage, ErrorType.Model));
             }
             // validate invication date is not in the past
-            if (department.InvocationDate != null && department.InvocationDate < DateTime.Now)
+            // invocation date can be the same as the one in the database when updating
+            if (department.InvocationDate != null && department.InvocationDate < DateTime.Now.Date)
                 department.AddError(new("Invocation date cannot be in the past", ErrorType.Business));
+
+            return !department.Errors.Any();
+        }
+
+        private bool ValidateDepartmentUpdate(Department department)
+        {
+            // Validate Entity
+            List<ValidationResult> results = new();
+            Validator.TryValidateObject(department, new ValidationContext(department), results, true);
+
+            foreach (ValidationResult e in results)
+            {
+                department.AddError(new(e.ErrorMessage, ErrorType.Model));
+            }
+            // validate invication date is not in the past
+            // invocation date can be the same as the one in the database when updating
+            //if (department.InvocationDate != null && department.InvocationDate < DateTime.Now.Date)
+            //    department.AddError(new("Invocation date cannot be in the past", ErrorType.Business));
 
             return !department.Errors.Any();
         }
