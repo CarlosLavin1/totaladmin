@@ -36,6 +36,8 @@ namespace TotalAdmin.Model.Entities
         [Required(ErrorMessage = "Item purchase location is required.")]
         [MinLength(5, ErrorMessage = "Item purchase location must be at least 5 characters.")]
         public string Location { get; set; }
+
+        public string RejectedReason { get; set; }
         public string ItemStatus { get; set; }
 
         [Required(ErrorMessage = "Status is required.")]
