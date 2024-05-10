@@ -154,11 +154,14 @@ export class EmployeeUpdateComponent {
     this.subscriptions.push(sub);
   }
 
-  onSubmit(){
+  async onSubmit(){
     const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[\$\@\$!\%\*?&])[A-Za-z\d\$\@\$\!\%\*?&]{6,}$/;
+    
     if(this.employeeForm.valid){
       this.errors = [];
       const employee: Employee = this.employeeForm.value;
+      employee.statusId = this.employeeForm.get('statusId')?.value;
+      employee.retiredDate = this.employeeForm.get('retiredDate')?.value;
       console.log(employee);
       if (this.employeeForm.get('newPassword')?.value != '') {
         // password has been changed
@@ -169,9 +172,8 @@ export class EmployeeUpdateComponent {
           this.errors.push("New password is too weak, please include 1 uppercase letter, 1 number, and 1 special character");
           return;
         }
-        
         // Send back the new password
-        employee.hashedPassword = sha256(newPassword);
+        employee.hashedPassword = newPassword;
         const subscription = this.employeeService.employeeUpdate(this.employeeNumber, employee).subscribe({
           next: () => {
             this.snackBarService.showSnackBar("Personal Info Updated Successfully", 0);
