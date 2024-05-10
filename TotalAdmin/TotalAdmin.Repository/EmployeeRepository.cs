@@ -260,7 +260,7 @@ namespace TotalAdmin.Repository
                 new("@CellPhoneNumber", SqlDbType.NVarChar, employee.CellPhoneNumber, 12),
                 new("@TerminatedDate", SqlDbType.DateTime2, employee.TerminatedDate),
                 new("@RetiredDate", SqlDbType.DateTime2, employee.RetiredDate),
-                new("@StatusId", SqlDbType.Bit, employee.StatusId),
+                new("@StatusId", SqlDbType.Int, employee.StatusId),
                 new("@SupervisorEmpNumber", SqlDbType.Int, employee.SupervisorEmployeeNumber),
                 new("@DepartmentId", SqlDbType.Int, employee.DepartmentId),
                 new("@RoleId", SqlDbType.Int, employee.RoleId),

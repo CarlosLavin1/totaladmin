@@ -7,6 +7,9 @@ import { SnackbarService } from '../services/snackbar.service';
 import { DepartmentListDto } from '../models/department-list-dto';
 import { Employee } from '../models/employee';
 import { Subscription } from 'rxjs';
+import { ValidationError } from '../models/validationError';
+import { sha256 } from 'js-sha256';
+import { formatDate } from '@angular/common';
 
 @Component({
   selector: 'app-employee-update',
@@ -57,7 +60,8 @@ export class EmployeeUpdateComponent {
       supervisorEmployeeNumber: ['', Validators.required],
       departmentId: ['', Validators.required],
       roleId: ['', Validators.required],
-      rowVersion: ''
+      rowVersion: '',
+      newPassword: ''
     });
     //this.employeeNumber = this.authService.getEmployeeNumber() ?? -1;
     const idParam = this.activatedRoute.snapshot.paramMap.get('id');
@@ -82,6 +86,26 @@ export class EmployeeUpdateComponent {
     this.employeeForm.get('departmentId')!.valueChanges.subscribe(departmentId => {
       this.updateSupervisors();
     });
+
+    this.onStatusChange();
+  }
+
+  private onStatusChange() {
+    const sub = this.employeeForm.get('statusId')?.valueChanges.subscribe(status => {
+      if (status == '2') { // Retired
+        this.employeeForm.get('retiredDate')?.setValidators([Validators.required]);
+        this.employeeForm.get('terminatedDate')?.clearValidators();
+      } else if (status == '3') { // Terminated
+        this.employeeForm.get('terminatedDate')?.setValidators([Validators.required]);
+        this.employeeForm.get('retiredDate')?.clearValidators();
+      } else {
+        this.employeeForm.get('retiredDate')?.clearValidators();
+        this.employeeForm.get('terminatedDate')?.clearValidators();
+      }
+      this.employeeForm.get('retiredDate')?.updateValueAndValidity();
+      this.employeeForm.get('terminatedDate')?.updateValueAndValidity();
+    });
+    this.subscriptions.push(sub!);
   }
 
   ngOnDestroy() {
@@ -105,21 +129,97 @@ export class EmployeeUpdateComponent {
   loadEmployee(){
     const sub = this.employeeService.getEmployeeById(this.employeeNumber).subscribe(e => {
       console.log(e);
+      const formattedSeniorityDate = formatDate(e.seniorityDate, 'yyyy-MM-dd', 'en-US');
+      const formattedJobStartDate = formatDate(e.jobStartDate, 'yyyy-MM-dd', 'en-US');
+      const formattedDateOfBirth = formatDate(e.dateOfBirth, 'yyyy-MM-dd', 'en-US');
+      let formattedRetiredDate = null;
+      let formattedTerminatedDate = null;
+      if(e.retiredDate != null)
+        formattedRetiredDate = formatDate(e.retiredDate!, 'yyyy-MM-dd', 'en-US');
+      if(e.terminatedDate != null)
+        formattedTerminatedDate = formatDate(e.terminatedDate!, 'yyyy-MM-dd', 'en-US');
+      e.dateOfBirth = formattedDateOfBirth;
+      e.jobStartDate = formattedJobStartDate;
+      e.seniorityDate = formattedSeniorityDate;
+      e.terminatedDate = formattedTerminatedDate;
+      e.retiredDate = formattedRetiredDate;
+      // disable picker if retired
+      if (e.statusId == 2) {
+        this.employeeForm.get('statusId')?.disable();
+        this.employeeForm.get('retiredDate')?.disable();
+      }
+
       this.employeeForm.patchValue(e);
     });
     this.subscriptions.push(sub);
   }
 
   onSubmit(){
-    if (this.employeeForm.get('hashedPassword')?.dirty) {
-      // password has been changed
-      const newPassword = this.employeeForm.get('hashedPassword')?.value;
-      // Send back the new password
-      console.log('New password:', newPassword);
-    } else {
-      // If the password has not been changed
-      // Send back the hashed password
-      console.log('Hashed password:', this.hashedPassword);
+    const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[\$\@\$!\%\*?&])[A-Za-z\d\$\@\$\!\%\*?&]{6,}$/;
+    if(this.employeeForm.valid){
+      this.errors = [];
+      const employee: Employee = this.employeeForm.value;
+      console.log(employee);
+      if (this.employeeForm.get('newPassword')?.value != '') {
+        // password has been changed
+        const newPassword = this.employeeForm.get('newPassword')?.value;
+        //check password constraints
+        if(!passwordRegex.test(newPassword)){
+          console.error('new password is too weak');
+          this.errors.push("New password is too weak, please include 1 uppercase letter, 1 number, and 1 special character");
+          return;
+        }
+        
+        // Send back the new password
+        employee.hashedPassword = sha256(newPassword);
+        const subscription = this.employeeService.employeeUpdate(this.employeeNumber, employee).subscribe({
+          next: () => {
+            this.snackBarService.showSnackBar("Personal Info Updated Successfully", 0);
+            setTimeout(() => {
+              console.log('updated personal info');
+              this.router.navigate(['']);
+              this.snackBarService.dismissSnackBar();
+            }, 1800);
+          },
+          error: (err) => {
+            // if err.error.errors exists, then I know its returning a ValidationError array back
+            if (err.error.errors) {
+              const validationErrors: ValidationError[] = err.error.errors;
+              validationErrors.forEach((error) => {
+                this.errors.push(error.description);
+              });
+            } else {
+              this.errors.push(err.error.title);
+            }
+          },
+        });
+        this.subscriptions.push(subscription);
+      } else {
+        // If the password has not been changed
+        // Send back the hashed password
+        const subscription = this.employeeService.employeeUpdate(this.employeeNumber, employee).subscribe({
+          next: () => {
+            this.snackBarService.showSnackBar("Personal Info Updated Successfully", 0);
+            setTimeout(() => {
+              console.log('updated personal info');
+              this.router.navigate(['']);
+              this.snackBarService.dismissSnackBar();
+            }, 1800);
+          },
+          error: (err) => {
+            // if err.error.errors exists, then I know its returning a ValidationError array back
+            if (err.error.errors) {
+              const validationErrors: ValidationError[] = err.error.errors;
+              validationErrors.forEach((error) => {
+                this.errors.push(error.description);
+              });
+            } else {
+              this.errors.push(err.error.title);
+            }
+          },
+        });
+        this.subscriptions.push(subscription);
+      }
     }
   }
 }
