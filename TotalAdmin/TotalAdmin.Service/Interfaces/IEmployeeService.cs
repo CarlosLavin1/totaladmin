@@ -21,5 +21,6 @@ namespace TotalAdmin.Service
         Task<List<EmployeeDetailDTO>> SearchEmployeeDirectory(int employeeNumber, string? lastName);
         Task<EmployeeDetailDTO?> GetEmployeeDetailById(int? id);
         Employee UpdateEmployee(Employee employee);
+        Employee UpdatePersonalInfo(Employee employee);
     }
 }

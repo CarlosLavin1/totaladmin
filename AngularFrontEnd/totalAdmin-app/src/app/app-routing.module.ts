@@ -8,7 +8,13 @@ import { AuthGuard } from './guards/auth.guard';
 import { DepartmentCreateComponent } from './department-create/department-create.component';
 import { CreatePurchaseOrderComponent } from './create-purchase-order/create-purchase-order.component';
 import { UnauthorizedComponent } from './unauthorized/unauthorized.component';
+import { DepartmentUpdateComponent } from './department-update/department-update.component';
 import { ItemDialogFormComponent } from './item-dialog-form/item-dialog-form.component';
+import { ListDepartmentsComponent } from './list-departments/list-departments.component';
+import { ModifyDepartmentComponent } from './modify-department/modify-department.component';
+import { EmployeeSearchComponent } from './employee-search/employee-search.component';
+import { EmployeeDetailsComponent } from './employee-details/employee-details.component';
+import { UpdatePersonalInfoComponent } from './update-personal-info/update-personal-info.component';
 
 // for routing
 const routes: Routes = [
@@ -20,6 +26,12 @@ const routes: Routes = [
   { path: 'login', component: LoginComponent },
   { path: 'employee', component: EmployeeCreateComponent, canActivate: [AuthGuard], data: { roles: ['CEO', 'HR Employee']} },
   { path: 'department', component: DepartmentCreateComponent, canActivate: [AuthGuard], data: { roles: ['CEO', 'HR Employee']} },
+  { path: 'update-department', component: DepartmentUpdateComponent, canActivate: [AuthGuard], data: { roles: ['CEO', 'Supervisor']} },
+  { path: 'list-departments', component: ListDepartmentsComponent, canActivate: [AuthGuard], data: { roles: ['CEO', 'HR Employee']} },
+  { path: 'modify-department/:id', component: ModifyDepartmentComponent, canActivate: [AuthGuard], data: { roles: ['CEO', 'HR Employee']} },
+  { path: 'search-employee', component: EmployeeSearchComponent, canActivate: [AuthGuard], data: { roles: ['CEO', 'HR Employee']} },
+  { path: 'employee-details/:id', component: EmployeeDetailsComponent, canActivate: [AuthGuard], data: { roles: ['CEO', 'HR Employee']} },
+  { path: 'update-personal-info/:id', component: UpdatePersonalInfoComponent, canActivate: [AuthGuard], data: { roles: ['CEO', 'Employee']} },
   { path: '**', redirectTo: '' },
 ]
 

@@ -7,7 +7,8 @@ namespace TotalAdmin.Model
     {
         public int EmployeeNumber { get; set; }
         [Required(ErrorMessage = "Password is required")]
-        [RegularExpression("^(?=.*[A-Z])(?=.*\\d)(?=.*[!@#$%^&*()_+{}\\[\\]:;<>,.?\\/\\\\|-]).{6,}$", ErrorMessage = "Password must have 1 uppercase letter, 1 number, and 1 special character")]
+        [IgnoreRegexIfTrue(true)]
+        //[RegularExpression("^(?=.*[A-Z])(?=.*\\d)(?=.*[!@#$%^&*()_+{}\\[\\]:;<>,.?\\/\\\\|-]).{6,}$", ErrorMessage = "Password must have 1 uppercase letter, 1 number, and 1 special character")]
         public string? HashedPassword { get; set;}
         [Required]
         [StringLength(50, MinimumLength = 2)]
@@ -49,7 +50,9 @@ namespace TotalAdmin.Model
         public string? JobTitle { get; set; }
         [Required]
         public string? OfficeLocation { get; set; }
-        public bool IsActive { get; set; }
+        public DateTime? RetiredDate { get; set; }
+        public DateTime? TerminatedDate { get; set; }
+        public int StatusId { get; set; }
         public int RoleId { get; set; }
         public byte[]? RowVersion { get; set; }
     }

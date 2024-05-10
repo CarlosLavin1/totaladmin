@@ -3,6 +3,7 @@ import { Injectable } from '@angular/core';
 import { Observable, catchError } from 'rxjs';
 import { API_URL7161, SharedService } from './shared.service';
 import { Employee } from '../models/employee';
+import { EmployeeDetailDTO } from '../models/employee-detail-dto';
 
 @Injectable({
   providedIn: 'root'
@@ -19,5 +20,18 @@ export class EmployeeService extends SharedService{
 
   getSupervisors(roleId: number, departmentId: number): Observable<Employee[]>{
     return this.http.post<Employee[]>(`${API_URL7161}/employee/supervisors`, {roleId, departmentId}).pipe(catchError(super.handleError));
+  }
+
+  searchEmployees(lastName: string, employeeNumber: number): Observable<EmployeeDetailDTO[]>{
+    return this.http.post<EmployeeDetailDTO[]>(`${API_URL7161}/employee/directory`, {lastName, employeeNumber}).pipe(catchError(super.handleError));
+  }
+
+  getEmployeeById(employeeNumber: number): Observable<Employee>{
+    return this.http.get<Employee>(`${API_URL7161}/employee/${employeeNumber}`).pipe(catchError(super.handleError));
+  }
+
+  //update personal info
+  updateEmployee(employeeNumber: number, employee: Employee): Observable<Employee>{
+    return this.http.put<Employee>(`${API_URL7161}/employee/personal/${employeeNumber}`, employee).pipe(catchError(super.handleError));
   }
 }

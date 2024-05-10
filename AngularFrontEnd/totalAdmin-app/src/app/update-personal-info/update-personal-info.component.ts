@@ -1,27 +1,30 @@
-import { Component, OnInit } from '@angular/core';
+import { Component } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { ActivatedRoute, Router } from '@angular/router';
 import { EmployeeService } from '../services/employee.service';
-import { Employee } from '../models/employee';
-import { DepartmentListDto } from '../models/department-list-dto';
 import { DepartmentService } from '../services/department.service';
-import { Router } from '@angular/router';
-import { ValidationError } from '../models/validationError';
-import { Subscription } from 'rxjs';
 import { SnackbarService } from '../services/snackbar.service';
+import { DepartmentListDto } from '../models/department-list-dto';
+import { Employee } from '../models/employee';
+import { Subscription } from 'rxjs';
+import { ValidationError } from '../models/validationError';
+import { AuthenticationService } from '../auth/services/authentication.service';
+import { formatDate } from '@angular/common';
 
 @Component({
-  selector: 'app-employee-create',
-  templateUrl: './employee-create.component.html',
-  styleUrls: ['./employee-create.component.css']
+  selector: 'app-update-personal-info',
+  templateUrl: './update-personal-info.component.html',
+  styleUrls: ['./update-personal-info.component.css']
 })
-export class EmployeeCreateComponent {
-  private employeeNumber: number;
+export class UpdatePersonalInfoComponent {
+  employeeNumber: number;
   departments: DepartmentListDto[] = [];
   supervisors: Employee[] = [];
   subscriptions: Subscription[] = [];
   errors: string[] = []
 
   employeeForm: FormGroup = this.formBuilder.group({
+    employeeNumber: '',
     firstName: ['', [Validators.required, Validators.maxLength(50)]],
     middleInitial: ['', Validators.maxLength(1)],
     lastName: ['', [Validators.required, Validators.maxLength(50)]],
@@ -41,7 +44,8 @@ export class EmployeeCreateComponent {
     statusId: [1, Validators.required],
     supervisorEmployeeNumber: ['', Validators.required],
     departmentId: ['', Validators.required],
-    roleId: ['', Validators.required]
+    roleId: ['', Validators.required],
+    rowVersion: ''
   });
 
   constructor(
@@ -49,68 +53,58 @@ export class EmployeeCreateComponent {
     private formBuilder: FormBuilder, 
     private employeeService: EmployeeService, 
     private departmentService: DepartmentService,
-    private snackBarService: SnackbarService) {
-    
-  }
-  
-  ngOnInit(): void {
-    this.departmentService.getActiveDepartments().subscribe((depts) => {
+    private snackBarService: SnackbarService,
+    private activatedRoute: ActivatedRoute,
+    private authService: AuthenticationService
+  ) {}
+
+  ngOnInit(){
+    //this.employeeNumber = this.authService.getEmployeeNumber() ?? -1;
+    const idParam = this.activatedRoute.snapshot.paramMap.get('id');
+    if (idParam != null) {
+      this.employeeNumber = +idParam;
+      if (!isNaN(this.employeeNumber)) {
+        this.loadEmployee();
+      } else {
+        this.router.navigate(['']);
+      }
+    }
+
+    const sub = this.departmentService.getActiveDepartments().subscribe((depts) => {
       this.departments = depts;
     });
-
-    // Listen to changes in role and department
-    this.employeeForm.get('roleId')!.valueChanges.subscribe(roleId => {
-      this.updateSupervisors();
-    });
-
-    this.employeeForm.get('departmentId')!.valueChanges.subscribe(departmentId => {
-      this.updateSupervisors();
-    });
+    this.subscriptions.push(sub);
   }
 
   ngOnDestroy() {
     this.subscriptions.forEach((subscription) => subscription.unsubscribe());
   }
 
-  updateSupervisors() {
-    const roleId = this.employeeForm.get('roleId')!.value;
-    const departmentId = this.employeeForm.get('departmentId')!.value;
-    if (roleId && departmentId) {
-      // get relevant supervisors from service
-      const roleIdInt: number = +roleId;
-      const departmentIdInt: number = +departmentId;
-      console.log('supervisors updated role: ' + roleIdInt + ' department: ' + departmentIdInt)
-      this.employeeService.getSupervisors(roleIdInt, departmentIdInt).subscribe(supervisors => {
-        this.supervisors = supervisors;
-      });
-    }
+  loadEmployee(){
+    const sub = this.employeeService.getEmployeeById(this.employeeNumber).subscribe(e => {
+      console.log(e);
+      this.employeeForm.patchValue(e);
+    });
+    this.subscriptions.push(sub);
   }
 
-  onSubmit(): void {
-    const formValue = {
-      ...this.employeeForm.value,
-      supervisorEmpNumber: +this.employeeForm.value.supervisorEmpNumber,
-      departmentId: +this.employeeForm.value.departmentId,
-      roleId: +this.employeeForm.value.roleId
-    };
-
-    if (this.employeeForm.valid) {
+  onSubmit() {
+    if(this.employeeForm.valid){
       this.errors = [];
-      //const employee: Employee = this.employeeForm.value;
-      const employee: Employee = formValue;
+      const employee: Employee = this.employeeForm.value;
       console.log(employee);
-      this.employeeService.createEmployee(employee).subscribe({
-        next: (res) => {
-          console.log(res);
-          this.snackBarService.showSnackBar("Employee added successfully", 0);
+      
+      const subscription = this.employeeService.updateEmployee(this.employeeNumber, employee).subscribe({
+        next: () => {
+          this.snackBarService.showSnackBar("Personal Info Updated Successfully", 0);
           setTimeout(() => {
-            console.log('Succesfully added employee');
+            console.log('updated personal info');
             this.router.navigate(['']);
-            this.snackBarService.dismissSnackBar(); 
+            this.snackBarService.dismissSnackBar();
           }, 1800);
         },
         error: (err) => {
-          console.log(err);
+          // if err.error.errors exists, then I know its returning a ValidationError array back
           if (err.error.errors) {
             const validationErrors: ValidationError[] = err.error.errors;
             validationErrors.forEach((error) => {
@@ -119,8 +113,9 @@ export class EmployeeCreateComponent {
           } else {
             this.errors.push(err.error.title);
           }
-        }
+        },
       });
+      this.subscriptions.push(subscription);
     }
   }
 }

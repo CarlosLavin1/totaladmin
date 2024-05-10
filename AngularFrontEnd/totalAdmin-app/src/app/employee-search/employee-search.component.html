@@ -1,0 +1,23 @@
+<div class="container mt-3">
+    <form [formGroup]="searchForm" (ngSubmit)="onSubmit()">
+        <div class="mb-3">
+            <label for="lastName" class="form-label">Last Name:</label>
+            <input type="text" class="form-control" id="lastName" formControlName="lastName">
+        </div>
+        <div class="mb-3">
+            <label for="employeeNumber" class="form-label">Employee Number:</label>
+            <input type="text" class="form-control" id="employeeNumber" formControlName="employeeNumber">
+        </div>
+        <button type="submit" class="btn btn-primary">Search</button>
+    </form>
+
+    <ul *ngIf="employees.length > 0" class="list-group mt-3">
+        <li class="list-group-item employee-item rounded" *ngFor="let employee of employees; let i = index"
+            (click)="toggleDetails(i)">
+            <h5 class="employee-name">{{ employee.firstName }} {{
+                employee.lastName }}</h5>
+            <app-employee-details [employee]="employee" *ngIf="employee.showDetails"></app-employee-details>
+        </li>
+    </ul>
+    <h2 *ngIf="noResults">No results</h2>
+</div>
