@@ -129,18 +129,7 @@ namespace TotalAdmin.Repository
 
             DataRow row = dt.Rows[0];
 
-            return new Employee
-            {
-                EmployeeNumber = Convert.ToInt32(row["EmployeeNumber"]),
-                FirstName = row["FirstName"].ToString(),
-                MiddleInitial = row["MiddleInitial"] != DBNull.Value ? Convert.ToChar(row["MiddleInitial"]) : '\0',
-                LastName = row["LastName"].ToString(),
-                DateOfBirth = Convert.ToDateTime(row["DateOfBirth"]),
-                Email = row["EmailAddress"].ToString(),
-                SupervisorEmployeeNumber = row["SupervisorEmpNumber"] != DBNull.Value ? Convert.ToInt32(row["SupervisorEmpNumber"]) : 0,
-                DepartmentId = row["DepartmentId"] != DBNull.Value ? Convert.ToInt32(row["DepartmentId"]) : 0,
-                RoleId = Convert.ToInt32(row["RoleId"])
-            };
+            return PopulateEmployee(row);
         }
 
         public async Task<List<Employee>> GetEmployeeListAsync()
@@ -287,6 +276,7 @@ namespace TotalAdmin.Repository
             return new()
             {
                 EmployeeNumber = Convert.ToInt32(row["EmployeeNumber"]),
+                HashedPassword = (string)row["HashedPassword"],
                 FirstName = row["FirstName"].ToString(),
                 MiddleInitial = row["MiddleInitial"] != DBNull.Value ? Convert.ToChar(row["MiddleInitial"]) : '\0',
                 LastName = row["LastName"].ToString(),
@@ -298,7 +288,17 @@ namespace TotalAdmin.Repository
                 DateOfBirth = Convert.ToDateTime(row["DateOfBirth"]),
                 StreetAddress = row["StreetAddress"].ToString(),
                 City = row["City"].ToString(),
+                PostalCode = (string)row["PostalCode"],
                 SupervisorEmployeeNumber = row["SupervisorEmpNumber"] != DBNull.Value ? Convert.ToInt32(row["SupervisorEmpNumber"]) : 0,
+                SIN = row["SIN"].ToString(),
+                CellPhoneNumber = row["CellPhoneNumber"].ToString(),
+                Email = (string)row["EmailAddress"],
+                SeniorityDate = (DateTime)row["CompanyStartDate"],
+                JobStartDate = (DateTime)row["JobStartDate"],
+                RetiredDate = row["RetiredDate"] != DBNull.Value ? (DateTime)row["RetiredDate"] : null,
+                TerminatedDate = row["TerminatedDate"] != DBNull.Value ? (DateTime)row["TerminatedDate"] : null,
+                StatusId = (int)row["StatusId"],
+                RowVersion = (byte[])row["RowVersion"]
             };
         }
 

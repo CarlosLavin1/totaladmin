@@ -2,11 +2,11 @@
     <h1 class="text-center">Update Personal Info</h1>
     <form [formGroup]="employeeForm" (ngSubmit)="onSubmit()">
         <div class="mb-3">
-            <h3>Employe Number: {{ employeeNumber.toString().padStart(8, '0') }}</h3>
+            <h3>Employee Number: {{ employeeNumber.toString().padStart(8, '0') }}</h3>
         </div>
         <div class="mb-3">
             <label for="hashedPassword" class="form-label">Password</label>
-            <input type="text" class="form-control" id="hashedPassword" formControlName="hashedPassword">
+            <input readonly type="text" class="form-control" id="hashedPassword" formControlName="hashedPassword">
             <div *ngIf="employeeForm.get('hashedPassword')?.invalid && employeeForm.get('hashedPassword')?.touched">
                 <span class="text-danger">Password is required</span>
             </div>
@@ -63,6 +63,7 @@
 
         <div>
             <!-- hidden inputs -->
+            <input type="hidden" id="employeeNumber" formControlName="employeeNumber" />
             <input type="hidden" id="roleId" formControlName="roleId" />
             <input type="hidden" id="sin" formControlName="sin" />
             <input type="hidden" id="jobTitle" formControlName="jobTitle" />
@@ -79,6 +80,6 @@
         </div>
 
         <app-errors [messages]="errors"></app-errors>
-        <button type="submit" class="btn btn-primary mb-5" [disabled]="!employeeForm.valid">Create Employee</button>
+        <button type="submit" class="btn btn-primary mb-5" [disabled]="!employeeForm.valid">Save</button>
     </form>
 </div>

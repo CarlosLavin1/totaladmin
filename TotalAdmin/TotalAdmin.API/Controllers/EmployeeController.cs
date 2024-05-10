@@ -37,6 +37,35 @@ namespace TotalAdmin.API.Controllers
             }
         }
 
+        [Authorize(Roles = "Supervisor, HR Employee, Employee")]
+        [HttpPut("personal/{id}")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        public ActionResult<Employee> UpdatePersonalInfo(int id, Employee emp)
+        {
+            try
+            {
+                if (emp == null || id != emp.EmployeeNumber)
+                    return BadRequest();
+
+                emp = employeeService.UpdatePersonalInfo(emp);
+
+                if (emp.Errors.Count > 0)
+                    return BadRequest(emp);
+
+                return emp;
+            }
+            catch (SqlException e)
+            {
+                return e.Number == 50100 ? BadRequest(e.Message) : BadRequest();
+            }
+            catch (Exception)
+            {
+                return Problem(title: "An internal error has occurred. Please contact the system administrator.");
+            }
+
+        }
+
         [Authorize(Roles = "HR Employee")]
         [HttpPost]
         [ProducesResponseType(StatusCodes.Status201Created)]
