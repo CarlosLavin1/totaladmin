@@ -18,6 +18,7 @@ namespace TotalAdmin.API.Controllers
             this.departmentService = departmentService;
         }
 
+
         [HttpGet("employee/{id}")]
         public async Task<ActionResult<Department>> GetDepartmentForEmployee(int id)
         {
@@ -50,7 +51,8 @@ namespace TotalAdmin.API.Controllers
             }
         }
 
-        [Authorize(Roles = "Employee, HR Employee")]
+        [Authorize(Roles = "Employee, HR Employee, Supervisor")]
+
         [HttpGet]
         [ProducesResponseType(StatusCodes.Status200OK)]
         public async Task<ActionResult<List<DepartmentDisplayDTO>>> GetActiveDepartments()
