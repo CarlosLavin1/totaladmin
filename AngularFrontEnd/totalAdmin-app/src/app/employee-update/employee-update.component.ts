@@ -19,33 +19,9 @@ export class EmployeeUpdateComponent {
   supervisors: Employee[] = [];
   subscriptions: Subscription[] = [];
   errors: string[] = []
+  hashedPassword: string;
 
-  employeeForm: FormGroup = this.formBuilder.group({
-    employeeNumber: '',
-    firstName: ['', [Validators.required, Validators.maxLength(50)]],
-    middleInitial: ['', Validators.maxLength(1)],
-    lastName: ['', [Validators.required, Validators.maxLength(50)]],
-    email: ['', [Validators.required, Validators.maxLength(255)]],
-    hashedPassword: ['', [Validators.required, Validators.maxLength(255)]],
-    streetAddress: ['', [Validators.required, Validators.maxLength(255)]],
-    city: ['', [Validators.required, Validators.maxLength(50)]],
-    postalCode: ['', [Validators.required, Validators.maxLength(50)]],
-    sin: ['', [Validators.required, Validators.maxLength(9)]],
-    jobTitle: ['', [Validators.required, Validators.maxLength(60)]],
-    seniorityDate: ['', Validators.required],
-    jobStartDate: ['', Validators.required],
-    dateOfBirth: ['', Validators.required],
-    officeLocation: ['', [Validators.required, Validators.maxLength(255)]],
-    workPhoneNumber: ['', [Validators.required, Validators.maxLength(12)]],
-    cellPhoneNumber: ['', [Validators.required, Validators.maxLength(12)]],
-    retiredDate: '',
-    terminatedDate: '',
-    statusId: ['', Validators.required],
-    supervisorEmployeeNumber: ['', Validators.required],
-    departmentId: ['', Validators.required],
-    roleId: ['', Validators.required],
-    rowVersion: ''
-  });
+  employeeForm: FormGroup; 
 
   constructor(
     private router: Router, 
@@ -57,6 +33,32 @@ export class EmployeeUpdateComponent {
   ) {}
 
   ngOnInit(){
+    this.employeeForm = this.formBuilder.group({
+      employeeNumber: '',
+      firstName: ['', [Validators.required, Validators.maxLength(50)]],
+      middleInitial: ['', Validators.maxLength(1)],
+      lastName: ['', [Validators.required, Validators.maxLength(50)]],
+      email: ['', [Validators.required, Validators.maxLength(255)]],
+      hashedPassword: [this.hashedPassword, [Validators.required, Validators.maxLength(255)]],
+      streetAddress: ['', [Validators.required, Validators.maxLength(255)]],
+      city: ['', [Validators.required, Validators.maxLength(50)]],
+      postalCode: ['', [Validators.required, Validators.maxLength(50)]],
+      sin: ['', [Validators.required, Validators.maxLength(9)]],
+      jobTitle: ['', [Validators.required, Validators.maxLength(60)]],
+      seniorityDate: ['', Validators.required],
+      jobStartDate: ['', Validators.required],
+      dateOfBirth: ['', Validators.required],
+      officeLocation: ['', [Validators.required, Validators.maxLength(255)]],
+      workPhoneNumber: ['', [Validators.required, Validators.maxLength(12)]],
+      cellPhoneNumber: ['', [Validators.required, Validators.maxLength(12)]],
+      retiredDate: '',
+      terminatedDate: '',
+      statusId: ['', Validators.required],
+      supervisorEmployeeNumber: ['', Validators.required],
+      departmentId: ['', Validators.required],
+      roleId: ['', Validators.required],
+      rowVersion: ''
+    });
     //this.employeeNumber = this.authService.getEmployeeNumber() ?? -1;
     const idParam = this.activatedRoute.snapshot.paramMap.get('id');
     if (idParam != null) {
@@ -109,6 +111,15 @@ export class EmployeeUpdateComponent {
   }
 
   onSubmit(){
-
+    if (this.employeeForm.get('hashedPassword')?.dirty) {
+      // password has been changed
+      const newPassword = this.employeeForm.get('hashedPassword')?.value;
+      // Send back the new password
+      console.log('New password:', newPassword);
+    } else {
+      // If the password has not been changed
+      // Send back the hashed password
+      console.log('Hashed password:', this.hashedPassword);
+    }
   }
 }
