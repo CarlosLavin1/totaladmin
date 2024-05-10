@@ -61,6 +61,15 @@ namespace TotalAdmin.Service
             return await repo.ReviewEmployeePO(employeeNumber);
         }
 
+        public async Task<List<PurchaseOrder>> GetPurchaseOrdersForDepartment(int departmentId)
+        {
+            return await repo.ReviewDepartmentPo(departmentId);
+        }
+
+        public async Task<PurchaseOrder> ClosePO(int PONumber)
+        {
+            return await repo.ClosePO(PONumber);
+        }
 
         /// <summary>
         /// Fetehes all purchase order for a specific department
