@@ -105,6 +105,7 @@ namespace TotalAdmin.Service
             return !employee.Errors.Any();
         }
 
+        //validate model
         private bool ValidateEmployee(Employee employee)
         {
             // Validate Entity
@@ -124,7 +125,7 @@ namespace TotalAdmin.Service
                 employee.AddError(new("Job start date cannot be before seniority date", ErrorType.Business));
 
             // validate supervisor does not already have 10 employees
-            if (GetEmployeesForSupervisorCount(employee.SupervisorEmployeeNumber) >= 10)
+            if (GetEmployeesForSupervisorCount(employee.SupervisorEmployeeNumber, employee.EmployeeNumber) >= 10)
                 employee.AddError(new("Supervisor already has 10 employees, add another supervisor for this department", ErrorType.Business));
 
             //validate supervisor exists in db
@@ -162,7 +163,7 @@ namespace TotalAdmin.Service
                 employee.AddError(new("Job start date cannot be before seniority date", ErrorType.Business));
 
             // validate supervisor does not already have 10 employees
-            if (await GetEmployeesForSupervisorCountAsync(employee.SupervisorEmployeeNumber) >= 10)
+            if (await GetEmployeesForSupervisorCountAsync(employee.SupervisorEmployeeNumber, employee.EmployeeNumber) >= 10)
                 employee.AddError(new("Supervisor already has 10 employees, add another supervisor for this department", ErrorType.Business));
 
             return !employee.Errors.Any();
@@ -178,14 +179,14 @@ namespace TotalAdmin.Service
             return repo.GetEmployeesInDepartmentCount(department);
         }
 
-        public async Task<int> GetEmployeesForSupervisorCountAsync(int supervisor)
+        public async Task<int> GetEmployeesForSupervisorCountAsync(int supervisor, int employee)
         {
-            return await repo.GetEmployeesForSupervisorCountAsync(supervisor);
+            return await repo.GetEmployeesForSupervisorCountAsync(supervisor, employee);
         }
 
-        public int GetEmployeesForSupervisorCount(int supervisor)
+        public int GetEmployeesForSupervisorCount(int supervisor, int employee)
         {
-            return repo.GetEmployeesForSupervisorCount(supervisor);
+            return repo.GetEmployeesForSupervisorCount(supervisor, employee);
         }
     }
 }
