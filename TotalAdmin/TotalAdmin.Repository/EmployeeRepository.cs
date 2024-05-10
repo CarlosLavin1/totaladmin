@@ -330,8 +330,9 @@ namespace TotalAdmin.Repository
                 row["PostalCode"].ToString(),
                 row["WorkPhoneNumber"].ToString(),
                 row["CellPhoneNumber"].ToString(),
-                row["EmailAddress"].ToString()
-            );
+                row["EmailAddress"].ToString(),
+                row["JobTitle"].ToString()
+            ); ;
         }
     }
 }
