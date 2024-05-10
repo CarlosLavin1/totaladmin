@@ -24,6 +24,7 @@ export class UpdatePersonalInfoComponent {
   errors: string[] = []
 
   employeeForm: FormGroup = this.formBuilder.group({
+    employeeNumber: '',
     firstName: ['', [Validators.required, Validators.maxLength(50)]],
     middleInitial: ['', Validators.maxLength(1)],
     lastName: ['', [Validators.required, Validators.maxLength(50)]],
@@ -91,11 +92,13 @@ export class UpdatePersonalInfoComponent {
     if(this.employeeForm.valid){
       this.errors = [];
       const employee: Employee = this.employeeForm.value;
+      console.log(employee);
+      
       const subscription = this.employeeService.updateEmployee(this.employeeNumber, employee).subscribe({
         next: () => {
-          this.snackBarService.showSnackBar("Department updated successfully", 0);
+          this.snackBarService.showSnackBar("Personal Info Updated Successfully", 0);
           setTimeout(() => {
-            console.log('updated department');
+            console.log('updated personal info');
             this.router.navigate(['']);
             this.snackBarService.dismissSnackBar();
           }, 1800);

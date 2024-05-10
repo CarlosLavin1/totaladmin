@@ -146,8 +146,8 @@ CREATE OR ALTER PROC spUpdateEmployee
 	@OfficeLocation NVARCHAR(255),
 	@WorkPhoneNumber NVARCHAR(12),
 	@CellPhoneNumber NVARCHAR(12),
-	@TerminatedDate DATETIME2(7),
-	@RetiredDate DATETIME2(7),
+	@TerminatedDate DATETIME2(7) = NULL,
+	@RetiredDate DATETIME2(7) = NULL,
 	@StatusId INT,
 	@SupervisorEmpNumber INT,
 	@DepartmentId INT,
@@ -188,7 +188,7 @@ BEGIN
 		IF @@ROWCOUNT = 0
 			BEGIN
 				-- No rows updated, possible RowVersion mismatch
-				;THROW 50100, 'The record has been modified by another user since it was last fetched.', 1;
+				;THROW 50100, 'The record has been modified by another user since it was last fetched. Please refresh the page', 1;
 			END
 		
 	END TRY
@@ -341,7 +341,7 @@ BEGIN
 		IF @@ROWCOUNT = 0
 			BEGIN
 				-- No rows updated, possible RowVersion mismatch
-				;THROW 50100, 'The record has been modified by another user since it was last fetched.', 1;
+				;THROW 50100, 'The record has been modified by another user since it was last fetched. Please refresh the page', 1;
 			END
 		
 	END TRY

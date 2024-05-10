@@ -45,7 +45,7 @@ export class ModifyDepartmentComponent {
       if (!isNaN(this.departmentId)) {
         this.loadDepartment();
       } else {
-        this.router.navigate(['/error']);
+        this.router.navigate(['']);
       }
     }
     
@@ -86,13 +86,15 @@ export class ModifyDepartmentComponent {
         },
         error: (err) => {
           // if err.error.errors exists, then I know its returning a ValidationError array back
+          console.log(err);
+          
           if (err.error.errors) {
             const validationErrors: ValidationError[] = err.error.errors;
             validationErrors.forEach((error) => {
               this.errors.push(error.description);
             });
           } else {
-            this.errors.push(err.error.title);
+            this.errors.push(err.error);
           }
         },
       });
