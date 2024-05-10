@@ -14,7 +14,7 @@ import { Subscription } from 'rxjs';
   styleUrls: ['./employee-update.component.css']
 })
 export class EmployeeUpdateComponent {
-  private employeeNumber: number;
+  employeeNumber: number;
   departments: DepartmentListDto[] = [];
   supervisors: Employee[] = [];
   subscriptions: Subscription[] = [];
@@ -38,7 +38,9 @@ export class EmployeeUpdateComponent {
     officeLocation: ['', [Validators.required, Validators.maxLength(255)]],
     workPhoneNumber: ['', [Validators.required, Validators.maxLength(12)]],
     cellPhoneNumber: ['', [Validators.required, Validators.maxLength(12)]],
-    statusId: [1, Validators.required],
+    retiredDate: '',
+    terminatedDate: '',
+    statusId: ['', Validators.required],
     supervisorEmployeeNumber: ['', Validators.required],
     departmentId: ['', Validators.required],
     roleId: ['', Validators.required],
@@ -70,9 +72,43 @@ export class EmployeeUpdateComponent {
       this.departments = depts;
     });
     this.subscriptions.push(sub);
+
+    this.employeeForm.get('roleId')!.valueChanges.subscribe(roleId => {
+      this.updateSupervisors();
+    });
+
+    this.employeeForm.get('departmentId')!.valueChanges.subscribe(departmentId => {
+      this.updateSupervisors();
+    });
+  }
+
+  ngOnDestroy() {
+    this.subscriptions.forEach((subscription) => subscription.unsubscribe());
+  }
+
+  updateSupervisors() {
+    const roleId = this.employeeForm.get('roleId')!.value;
+    const departmentId = this.employeeForm.get('departmentId')!.value;
+    if (roleId && departmentId) {
+      // get relevant supervisors from service
+      const roleIdInt: number = +roleId;
+      const departmentIdInt: number = +departmentId;
+      console.log('supervisors updated role: ' + roleIdInt + ' department: ' + departmentIdInt)
+      this.employeeService.getSupervisors(roleIdInt, departmentIdInt).subscribe(supervisors => {
+        this.supervisors = supervisors;
+      });
+    }
   }
 
   loadEmployee(){
-    
+    const sub = this.employeeService.getEmployeeById(this.employeeNumber).subscribe(e => {
+      console.log(e);
+      this.employeeForm.patchValue(e);
+    });
+    this.subscriptions.push(sub);
+  }
+
+  onSubmit(){
+
   }
 }

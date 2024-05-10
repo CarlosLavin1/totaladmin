@@ -1,1 +1,175 @@
-<p>employee-update works!</p>
+<div class="container">
+    <h1>Update Employee</h1>
+    <form [formGroup]="employeeForm" (ngSubmit)="onSubmit()">
+        <div class="mb-3">
+            <h3>Employee Number: {{ employeeNumber.toString().padStart(8, '0') }}</h3>
+        </div>
+        <div class="mb-3">
+            <label for="firstName" class="form-label">First Name</label>
+            <input type="text" class="form-control" id="firstName" formControlName="firstName">
+            <div *ngIf="employeeForm.get('firstName')?.invalid && employeeForm.get('firstName')?.touched">
+                <span class="text-danger">First name is required</span>
+            </div>
+        </div>
+        <div class="mb-3">
+            <label for="middleInitial" class="form-label">Middle Initial</label>
+            <input type="text" class="form-control" id="middleInitial" formControlName="middleInitial">
+            <div *ngIf="employeeForm.get('middleInitial')?.invalid && employeeForm.get('middleInitial')?.touched">
+                <span class="text-danger">Middle initial can only be one character</span>
+            </div>
+        </div>
+        <div class="mb-3">
+            <label for="lastName" class="form-label">Last Name</label>
+            <input type="text" class="form-control" id="lastName" formControlName="lastName">
+            <div *ngIf="employeeForm.get('lastName')?.invalid && employeeForm.get('lastName')?.touched">
+                <span class="text-danger">Last name is required</span>
+            </div>
+        </div>
+        <div class="mb-3">
+            <label for="email" class="form-label">Email Address</label>
+            <input type="text" class="form-control" id="email" formControlName="email">
+            <div *ngIf="employeeForm.get('email')?.invalid && employeeForm.get('email')?.touched">
+                <span class="text-danger">Email is required</span>
+            </div>
+        </div>
+        <div class="mb-3">
+            <label for="hashedPassword" class="form-label">Password</label>
+            <input type="text" readonly class="form-control" id="hashedPassword" formControlName="hashedPassword">
+            <div *ngIf="employeeForm.get('hashedPassword')?.invalid && employeeForm.get('hashedPassword')?.touched">
+                <span class="text-danger">Password is required</span>
+            </div>
+        </div>
+        <div class="mb-3">
+            <label for="streetAddress" class="form-label">Street Address</label>
+            <input type="text" class="form-control" id="streetAddress" formControlName="streetAddress">
+            <div *ngIf="employeeForm.get('streetAddress')?.invalid && employeeForm.get('streetAddress')?.touched">
+                <span class="text-danger">Street Address is required</span>
+            </div>
+        </div>
+        <div class="mb-3">
+            <label for="city" class="form-label">City</label>
+            <input type="text" class="form-control" id="city" formControlName="city">
+            <div *ngIf="employeeForm.get('city')?.invalid && employeeForm.get('city')?.touched">
+                <span class="text-danger">City is required</span>
+            </div>
+        </div>
+        <div class="mb-3">
+            <label for="postalCode" class="form-label">Postal Code</label>
+            <input type="text" class="form-control" id="postalCode" formControlName="postalCode">
+            <div *ngIf="employeeForm.get('postalCode')?.invalid && employeeForm.get('postalCode')?.touched">
+                <span class="text-danger">Postal Code is required</span>
+            </div>
+        </div>
+        <div class="mb-3">
+            <label for="sin" class="form-label">SIN</label>
+            <input type="text" class="form-control" id="sin" formControlName="sin">
+            <div *ngIf="employeeForm.get('sin')?.invalid && employeeForm.get('sin')?.touched">
+                <span class="text-danger">SIN is required</span>
+            </div>
+        </div>
+        <div class="mb-3">
+            <label for="jobTitle" class="form-label">Job Title</label>
+            <input type="text" class="form-control" id="jobTitle" formControlName="jobTitle">
+            <div *ngIf="employeeForm.get('jobTitle')?.invalid && employeeForm.get('jobTitle')?.touched">
+                <span class="text-danger">Job Title is required</span>
+            </div>
+        </div>
+        <div class="mb-3">
+            <label for="seniorityDate" class="form-label">Seniority Date</label>
+            <input type="date" class="form-control" id="seniorityDate" formControlName="seniorityDate">
+            <div *ngIf="employeeForm.get('seniorityDate')?.invalid && employeeForm.get('seniorityDate')?.touched">
+                <span class="text-danger">Seniority Date is required</span>
+            </div>
+        </div>
+        <div class="mb-3">
+            <label for="jobStartDate" class="form-label">Job Start Date</label>
+            <input type="date" class="form-control" id="jobStartDate" formControlName="jobStartDate">
+            <div *ngIf="employeeForm.get('jobStartDate')?.invalid && employeeForm.get('jobStartDate')?.touched">
+                <span class="text-danger">Job Start Date is required</span>
+            </div>
+        </div>
+        <div class="mb-3">
+            <label for="dateOfBirth" class="form-label">Date Of Birth</label>
+            <input type="date" class="form-control" id="dateOfBirth" formControlName="dateOfBirth">
+            <div *ngIf="employeeForm.get('dateOfBirth')?.invalid && employeeForm.get('dateOfBirth')?.touched">
+                <span class="text-danger">Date Of Birth is required</span>
+            </div>
+        </div>
+        <div class="mb-3">
+            <label for="officeLocation" class="form-label">Office Location</label>
+            <input type="text" class="form-control" id="officeLocation" formControlName="officeLocation">
+            <div *ngIf="employeeForm.get('officeLocation')?.invalid && employeeForm.get('officeLocation')?.touched">
+                <span class="text-danger">Office Location is required</span>
+            </div>
+        </div>
+        <div class="mb-3">
+            <label for="workPhoneNumber" class="form-label">Work Phone Number</label>
+            <input type="text" class="form-control" id="workPhoneNumber" formControlName="workPhoneNumber">
+            <div *ngIf="employeeForm.get('workPhoneNumber')?.invalid && employeeForm.get('workPhoneNumber')?.touched">
+                <span class="text-danger">Work Phone Number is required</span>
+            </div>
+        </div>
+        <div class="mb-3">
+            <label for="cellPhoneNumber" class="form-label">Cell Phone Number</label>
+            <input type="text" class="form-control" id="cellPhoneNumber" formControlName="cellPhoneNumber">
+            <div *ngIf="employeeForm.get('cellPhoneNumber')?.invalid && employeeForm.get('cellPhoneNumber')?.touched">
+                <span class="text-danger">Cell Phone Number is required</span>
+            </div>
+        </div>
+        <div class="mb-3">
+            <label for="roleId" class="form-label">Status</label>
+            <select class="form-control" id="statusId" formControlName="statusId">
+                <option value="1">Active</option>
+                <option value="2">Retired</option>
+                <option value="3">Terminated</option>
+            </select>
+        </div>
+        <div class="mb-3" *ngIf="employeeForm.get('statusId')?.value == 2">
+            <label for="retiredDate" class="form-label">Retired Date</label>
+            <input type="date" class="form-control" id="retiredDate" formControlName="retiredDate">
+            <div *ngIf="employeeForm.get('retiredDate')?.invalid && employeeForm.get('retiredDate')?.touched">
+                <span class="text-danger">Retired date is required</span>
+            </div>
+        </div>
+        <div class="mb-3" *ngIf="employeeForm.get('statusId')?.value == 3">
+            <label for="terminatedDate" class="form-label">Terminated Date</label>
+            <input type="date" class="form-control" id="terminatedDate" formControlName="terminatedDate">
+            <div *ngIf="employeeForm.get('terminatedDate')?.invalid && employeeForm.get('terminatedDate')?.touched">
+                <span class="text-danger">Terminated date is required</span>
+            </div>
+        </div>
+        <div class="mb-3">
+            <label for="roleId" class="form-label">Role</label>
+            <select class="form-control" id="roleId" formControlName="roleId">
+                <option value="2">HR Supervisor</option>
+                <option value="3">Supervisor</option>
+                <option value="4">HR Employee</option>
+                <option value="5">Employee</option>
+            </select>
+        </div>
+        <div class="mb-3">
+            <label for="departmentId" class="form-label">Department</label>
+            <select class="form-control" id="departmentId" formControlName="departmentId">
+                <option *ngFor="let department of departments" [value]="department.departmentId">
+                    {{ department.name }}
+                </option>
+            </select>
+        </div>
+        <div class="mb-3">
+            <label for="supervisorEmployeeNumber" class="form-label">Supervisor</label>
+            <select class="form-control" id="supervisorEmployeeNumber" formControlName="supervisorEmployeeNumber">
+                <option *ngFor="let supervisor of supervisors" [value]="supervisor.employeeNumber">
+                    {{ supervisor.firstName }} {{supervisor.lastName}}
+                </option>
+            </select>
+            <div
+                *ngIf="employeeForm.get('supervisorEmployeeNumber')?.invalid && employeeForm.get('supervisorEmployeeNumber')?.touched">
+                <span class="text-danger">Supervisor Employee Number is required</span>
+            </div>
+        </div>
+        <input type="hidden" id="rowVersion" formControlName="rowVersion">
+        <input type="hidden" id="employeeNumber" formControlName="employeeNumber">
+        <app-errors [messages]="errors"></app-errors>
+        <button type="submit" class="btn btn-primary mb-5" [disabled]="!employeeForm.valid">Save</button>
+    </form>
+</div>
