@@ -247,7 +247,8 @@ GO
 
 -- get employees for a supervisor
 CREATE OR ALTER PROC spGetEmployeesForSupervisorCount
-    @SupervisorEmployeeNumber INT
+    @SupervisorEmployeeNumber INT,
+	@EmployeeNumber INT
 AS
 BEGIN
     SELECT
@@ -257,6 +258,7 @@ BEGIN
     WHERE
         StatusId = 1
         AND (SupervisorEmpNumber = @SupervisorEmployeeNumber)
+		AND (EmployeeNumber != @EmployeeNumber)
 END
 GO
 

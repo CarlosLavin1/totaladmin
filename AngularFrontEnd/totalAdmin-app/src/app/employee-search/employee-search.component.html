@@ -15,7 +15,9 @@
         <li class="list-group-item employee-item rounded" *ngFor="let employee of employees; let i = index"
             (click)="toggleDetails(i)">
             <h5 class="employee-name">{{ employee.firstName }} {{
-                employee.lastName }}</h5>
+                employee.lastName }} - <span class="text-info"
+                    (click)="navigateToUpdateEmployee(employee.employeeNumber)">Update</span>
+            </h5>
             <app-employee-details [employee]="employee" *ngIf="employee.showDetails"></app-employee-details>
         </li>
     </ul>

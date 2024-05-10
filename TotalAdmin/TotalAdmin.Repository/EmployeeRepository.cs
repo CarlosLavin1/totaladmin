@@ -171,11 +171,12 @@ namespace TotalAdmin.Repository
             return dt.AsEnumerable().Select(row => PopulateEmployeeDetailDTO(row)).ToList();
         }
 
-        public async Task<int> GetEmployeesForSupervisorCountAsync(int supervisor)
+        public async Task<int> GetEmployeesForSupervisorCountAsync(int supervisor, int employee)
         {
             List<Parm> parms = new()
             {
-                new("@SupervisorEmployeeNumber", SqlDbType.Int, supervisor)
+                new("@SupervisorEmployeeNumber", SqlDbType.Int, supervisor),
+                new("@EmployeeNumber", SqlDbType.Int, employee),
             };
             object? count = await db.ExecuteScalarAsync("spGetEmployeesForSupervisorCount", parms);
             if (count == null)
@@ -184,11 +185,12 @@ namespace TotalAdmin.Repository
             return (int)count;
         }
 
-        public int GetEmployeesForSupervisorCount(int supervisor)
+        public int GetEmployeesForSupervisorCount(int supervisor, int employee)
         {
             List<Parm> parms = new()
             {
-                new("@SupervisorEmployeeNumber", SqlDbType.Int, supervisor)
+                new("@SupervisorEmployeeNumber", SqlDbType.Int, supervisor),
+                new("@EmployeeNumber", SqlDbType.Int, employee),
             };
             object? count = db.ExecuteScalar("spGetEmployeesForSupervisorCount", parms);
             if (count == null)
