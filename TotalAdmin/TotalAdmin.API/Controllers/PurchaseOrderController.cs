@@ -39,7 +39,19 @@ namespace TotalAdmin.API.Controllers
                         return NotFound("No Purchase Orders for that Department found.");
                     }
 
-                    return Ok(po);
+                    // Format the PO numbers
+                    var response = po.Select(p => new POSearchResultsApiDTO
+                    {
+                        PoNumber = p.PoNumber,
+                        CreationDate = p.CreationDate,
+                        SupervisorName = p.SupervisorName,
+                        Status = p.Status,
+                        TotalItems = p.TotalItems,
+                        GrandTotal = p.GrandTotal,
+                        FormattedPoNumber = "00001" + p.PoNumber.ToString("D2")
+                    }).ToList();
+
+                    return Ok(response);
                 }
                 else
                 {

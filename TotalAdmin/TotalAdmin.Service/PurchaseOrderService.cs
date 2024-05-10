@@ -69,7 +69,16 @@ namespace TotalAdmin.Service
         /// <returns>A list of purchase order search results</returns>
         public async Task<List<POSearchResultsApiDTO>> GetPuchaseOrdersForDepartment(int departmentId)
         {
-            return await repo.GetPOSearchResults(departmentId);
+            var pos = await repo.GetPOSearchResults(departmentId);
+
+            foreach (var po in pos)
+            {
+                var (totalItems, grandTotal) = await repo.GetOrderTotals(po.PoNumber);
+                po.TotalItems = totalItems;
+                po.GrandTotal = grandTotal;
+            }
+
+            return pos;
         }
 
 

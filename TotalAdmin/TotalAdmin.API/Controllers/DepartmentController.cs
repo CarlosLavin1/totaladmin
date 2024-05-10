@@ -17,7 +17,7 @@ namespace TotalAdmin.API.Controllers
             this.departmentService = departmentService;
         }
 
-        [Authorize(Roles = "Employee, HR Employee")]
+        [Authorize(Roles = "Employee, HR Employee, Supervisor")]
         [HttpGet]
         [ProducesResponseType(StatusCodes.Status200OK)]
         public async Task<ActionResult<List<DepartmentDisplayDTO>>> GetActiveDepartments()

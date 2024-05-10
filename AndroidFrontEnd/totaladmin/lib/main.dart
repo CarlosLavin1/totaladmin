@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
-import 'package:totaladmin/department_list.dart';
 import 'package:totaladmin/employee_search.dart';
 import 'package:totaladmin/login.dart';
 import 'dart:io';
 
 import 'package:totaladmin/services/auth_service.dart';
+
+import 'browse_department_po.dart';
 
 void main() {
   HttpOverrides.global = MyHttpOverrides();
@@ -107,6 +107,20 @@ class _HomePageState extends State<HomePage> {
                   },
                 ),
               ],
+              if (role.startsWith("Supervisor")) ...[
+                ListTile(
+                  leading: const Icon(Icons.search),
+                  title: const Text('Browse Department Purchase Orders'),
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const BrowseDepartmentPo(),
+                      ),
+                    );
+                  },
+                ),
+              ],
               ListTile(
                 leading: const Icon(Icons.exit_to_app),
                 title: const Text('Logout'),
@@ -142,8 +156,7 @@ class _HomePageState extends State<HomePage> {
                     textAlign: TextAlign.center,
                   ),
                 ),
-                Text("Welcome, #${employeeNumber}",
-                    textAlign: TextAlign.center),
+                Text("Welcome, #$employeeNumber", textAlign: TextAlign.center),
               ],
             ),
           ),
