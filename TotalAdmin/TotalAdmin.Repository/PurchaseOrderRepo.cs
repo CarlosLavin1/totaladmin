@@ -155,16 +155,18 @@ namespace TotalAdmin.Repository
                 // Create a DataTable for the PO items
                 var poItemsTable = await CreatePoItemsDataTableAsync(newItems);
 
-
+                Debug.WriteLineIf(hasMergeOccurred, poItemsTable);
                 List<Parm> parms = new()
                 {
                     new("@PoNumber", SqlDbType.Int, po.PoNumber, 0, ParameterDirection.Output),
+                    new("@RowVersion", SqlDbType.Timestamp, po.RowVersion, 0, ParameterDirection.Output),
                     new("@CreationDate", SqlDbType.DateTime2, po.CreationDate, 7),
                     new("@PurchaseOrderStatusId", SqlDbType.Int, po.StatusId),
                     new("@EmployeeNumber", SqlDbType.Int, po.EmployeeNumber),
                     new("@POItems", SqlDbType.Structured, poItemsTable)
                 };
 
+                Debug.WriteLine(parms);
                 if (await db.ExecuteNonQueryAsync("spAddPurchaseOrder", parms) > 0)
                 {
                     // Get the PO number as an integer
@@ -172,6 +174,8 @@ namespace TotalAdmin.Repository
 
                     // Assign the PO number to the PurchaseOrder object
                     po.PoNumber = poNumberInt;
+
+                    po.RowVersion = (byte[]?)parms.FirstOrDefault(p => p.Name == "@RowVersion")!.Value;
                 }
                 else
                 {
@@ -297,6 +301,41 @@ namespace TotalAdmin.Repository
                         Location = row["ItemLocation"].ToString() ?? "UnKnown",
                         StatusId = Convert.ToInt32(row["ItemStatusId"])
                     }).ToList();
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine(ex.Message);
+                throw;
+            }
+        }
+
+
+        public async Task<(int TotalItems, decimal GrandTotal)> GetOrderTotals(int poNumber)
+        {
+            try
+            {
+                List<Parm> parms = new() { new Parm("@PoNumber", SqlDbType.Int, poNumber) };
+                string sql = @"
+                            SELECT 
+                                COUNT(Item.ItemId) AS TotalItems,
+                                ISNULL(SUM(Item.Price * Item.Quantity), 0) AS GrandTotal
+                            FROM Item
+                            WHERE Item.PoNumber = @PoNumber";
+
+                DataTable dt = await db.ExecuteAsync(sql, parms, CommandType.Text);
+
+                if (dt.Rows.Count > 0)
+                {
+                    DataRow row = dt.Rows[0];
+                    int totalItems = Convert.ToInt32(row["TotalItems"]);
+                    decimal grandTotal = Convert.ToDecimal(row["GrandTotal"]);
+
+                    return (totalItems, grandTotal);
+                }
+                else
+                {
+                    throw new Exception($"No items found for purchase order number {poNumber}.");
+                }
             }
             catch (Exception ex)
             {
@@ -533,8 +572,8 @@ namespace TotalAdmin.Repository
             dt.Columns.Add("ItemPrice", typeof(decimal));
             dt.Columns.Add("ItemJust", typeof(string));
             dt.Columns.Add("ItemLoc", typeof(string));
+            dt.Columns.Add("RejectedReason", typeof(string));
             dt.Columns.Add("ItemStatus", typeof(int));
-            dt.Columns.Add("RowVersion", typeof(int));
 
             foreach (var item in items)
             {
@@ -546,10 +585,11 @@ namespace TotalAdmin.Repository
                     item.Price,
                     item.Justification,
                     item.Location,
-                    item.StatusId,
-                    item.RowVersion);
+                    item.RejectedReason,
+                    item.StatusId);
             }
 
+            Debug.WriteLine(dt.ToString());
             return Task.FromResult(dt);
         }
 
@@ -569,8 +609,8 @@ namespace TotalAdmin.Repository
             dt.Columns.Add("ItemPrice", typeof(decimal));
             dt.Columns.Add("ItemJust", typeof(string));
             dt.Columns.Add("ItemLoc", typeof(string));
+            dt.Columns.Add("RejectedReason", typeof(string));
             dt.Columns.Add("ItemStatus", typeof(int));
-            dt.Columns.Add("RowVersion", typeof(int));
 
             dt.Rows.Add(
                 item.ItemId,
@@ -580,8 +620,8 @@ namespace TotalAdmin.Repository
                 item.Price,
                 item.Justification,
                 item.Location,
-                item.StatusId,
-                item.RowVersion);
+                item.RejectedReason,
+                item.StatusId);
 
             return Task.FromResult(dt);
         }
