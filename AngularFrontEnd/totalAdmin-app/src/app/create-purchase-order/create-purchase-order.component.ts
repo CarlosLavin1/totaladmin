@@ -22,6 +22,7 @@ export class CreatePurchaseOrderComponent implements OnInit {
   public displayedItems: Item[] = [];
   public hasValidationErrors: boolean = false;
   public purchaseOrderCreated: boolean = false;
+  public validationErrors: ValidationError[] = [];
 
 
   public employeeNumber = localStorage.getItem('employeeNumber') || '';
@@ -153,9 +154,9 @@ export class CreatePurchaseOrderComponent implements OnInit {
 
           if (err.error.errors) {
 
-            const validationErrors: ValidationError[] = err.error.errors;
+            this.validationErrors = err.error.errors;
 
-            validationErrors.forEach((error) => {
+            this.validationErrors.forEach((error) => {
               this.errors.push(error.description);
             });
           } else {
