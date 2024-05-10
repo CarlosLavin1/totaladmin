@@ -34,4 +34,9 @@ export class EmployeeService extends SharedService{
   updateEmployee(employeeNumber: number, employee: Employee): Observable<Employee>{
     return this.http.put<Employee>(`${API_URL7161}/employee/personal/${employeeNumber}`, employee).pipe(catchError(super.handleError));
   }
+
+  //update employee
+  employeeUpdate(employeeNumber: number, employee: Employee): Observable<Employee>{
+    return this.http.put<Employee>(`${API_URL7161}/employee/${employeeNumber}`, employee).pipe(catchError(super.handleError));
+  }
 }

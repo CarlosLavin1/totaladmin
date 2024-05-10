@@ -47,14 +47,14 @@ namespace TotalAdmin.Service
 
         public Employee UpdateEmployee(Employee employee)
         {
-            if (ValidateEmployee(employee))
+            if (ValidateUpdateEmployee(employee))
                 return repo.UpdateEmployee(employee);
             return employee;
         }
 
         public Employee UpdatePersonalInfo(Employee employee)
         {
-            if (ValidateUpdateEmployee(employee))
+            if (ValidateUpdatePersonalInfo(employee))
                 return repo.UpdateEmployee(employee);
             return employee;
         }
@@ -91,11 +91,9 @@ namespace TotalAdmin.Service
 
             // Create validation context with validation attributes (including the custom attribute)
             var validationContext = new ValidationContext(employee);
-            if (true)
-            {
-                // Add validation context items to indicate that regex validation should be ignored
-                validationContext.Items["IgnoreRegexValidation"] = true;
-            }
+
+            // Add validation context items to indicate that regex validation should be ignored
+            validationContext.Items["IgnoreRegexValidation"] = true;
 
             Validator.TryValidateObject(employee, validationContext, results, true);
 
@@ -107,6 +105,28 @@ namespace TotalAdmin.Service
             return !employee.Errors.Any();
         }
 
+        private bool ValidateUpdatePersonalInfo(Employee employee)
+        {
+            // Validate Entity
+            List<ValidationResult> results = new();
+
+            // Create validation context with validation attributes (including the custom attribute)
+            var validationContext = new ValidationContext(employee);
+           
+            // Add validation context items to indicate that regex validation should be ignored
+            validationContext.Items["IgnoreRegexValidation"] = true;
+
+            Validator.TryValidateObject(employee, validationContext, results, true);
+
+            foreach (ValidationResult e in results)
+            {
+                employee.AddError(new(e.ErrorMessage, ErrorType.Model));
+            }
+
+            return !employee.Errors.Any();
+        }
+
+        //validate model
         private bool ValidateEmployee(Employee employee)
         {
             // Validate Entity
@@ -126,7 +146,7 @@ namespace TotalAdmin.Service
                 employee.AddError(new("Job start date cannot be before seniority date", ErrorType.Business));
 
             // validate supervisor does not already have 10 employees
-            if (GetEmployeesForSupervisorCount(employee.SupervisorEmployeeNumber) >= 10)
+            if (GetEmployeesForSupervisorCount(employee.SupervisorEmployeeNumber, employee.EmployeeNumber) >= 10)
                 employee.AddError(new("Supervisor already has 10 employees, add another supervisor for this department", ErrorType.Business));
 
             //validate supervisor exists in db
@@ -164,7 +184,7 @@ namespace TotalAdmin.Service
                 employee.AddError(new("Job start date cannot be before seniority date", ErrorType.Business));
 
             // validate supervisor does not already have 10 employees
-            if (await GetEmployeesForSupervisorCountAsync(employee.SupervisorEmployeeNumber) >= 10)
+            if (await GetEmployeesForSupervisorCountAsync(employee.SupervisorEmployeeNumber, employee.EmployeeNumber) >= 10)
                 employee.AddError(new("Supervisor already has 10 employees, add another supervisor for this department", ErrorType.Business));
 
             return !employee.Errors.Any();
@@ -180,14 +200,14 @@ namespace TotalAdmin.Service
             return repo.GetEmployeesInDepartmentCount(department);
         }
 
-        public async Task<int> GetEmployeesForSupervisorCountAsync(int supervisor)
+        public async Task<int> GetEmployeesForSupervisorCountAsync(int supervisor, int employee)
         {
-            return await repo.GetEmployeesForSupervisorCountAsync(supervisor);
+            return await repo.GetEmployeesForSupervisorCountAsync(supervisor, employee);
         }
 
-        public int GetEmployeesForSupervisorCount(int supervisor)
+        public int GetEmployeesForSupervisorCount(int supervisor, int employee)
         {
-            return repo.GetEmployeesForSupervisorCount(supervisor);
+            return repo.GetEmployeesForSupervisorCount(supervisor, employee);
         }
     }
 }
