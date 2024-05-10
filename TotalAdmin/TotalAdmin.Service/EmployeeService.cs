@@ -91,11 +91,9 @@ namespace TotalAdmin.Service
 
             // Create validation context with validation attributes (including the custom attribute)
             var validationContext = new ValidationContext(employee);
-            if (true)
-            {
-                // Add validation context items to indicate that regex validation should be ignored
-                validationContext.Items["IgnoreRegexValidation"] = true;
-            }
+           
+            // Add validation context items to indicate that regex validation should be ignored
+            validationContext.Items["IgnoreRegexValidation"] = true;
 
             Validator.TryValidateObject(employee, validationContext, results, true);
 

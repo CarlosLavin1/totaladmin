@@ -2,6 +2,7 @@ import { Component } from '@angular/core';
 import { FormBuilder, FormGroup } from '@angular/forms';
 import { EmployeeDetailDTO } from '../models/employee-detail-dto';
 import { EmployeeService } from '../services/employee.service';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-employee-search',
@@ -13,7 +14,7 @@ export class EmployeeSearchComponent {
   searchForm: FormGroup;
   employees: EmployeeDetailDTO[] = [];
 
-  constructor(private fb: FormBuilder, private employeeService: EmployeeService) {
+  constructor(private fb: FormBuilder, private employeeService: EmployeeService, private router: Router) {
     this.searchForm = this.fb.group({
       lastName: '',
       employeeNumber: ''
@@ -48,5 +49,10 @@ export class EmployeeSearchComponent {
 
   toggleDetails(index: number): void {
     this.employees[index].showDetails = !this.employees[index].showDetails;
+  }
+
+  navigateToUpdateEmployee(employeeNumber: number) {
+    const absoluteUrl = `/update-employee/${employeeNumber}`;
+    this.router.navigate([absoluteUrl]);
   }
 }
