@@ -21,7 +21,7 @@ namespace TotalAdmin.Model.Entities
         public DateTime CreationDate { get; set; }
 
         [ConcurrencyCheck]
-        public int RowVersion { get; set; }
+        public byte[]? RowVersion { get; set; }
 
         [Display(Name = "Employee Number")]
         [Required(ErrorMessage = "Please select a employee.")]

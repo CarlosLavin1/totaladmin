@@ -154,47 +154,48 @@ GO
 -- purchase order
 IF OBJECT_ID('TotalAdmin.dbo.PurchaseOrder', 'U') IS NULL
 	CREATE TABLE PurchaseOrder(
-		PoNumber INT IDENTITY(1,1) NOT NULL PRIMARY KEY,
+		PoNumber INT IDENTITY(1,1) PRIMARY KEY NOT NULL,
 		CreationDate DATETIME2(7) NOT NULL,
-		[RowVersion] INT NOT NULL,
 		PurchaseOrderStatusId INT NOT NULL,
-		EmployeeNumber INT NOT NULL
+		EmployeeNumber INT NOT NULL,
+		[RowVersion] ROWVERSION NOT NULL
 		CONSTRAINT FK_PurchaseOrderStatus_PurchaseOrder FOREIGN KEY (PurchaseOrderStatusId) REFERENCES PurchaseOrderStatus(PoStatusId),
 		CONSTRAINT FK_Employee_PurchaseOrder FOREIGN KEY (EmployeeNumber) REFERENCES Employee(EmployeeNumber)
 	);
 GO
-INSERT INTO PurchaseOrder (CreationDate, [RowVersion], PurchaseOrderStatusId, EmployeeNumber)
+INSERT INTO PurchaseOrder (CreationDate, PurchaseOrderStatusId, EmployeeNumber)
 VALUES
-('2024-04-01', 1, 1, 5),
-('2024-03-15', 1, 2, 5),
-('2024-02-28', 1, 1, 3),
-('2024-05-2', 1, 2, 3),
-('2024-04-10', 1, 1, 9),
-('2024-03-20', 1, 2, 2);
+('2024-04-01', 1, 5),
+('2024-03-15', 2, 5),
+('2024-02-28', 1, 3),
+('2024-05-2', 2, 3),
+('2024-04-10', 1, 9),
+('2024-03-20', 2, 2);
 
 GO
 -- item
 IF OBJECT_ID('TotalAdmin.dbo.Item', 'U') IS NULL
 	CREATE TABLE Item(
-		ItemId INT IDENTITY(1,1) NOT NULL PRIMARY KEY,
+		ItemId INT IDENTITY(1,1) PRIMARY KEY NOT NULL,
 		[Name] VARCHAR(45) NOT NULL,
 		Quantity INT NOT NULL,
 		[Description] NTEXT NOT NULL,
 		Price MONEY NOT NULL,
-		Justification NVARCHAR(255),
-		ItemLocation NVARCHAR(255),
-		[RowVersion] INT NOT NULL,
+		Justification NVARCHAR(255) NOT NULL,
+		ItemLocation NVARCHAR(255) NOT NULL,
+		RejectedReason NVARCHAR(100) NULL,
 		PoNumber INT NOT NULL,
 		ItemStatusId INT NOT NULL,
+		[RowVersion] ROWVERSION NOT NULL
 		CONSTRAINT FK_PurchaseOrder_Item FOREIGN KEY (PoNumber) REFERENCES PurchaseOrder(PoNumber),
 		CONSTRAINT FK_Item_Status FOREIGN KEY (ItemStatusId) REFERENCES ItemStatus(ItemStatusId)
 	);
 GO
-INSERT INTO Item ([Name], Quantity, [Description], Price, Justification, ItemLocation, [RowVersion], PoNumber, ItemStatusId)
+INSERT INTO Item ([Name], Quantity, [Description], Price, Justification, ItemLocation, RejectedReason, PoNumber, ItemStatusId)
 VALUES
-('Laptop Computers', 10, 'High-performance laptops for IT department', 1512.45, 'Upgrade outdated equipment', 'Main Office IT Room', 1, 3, 1),
-('Office Chairs', 25, 'Ergonomic chairs for new employees', 258.00, 'Improve workplace comfort', 'Executive Conference Room', 1, 2, 1),
-('Whiteboard/flipchart', 3, 'Facilitate brainstorming sessions and presentations', 58.08, 'Support collaborative work and visual communication in HR department', 'Warehouse - Office Supplies Section', 1, 4, 1),
-('Projectors', 3, 'Multimedia projectors for conference rooms', 799.00, 'Enhance presentation capabilities', 'Training Room', 1, 3, 1),
-('Printers', 8, 'High-volume printers for office use', 504.99, 'Replace old printers', 'Print Room', 1, 4, 1),
-('Headsets', 20, 'Noise-cancelling headsets for customer support', 158.85, 'Improve communication quality', 'Customer Service Desk', 1, 5, 1);
+('Laptop Computers', 10, 'High-performance laptops for IT department', 1512.45, 'Upgrade outdated equipment', 'Main Office IT Room', NULL, 3, 1),
+('Office Chairs', 25, 'Ergonomic chairs for new employees', 258.00, 'Improve workplace comfort', 'Executive Conference Room', NULL, 2, 1),
+('Whiteboard/flipchart', 3, 'Facilitate brainstorming sessions and presentations', 58.08, 'Support collaborative work and visual communication in HR department', 'Warehouse - Office Supplies Section', NULL, 4, 1),
+('Projectors', 3, 'Multimedia projectors for conference rooms', 799.00, 'Enhance presentation capabilities', 'Training Room', NULL, 3, 1),
+('Printers', 8, 'High-volume printers for office use', 504.99, 'Replace old printers', 'Print Room', NULL, 4, 1),
+('Headsets', 20, 'Noise-cancelling headsets for customer support', 158.85, 'Improve communication quality', 'Customer Service Desk', NULL, 5, 1);
