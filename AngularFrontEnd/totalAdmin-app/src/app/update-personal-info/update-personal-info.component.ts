@@ -61,9 +61,9 @@ export class UpdatePersonalInfoComponent {
       departmentId: ['', Validators.required],
       roleId: ['', Validators.required],
       rowVersion: '',
-      oldPassword: ['', Validators.required],
-      newPassword: ['', [Validators.required, Validators.minLength(6)]],
-      confirmPassword: ['', Validators.required]
+      oldPassword: '',
+      newPassword: ['', [Validators.minLength(6)]],
+      confirmPassword: ''
     }, { validator: this.passwordMatchValidator });
     //this.employeeNumber = this.authService.getEmployeeNumber() ?? -1;
     const idParam = this.activatedRoute.snapshot.paramMap.get('id');
@@ -104,15 +104,50 @@ export class UpdatePersonalInfoComponent {
   }
 
   onSubmit() {
+    const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[\$\@\$!\%\*?&])[A-Za-z\d\$\@\$\!\%\*?&]{6,}$/;
     if(this.employeeForm.valid){
       this.errors = [];
       const employee: Employee = this.employeeForm.value;
       console.log(employee);
       const oldPasswordInput = sha256(this.employeeForm.get('oldPassword')?.value);
       const hashedPassword = this.employeeForm.get('hashedPassword')?.value;
+      const newPassword = this.employeeForm.get('newPassword')?.value;
+      const confirmPassword = this.employeeForm.get('confirmPassword')?.value;
       // compare old pass to existing
+      console.log((this.employeeForm.get('oldPassword')?.value.length == 0 && newPassword.length == 0 && confirmPassword.length == 0));
+      if((this.employeeForm.get('oldPassword')?.value.length == 0 && newPassword.length == 0 && confirmPassword.length == 0)){
+        const subscription = this.employeeService.updateEmployee(this.employeeNumber, employee).subscribe({
+          next: () => {
+            this.snackBarService.showSnackBar("Personal Info Updated Successfully", 0);
+            setTimeout(() => {
+              console.log('updated personal info');
+              this.router.navigate(['']);
+              this.snackBarService.dismissSnackBar();
+            }, 1800);
+          },
+          error: (err) => {
+            // if err.error.errors exists, then I know its returning a ValidationError array back
+            if (err.error.errors) {
+              const validationErrors: ValidationError[] = err.error.errors;
+              validationErrors.forEach((error) => {
+                this.errors.push(error.description);
+              });
+            } else {
+              this.errors.push(err.error.title);
+            }
+          },
+        });
+        this.subscriptions.push(subscription);
+        return;
+      }
       if (hashedPassword == oldPasswordInput) {
+        if(!passwordRegex.test(newPassword)){
+          console.error('new password is too weak');
+          this.errors.push("New password is too weak, please include 1 uppercase letter, 1 number, and 1 special character");
+          return;
+        }
         console.log('Old password is correct. Proceeding with update.');
+        employee.hashedPassword = sha256(newPassword);
 
         const subscription = this.employeeService.updateEmployee(this.employeeNumber, employee).subscribe({
           next: () => {
