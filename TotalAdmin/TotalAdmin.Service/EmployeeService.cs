@@ -47,9 +47,18 @@ namespace TotalAdmin.Service
 
         public Employee UpdateEmployee(Employee employee)
         {
-            return new();
+            if (ValidateEmployee(employee))
+                return repo.UpdateEmployee(employee);
+            return employee;
         }
 
+        public Employee UpdatePersonalInfo(Employee employee)
+        {
+            if (ValidateUpdateEmployee(employee))
+                return repo.UpdateEmployee(employee);
+            return employee;
+        }
+        
         public async Task<List<EmployeeDetailDTO>> SearchEmployeesAsync(int department, int employeeNumber, string? lastName)
         {
             return await repo.SearchEmployeesAsync(department, employeeNumber, lastName);
@@ -73,6 +82,29 @@ namespace TotalAdmin.Service
         public async Task<List<EmployeeDetailDTO>> SearchEmployeeDirectory(int employeeNumber, string? lastName)
         {
             return await repo.SearchEmployeeDirectory(employeeNumber, lastName);
+        }
+
+        private bool ValidateUpdateEmployee(Employee employee)
+        {
+            // Validate Entity
+            List<ValidationResult> results = new();
+
+            // Create validation context with validation attributes (including the custom attribute)
+            var validationContext = new ValidationContext(employee);
+            if (true)
+            {
+                // Add validation context items to indicate that regex validation should be ignored
+                validationContext.Items["IgnoreRegexValidation"] = true;
+            }
+
+            Validator.TryValidateObject(employee, validationContext, results, true);
+
+            foreach (ValidationResult e in results)
+            {
+                employee.AddError(new(e.ErrorMessage, ErrorType.Model));
+            }
+
+            return !employee.Errors.Any();
         }
 
         private bool ValidateEmployee(Employee employee)

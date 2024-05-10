@@ -23,7 +23,13 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { CreatePurchaseOrderComponent } from './create-purchase-order/create-purchase-order.component';
 import { ReviewPurchaseOrderComponent } from './review-purchase-order/review-purchase-order.component';
+import { DepartmentUpdateComponent } from './department-update/department-update.component';
 import { ItemDialogFormComponent } from './item-dialog-form/item-dialog-form.component';
+import { ListDepartmentsComponent } from './list-departments/list-departments.component';
+import { ModifyDepartmentComponent } from './modify-department/modify-department.component';
+import { EmployeeSearchComponent } from './employee-search/employee-search.component';
+import { EmployeeDetailsComponent } from './employee-details/employee-details.component';
+import { UpdatePersonalInfoComponent } from './update-personal-info/update-personal-info.component';
 
 
 @NgModule({
@@ -40,7 +46,13 @@ import { ItemDialogFormComponent } from './item-dialog-form/item-dialog-form.com
     UnauthorizedComponent,
     CreatePurchaseOrderComponent,
     ReviewPurchaseOrderComponent,
-    ItemDialogFormComponent
+    DepartmentUpdateComponent,
+    ItemDialogFormComponent,
+    ListDepartmentsComponent,
+    ModifyDepartmentComponent,
+    EmployeeSearchComponent,
+    EmployeeDetailsComponent,
+    UpdatePersonalInfoComponent
   ],
   imports: [
     BrowserModule,

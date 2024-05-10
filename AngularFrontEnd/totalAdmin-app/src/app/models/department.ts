@@ -1,7 +1,7 @@
 export class Department{
-    departmentId: number;
+    id: number;
     name: string;
     description: string;
-    invocationDate: Date
-    rowVersion: number
+    invocationDate: Date;
+    rowVersion: any;
 }

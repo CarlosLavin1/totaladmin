@@ -20,6 +20,52 @@ namespace TotalAdmin.API.Controllers
             this.employeeService = employeeService;
         }
 
+        [HttpGet("{id}")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        public ActionResult<Employee> Get(int id)
+        {
+            try
+            {
+                Employee? e = employeeService.GetEmployeeById(id);
+                if (e == null) 
+                    return NotFound();
+                return Ok(e);
+            }
+            catch (Exception ex)
+            {
+                return Problem(title: "An internal error has occurred. Please contact the system administrator.");
+            }
+        }
+
+        [Authorize(Roles = "Supervisor, HR Employee, Employee")]
+        [HttpPut("personal/{id}")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        public ActionResult<Employee> UpdatePersonalInfo(int id, Employee emp)
+        {
+            try
+            {
+                if (emp == null || id != emp.EmployeeNumber)
+                    return BadRequest();
+
+                emp = employeeService.UpdatePersonalInfo(emp);
+
+                if (emp.Errors.Count > 0)
+                    return BadRequest(emp);
+
+                return emp;
+            }
+            catch (SqlException e)
+            {
+                return e.Number == 50100 ? BadRequest(e.Message) : BadRequest();
+            }
+            catch (Exception)
+            {
+                return Problem(title: "An internal error has occurred. Please contact the system administrator.");
+            }
+
+        }
+
         [Authorize(Roles = "HR Employee")]
         [HttpPost]
         [ProducesResponseType(StatusCodes.Status201Created)]
@@ -100,13 +146,14 @@ namespace TotalAdmin.API.Controllers
         {
             try
             {
-                int employeeNumber = filters.EmployeeNumber ?? -999999999;
+                // user story 37
+                int employeeNumber = filters.EmployeeNumber ?? -1;
                 string? lastName = filters.LastName;
                 List<EmployeeDetailDTO> employees = await employeeService.SearchEmployeeDirectory(employeeNumber, lastName);
 
                 return employees;
             }
-            catch (Exception)
+            catch (Exception e)
             {
                 return Problem(title: "An internal error has occurred. Please contact the system administrator.");
             }

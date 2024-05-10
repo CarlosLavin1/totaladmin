@@ -1,0 +1,19 @@
+.employee-item {
+    border: 1px solid #ccc;
+    padding: 10px;
+    margin-bottom: 5px;
+    transition: border-color 0.3s, color 0.3s;
+}
+
+.employee-item:hover {
+    border-color: #007bff;
+}
+
+.employee-item .employee-name {
+    color: #333;
+    transition: color 0.3s;
+}
+
+.employee-item:hover .employee-name {
+    color: #007bff;
+}

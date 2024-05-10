@@ -16,6 +16,18 @@ export class DepartmentService extends SharedService{
     return this.http.post<Department>(`${API_URL7161}/department`, department).pipe(catchError(super.handleError));
   }
 
+  updateDepartment(id: number, updatedDepartment: Department): Observable<Department> {
+    return this.http.put<Department>(`${API_URL7161}/department/${id}`, updatedDepartment).pipe(catchError(super.handleError));
+  }
+
+  getDepartmentForEmployee(employeeNumber: number): Observable<Department>{
+    return this.http.get<Department>(`${API_URL7161}/department/employee/${employeeNumber}`).pipe(catchError(super.handleError));
+  }
+
+  getDepartmentById(departmentId: number): Observable<Department>{
+    return this.http.get<Department>(`${API_URL7161}/department/${departmentId}`).pipe(catchError(super.handleError));
+  }
+
   getActiveDepartments(): Observable<DepartmentListDto[]> {
     return this.http
       .get<DepartmentListDto[]>(`${API_URL7161}/department`)

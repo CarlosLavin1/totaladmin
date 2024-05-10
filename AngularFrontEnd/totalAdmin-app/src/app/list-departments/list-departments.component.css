@@ -1,0 +1,13 @@
+a.custom-link {
+    font-size: 1.25rem;
+}
+
+a.custom-link:hover {
+    color: #00b327;
+}
+
+.department-item {
+    border: 1px solid #ccc;
+    padding: 10px;
+    margin-bottom: 5px;
+}
