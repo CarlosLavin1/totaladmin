@@ -122,17 +122,42 @@ export class ReviewDepartmentPOComponent implements OnInit {
         console.log(res.message);
         // Refresh the data
         const employeeNumber = localStorage.getItem('employeeNumber');
+
         if (employeeNumber) {
           this.departmentService.getDepartmentForEmployee(Number(employeeNumber)).subscribe(department => {
             this.loadPurchaseOrders(department.id).add(() => {
               setTimeout(() => {
                 this.snackbarService.showSnackBar('Item approved', 3000);
-                
+
+
                 // Check if this is the last item to be processed
                 const po = this.purchaseOrders.find(po => po.poNumber === poNumber);
+
+                if (po && po.statusId === 3) {
+                  this.snackbarService.showSnackBar('Cannot change the status of items on a closed purchase order.', 3000);
+                  return;
+                }              
+
+                // Check if this is the first item to be processed
+                if (po) {
+                  console.log('Found PO:', po);
+
+                  // Check if this is the first item to be processed
+                  if (po.items[0].itemId === itemId) {
+                    console.log('Updating PO status to under review');
+
+                    // Update the PO status to under review
+                    this.purchaseOrderService.updatePurchaseOrder(poNumber).subscribe(() => {
+                      console.log('PO status updated');
+                    });
+                  }
+                }
+
+                // Check if this is the last item to be processed
                 if (po && po.items.every(item => item.statusId !== 1)) {
-                  
-                  
+                  console.log('Found PO:', po);
+
+
                   // Ask the supervisor if they want to close the PO
                   if (confirm('This is the last item to be processed. Do you want to close the purchase order?')) {
                     this.closePO(poNumber);
@@ -142,7 +167,7 @@ export class ReviewDepartmentPOComponent implements OnInit {
                     this.purchaseOrderService.showCloseButton[poNumber] = true;
                     this.snackbarService.showSnackBar('Item cancelled. You can close item later.', 4000);
                   }
-                  
+
                 }
               }, 0);
             });
@@ -157,29 +182,67 @@ export class ReviewDepartmentPOComponent implements OnInit {
 
 
   denyItem(itemId: number, poNumber: number) {
-    this.itemService.updateItem(itemId, 3).subscribe({
+    const po = this.purchaseOrders.find(po => po.poNumber === poNumber);
+    
+    if (po && po.statusId === 3) {
+      this.snackbarService.showSnackBar('Cannot change the status of items on a closed purchase order.', 3000);
+      return;
+    }
+     
+    // Prompt the user for a reason
+    const reason = window.prompt('Please enter a reason for denying this item:');
+    
+    if (reason === null || reason.trim() === '') {
+
+      this.snackbarService.showSnackBar('You must provide a reason to deny an item.', 3000);
+      return;
+    }
+
+    this.itemService.updateItem(itemId, 3, reason).subscribe({
       next: (res) => {
         console.log(res.message);
         // Refresh the data
         const employeeNumber = localStorage.getItem('employeeNumber');
         if (employeeNumber) {
           this.departmentService.getDepartmentForEmployee(Number(employeeNumber)).subscribe(department => {
-            this.loadPurchaseOrders(department.id);
+            this.loadPurchaseOrders(department.id).add(() => {
+              setTimeout(() => {
+                this.snackbarService.showSnackBar('Item deined', 3000);
+
+                // Check if this is the first item to be processed
+                if (po) {
+                  console.log('Found PO:', po);
+
+                  // Check if this is the first item to be processed
+                  if (po.items[0].itemId === itemId) {
+                    console.log('Updating PO status to under review');
+
+                    // Update the PO status to under review
+                    this.purchaseOrderService.updatePurchaseOrder(poNumber).subscribe(() => {
+                      console.log('PO status updated');
+                    });
+                  }
+                }
+
+                if (po && po.items.every(item => item.statusId !== 1)) {
+                  // Update the PO status to under review
+                  this.purchaseOrderService.updatePurchaseOrder(poNumber).subscribe();
+
+
+                  // Ask the supervisor if they want to close the PO
+                  if (confirm('This is the last item to be processed. Do you want to close the purchase order?')) {
+                    this.closePO(poNumber);
+                    this.snackbarService.showSnackBar('Purchase order closed', 3000);
+                  } else {
+                    // show the close button
+                    this.purchaseOrderService.showCloseButton[poNumber] = false;
+                    this.snackbarService.showSnackBar('Item cancelled. You can close item later.', 4000);
+                  }
+                }
+              }, 0);
+            });
           });
         }
-
-        // Check if this is the last item to be processed
-        const po = this.purchaseOrders.find(po => po.poNumber === poNumber);
-        if (po && po.items.every(item => item.statusId !== 1)) {
-          // Ask the supervisor if they want to close the PO
-          if (confirm('This is the last item to be processed. Do you want to close the purchase order?')) {
-            this.closePO(poNumber);
-          } else {
-            // show the close button
-            this.purchaseOrderService.showCloseButton[poNumber] = false;
-          }
-        }
-
       },
       error: (error) => {
         console.error(error);

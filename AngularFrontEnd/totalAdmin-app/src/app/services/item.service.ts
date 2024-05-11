@@ -19,10 +19,10 @@ export class ItemService extends SharedService {
       .pipe(catchError(super.handleError));
   }
 
-  public updateItem(itemId: number, newItemStatus: number): Observable<any> {
+  public updateItem(itemId: number, newItemStatus: number, reason?: string): Observable<any> {
     return this.http
-      .patch(`${API_URL}/item/${itemId}/${newItemStatus}`, {})
+      .patch(`${API_URL}/item/${itemId}/${newItemStatus}/${reason}`, {responseType: 'text'})
       .pipe(catchError(super.handleError));
   }
-
+  
 }

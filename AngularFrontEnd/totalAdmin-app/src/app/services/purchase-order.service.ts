@@ -13,7 +13,7 @@ import { Item } from '../models/item';
 })
 export class PurchaseOrderService extends SharedService {
   showCloseButton: { [key: string]: boolean } = {};
-  
+
   constructor(private http: HttpClient) {
     super();
   }
@@ -68,5 +68,9 @@ export class PurchaseOrderService extends SharedService {
         .pipe(catchError(super.handleError));
   }
 
-
+  public updatePurchaseOrder(id: number): Observable<any> {
+    return this.http
+      .put(`${API_URL}/PurchaseOrder/${id}`, {}, { responseType: 'text' })
+      .pipe(catchError(super.handleError));
+  }
 }

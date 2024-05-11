@@ -21,6 +21,7 @@ namespace TotalAdmin.API
 
             // Register Dependencies 
             builder.Services.AddScoped<ITokenService, TokenService>();
+            builder.Services.AddScoped<EmailService>();
             ServiceCompositionRoot.RegisterDependencies(builder.Services);
 
             // setup roles

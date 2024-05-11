@@ -48,7 +48,7 @@ namespace TotalAdmin.Repository
             return item;
         }
 
-        public async Task<bool> UpdateItem(int itemId, int newItemStatus)
+        public async Task<bool> UpdateItem(int itemId, int newItemStatus, string? reason = null)
         {
             try
             {
@@ -56,9 +56,10 @@ namespace TotalAdmin.Repository
                 {
                     new Parm("@ItemId", SqlDbType.Int, itemId),
                     new Parm("@NewStatusId", SqlDbType.Int, newItemStatus),
+                    new Parm("@Reason", SqlDbType.NVarChar, reason),
                 };
 
-                string sql = "UPDATE Item SET ItemStatusId  = @NewStatusId WHERE ItemId = @ItemId";
+                string sql = "UPDATE Item SET ItemStatusId  = @NewStatusId, RejectedReason = @Reason WHERE ItemId = @ItemId";
                 int rowsAffected = await db.ExecuteNonQueryAsync(sql, parms, CommandType.Text);
 
                 return rowsAffected > 0;

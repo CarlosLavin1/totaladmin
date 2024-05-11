@@ -31,15 +31,15 @@ namespace TotalAdmin.API.Controllers
             return Ok(item);
         }
 
-        [HttpPatch("{itemId}/{newItemStatus}")]
+        [HttpPatch("{itemId}/{newItemStatus}/{reason}")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<IActionResult> UpdateItem(int itemId, int newItemStatus)
+        public async Task<IActionResult> UpdateItem(int itemId, int newItemStatus, string? reason)
         {
             try
             {
-                bool isUpdated = await service.UpdateItem(itemId, newItemStatus);
+                bool isUpdated = await service.UpdateItem(itemId, newItemStatus, reason);
                 if (isUpdated)
                 {
                     return Ok(new { message = "Item updated successfully" });
