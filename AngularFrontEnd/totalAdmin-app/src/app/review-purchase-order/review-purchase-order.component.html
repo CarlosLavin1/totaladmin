@@ -1,6 +1,6 @@
 <div class="container">
 
-    <h1 class="fw-bold mt-5 text-center" *ngIf="showSearchForm" >Review Purchase Orders</h1>
+    <h1 class="fw-bold mt-5 text-center" *ngIf="showSearchForm">Review Purchase Orders</h1>
 
 
     <form [formGroup]="employeeForm" (ngSubmit)="onSubmit()" *ngIf="showSearchForm">
@@ -26,15 +26,16 @@
         <p><strong>Department Name:</strong> {{purchaseOrders[0].empDepartmentName}}</p>
 
         <div *ngFor="let purchaseOrder of purchaseOrders">
-            <div class="card mb-3"  #cardElement>
+            <div class="card mb-3" #cardElement>
 
-                <div class="card-header bg-light mice-p" (click)="toggleCardBody(purchaseOrder.formattedPoNumber || '', cardElement)"
+                <div class="card-header bg-light mice-p"
+                    (click)="toggleCardBody(purchaseOrder.formattedPoNumber || '', cardElement)"
                     title="Click to view details">
-                    <h5 class="mb-0 po-text-link"> {{arrowState[purchaseOrder.formattedPoNumber || ''] || '▶  '}}
+                    <h5 class="mb-0 po-text-link"> {{arrowState[purchaseOrder.formattedPoNumber || ''] || '▶ '}}
                         Purchase Order Number: #{{purchaseOrder.formattedPoNumber}}
                         <small class="text-muted">Creation Date: {{purchaseOrder.creationDate |
                             date:'shortDate'}}</small>
-                     </h5>
+                    </h5>
                 </div>
 
                 <div class="card-body" *ngIf="showCardBody[purchaseOrder.formattedPoNumber || '']">
@@ -67,7 +68,8 @@
                                 <td>{{ item.description }}</td>
                                 <td>{{ item.price | currency }}</td>
                                 <td>{{ item.justification }}</td>
-                                <td>{{ item.itemStatus }}</td>
+                                <td *ngIf="purchaseOrder.purchaseOrderStatus === 'Closed'">{{ item.itemStatus }}</td>
+                                <td *ngIf="purchaseOrder.purchaseOrderStatus !== 'Closed'">Pending</td>
                                 <td>{{ item.subtotal | currency }}</td>
                                 <td>{{ item.tax | currency }}</td>
                                 <td>{{ item.grandTotal | currency }}</td>
