@@ -72,9 +72,6 @@
                                 <th><button class="btn btn-light" title="Deny"
                                         (click)="denyItem(item.itemId, purchaseOrder.poNumber)" type="button">❌</button>
                                 </th>
-                                <th><button class="btn btn-warning" title="Close"
-                                        *ngIf="purchaseOrderService.showCloseButton[purchaseOrder.poNumber]"
-                                        (click)="closePO(purchaseOrder.poNumber)" type="button">Close PO</button></th>
                             </tr>
                         </tbody>
                     </table>

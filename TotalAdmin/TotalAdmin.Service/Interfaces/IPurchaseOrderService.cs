@@ -17,5 +17,6 @@ namespace TotalAdmin.Service.Interfaces
         Task<bool> AddItem(int poNumber, Item item);
         Task<List<PurchaseOrder>> GetPurchaseOrdersForDepartment(int departmentId);
         Task<PurchaseOrder> ClosePO(int PONumber);
+        Task UpdatePurchaseOrder(int id);
     }
 }

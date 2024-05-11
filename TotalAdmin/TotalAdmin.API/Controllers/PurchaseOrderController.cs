@@ -12,10 +12,12 @@ namespace TotalAdmin.API.Controllers
     public class PurchaseOrderController : Controller
     {
         private readonly IPurchaseOrderService service;
+        private readonly EmailService _emailService;
 
-        public PurchaseOrderController(IPurchaseOrderService s)
+        public PurchaseOrderController(IPurchaseOrderService s, EmailService emailService)
         {
             this.service = s;
+            _emailService = emailService;
         }
 
 
@@ -286,7 +288,19 @@ namespace TotalAdmin.API.Controllers
                 {
                     return NotFound("Purchase order not found.");
                 }
-                    
+
+                // Send an email notification
+                EmailDTO email = new EmailDTO
+                {
+                    To = po.EmployeeEmail, 
+                    From = "totalAdmin@mail.com",
+                    Subject = "Your PO request has been processed",
+                    Body = $"Your purchase order (PO Number: {po.FormattedPoNumber}) has been closed and processed."
+                };
+
+                _emailService.Send(email);
+
+
                 return Ok(po);
             }
             catch (Exception)
@@ -294,6 +308,31 @@ namespace TotalAdmin.API.Controllers
                 return Problem(title: "An internal error has occurred. Please contact the system administrator");
             }
         }
+
+
+        // PUT: api/PurchaseOrder/{id}
+        [Authorize]
+        [HttpPut("{id}")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        public async Task<IActionResult> UpdatePurchaseOrder(int id)
+        {
+            try
+            {
+                // Check if the id is valid
+                if (id <= 0)
+                    return BadRequest("Invalid purchase order number.");
+
+                await service.UpdatePurchaseOrder(id);
+
+                return Ok("Purchase order updated successfully.");
+            }
+            catch (Exception)
+            {
+                return Problem(title: "An internal error has occurred. Please contact the system administrator");
+            }
+        }
+
 
     }
 }

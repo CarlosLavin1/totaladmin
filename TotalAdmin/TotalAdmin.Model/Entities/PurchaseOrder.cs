@@ -39,6 +39,7 @@ namespace TotalAdmin.Model.Entities
         public ICollection<Item>? Items { get; set; }
         public bool HasMergeOccurred { get; set; }
         public string FormattedPoNumber { get; set; }
+        public string EmployeeEmail { get; set; }
 
         // Derived properties
         public decimal Subtotal => Items?.Sum(item => item.Subtotal) ?? 0;
