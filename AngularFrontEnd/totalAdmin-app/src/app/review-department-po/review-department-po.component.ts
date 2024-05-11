@@ -111,7 +111,7 @@ export class ReviewDepartmentPOComponent implements OnInit {
     if (this.showCardBody[poNumber]) {
       setTimeout(() => {
         cardElement.scrollIntoView({ behavior: 'smooth' });
-      }, 80);
+      }, 0);
     }
   }
 
@@ -165,7 +165,7 @@ export class ReviewDepartmentPOComponent implements OnInit {
                   } else {
                     // show the close button
                     this.purchaseOrderService.showCloseButton[poNumber] = true;
-                    this.snackbarService.showSnackBar('Item cancelled. You can close item later.', 4000);
+                    this.snackbarService.showSnackBar('Item cancelled. You can close item later by clicking ethier approve or deny again.', 4500);
                   }
 
                 }
@@ -205,6 +205,7 @@ export class ReviewDepartmentPOComponent implements OnInit {
         const employeeNumber = localStorage.getItem('employeeNumber');
         if (employeeNumber) {
           this.departmentService.getDepartmentForEmployee(Number(employeeNumber)).subscribe(department => {
+            
             this.loadPurchaseOrders(department.id).add(() => {
               setTimeout(() => {
                 this.snackbarService.showSnackBar('Item deined', 3000);
@@ -236,7 +237,7 @@ export class ReviewDepartmentPOComponent implements OnInit {
                   } else {
                     // show the close button
                     this.purchaseOrderService.showCloseButton[poNumber] = false;
-                    this.snackbarService.showSnackBar('Item cancelled. You can close item later.', 4000);
+                    this.snackbarService.showSnackBar('Item cancelled. You can close item later by clicking ethier approve or deny again.', 4500);
                   }
                 }
               }, 0);
