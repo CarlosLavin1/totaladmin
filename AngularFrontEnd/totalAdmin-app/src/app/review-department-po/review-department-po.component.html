@@ -1,0 +1,85 @@
+<div class="container">
+
+    <h1 class="fw-bold mt-5 text-center">Review Purchase Orders</h1>
+
+
+    <div *ngIf="errors.length > 0" class="alert alert-danger">
+        <ul>
+            <li *ngFor="let error of errors">{{error}}</li>
+        </ul>
+    </div>
+
+    <div class="m-5" *ngIf="purchaseOrders.length > 0">
+
+        <h2 class="text-start ">{{ purchaseOrders.length }} Purchase Orders found</h2>
+
+        <p><strong>Department Name:</strong> {{purchaseOrders[0].empDepartmentName}}</p>
+
+        <div *ngFor="let purchaseOrder of purchaseOrders">
+            <div class="card mb-3" #cardElement>
+
+                <div class="card-header bg-light mice-p"
+                    (click)="toggleCardBody(purchaseOrder.formattedPoNumber || '', cardElement)"
+                    title="Click to view details">
+                    <h5 class="mb-0 po-text-link">
+                        {{arrowState[purchaseOrder.formattedPoNumber || ''] || '▶ '}} Purchase Order Number:
+                        #{{purchaseOrder.formattedPoNumber}}
+                        <small class="text-muted">Creation Date: {{purchaseOrder.creationDate |
+                            date:'shortDate'}}</small>
+                    </h5>
+                </div>
+
+                <div class="card-body" *ngIf="showCardBody[purchaseOrder.formattedPoNumber || '']">
+
+                    <p><strong>Status:</strong> {{purchaseOrder.purchaseOrderStatus}}</p>
+
+                    <div class="card-footer bg-light">
+                        <p><strong>Subtotal:</strong> {{purchaseOrder.subtotal | currency}}</p>
+                        <p><strong>Tax:</strong> {{purchaseOrder.tax | currency}}</p>
+                        <p><strong>Total:</strong> {{purchaseOrder.grandTotal | currency}}</p>
+                    </div>
+
+                    <h6>Items:</h6>
+
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>QTY</th>
+                                <th>Description</th>
+                                <th>Price</th>
+                                <th>Justification</th>
+                                <th>Item Status</th>
+                                <th>Subtotal</th>
+                                <th>Tax</th>
+                                <th>Grand Total</th>
+                                <th>Manage</th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr *ngFor="let item of purchaseOrder.items">
+                                <td>{{ item.quantity }}</td>
+                                <td>{{ item.description }}</td>
+                                <td>{{ item.price | currency }}</td>
+                                <td>{{ item.justification }}</td>
+                                <td>{{ item.itemStatus }}</td>
+                                <td>{{ item.subtotal | currency }}</td>
+                                <td>{{ item.tax | currency }}</td>
+                                <td>{{ item.grandTotal | currency }}</td>
+                                <th><button class="btn btn-light" title="Aprrove"
+                                        (click)="approveItem(item.itemId, purchaseOrder.poNumber)"
+                                        type="button">✔️</button></th>
+                                <th><button class="btn btn-light" title="Deny"
+                                        (click)="denyItem(item.itemId, purchaseOrder.poNumber)" type="button">❌</button>
+                                </th>
+                                <th><button class="btn btn-warning" title="Close"
+                                        *ngIf="purchaseOrderService.showCloseButton[purchaseOrder.poNumber]"
+                                        (click)="closePO(purchaseOrder.poNumber)" type="button">Close PO</button></th>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

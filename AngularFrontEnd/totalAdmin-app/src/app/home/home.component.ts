@@ -2,7 +2,8 @@ import { Component, Input, OnChanges, OnDestroy, OnInit } from '@angular/core';
 import { ReviewPurchaseOrderComponent } from '../review-purchase-order/review-purchase-order.component';
 import { Subscription } from 'rxjs';
 import { AuthenticationService } from '../auth/services/authentication.service';
-import { CommonModule } from '@angular/common';
+import { ReviewDepartmentPOComponent } from '../review-department-po/review-department-po.component';
+
 
 @Component({
   selector: 'app-home',
@@ -14,6 +15,7 @@ export class HomeComponent implements OnInit, OnDestroy, OnChanges {
   showReviewComponent: boolean;
   authSubscription: Subscription;
   userRole: string | null;
+  showReviewDepartmentComponent: boolean;
 
   constructor(
     private authService: AuthenticationService
@@ -26,9 +28,12 @@ export class HomeComponent implements OnInit, OnDestroy, OnChanges {
     this.userRole = this.authService.getRole(); 
     
     this.checkShowReviewComponent();
+    this.checkShowReviewDepartmentComponent();
+
     this.authSubscription = this.authService.getAuthStatusListener().subscribe({
       next: (authStatus) => {
         this.checkShowReviewComponent();
+        this.checkShowReviewDepartmentComponent();
       },
     });
     this.checkRole()
@@ -49,10 +54,16 @@ export class HomeComponent implements OnInit, OnDestroy, OnChanges {
 
   checkShowReviewComponent() {
     const isAuthenticated = this.authService.getIsAuthenticated();
-    // const userRole = this.authService.getRole();
-    // const isAllowedRole = userRole === 'Supervisor' || userRole === 'HR Employee';
+    const isEmployee = this.userRole === 'Employee';
 
-    this.showReviewComponent = isAuthenticated
+    this.showReviewComponent = isAuthenticated && isEmployee;
+  }
+
+  checkShowReviewDepartmentComponent() {
+    const isAuthenticated = this.authService.getIsAuthenticated();
+    const isSupervisor = this.userRole === 'Supervisor';
+
+    this.showReviewDepartmentComponent = isAuthenticated && isSupervisor;
   }
 
   checkRole(): boolean {

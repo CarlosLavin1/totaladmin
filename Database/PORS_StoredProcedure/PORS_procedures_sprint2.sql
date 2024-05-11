@@ -162,6 +162,50 @@ BEGIN
 END
 GO
 
+-- Review supervisor purchase in there department
+CREATE OR ALTER PROC [DBO].[spReviewDepartmentPO]
+    @DepartmentId INT
+AS
+BEGIN
+	BEGIN TRY
+		SELECT 
+			PO.PoNumber, 
+			PO.CreationDate, 
+			PO.PurchaseOrderStatusId,
+			I.ItemId,
+			I.[Name],
+			I.Quantity,
+			I.[Description],
+			I.Price,
+			I.Justification,
+			I.ItemLocation,
+			I.ItemStatusId,
+			S.[Name] AS ItemStatus,
+			PS.[Name] AS PurchaseOrderStatus,
+			E.EmployeeNumber
+		FROM 
+			PurchaseOrder PO
+		INNER JOIN 
+			Employee E ON PO.EmployeeNumber = E.EmployeeNumber
+		INNER JOIN 
+			Item I ON PO.PoNumber = I.PoNumber
+		INNER JOIN 
+			PurchaseOrderStatus PS ON PO.PurchaseOrderStatusId = PS.PoStatusId
+		INNER JOIN
+			ItemStatus S ON I.ItemStatusId = S.ItemStatusId
+		WHERE 
+			E.DepartmentId = @DepartmentId
+		ORDER BY 
+			PO.CreationDate DESC;
+	END TRY
+	BEGIN CATCH
+		;THROW
+	END CATCH
+END
+GO
+
+
+
 
 GO
 -- Search employees purchase orders by the employee number, po number, start and end date

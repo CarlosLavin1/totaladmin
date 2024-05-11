@@ -11,11 +11,18 @@ export class ItemService extends SharedService {
 
   constructor(private http: HttpClient) {
     super();
-   } 
+  }
 
-   public addItem(item: any): Observable<any> {
+  public addItem(item: any): Observable<any> {
     return this.http
       .post<Item>(`${API_URL}/item`, item)
       .pipe(catchError(super.handleError));
   }
+
+  public updateItem(itemId: number, newItemStatus: number): Observable<any> {
+    return this.http
+      .patch(`${API_URL}/item/${itemId}/${newItemStatus}`, {})
+      .pipe(catchError(super.handleError));
+  }
+
 }

@@ -229,5 +229,71 @@ namespace TotalAdmin.API.Controllers
             }
         }
 
+
+        // GET: api/PurchaseOrder/Department
+        [Authorize]
+        [HttpGet("department/{departmentId}")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        public async Task<ActionResult<List<PurchaseOrder>>> GetPurchaseOrdersForDepartment([FromRoute] int departmentId)
+        {
+            try
+            {
+                List<PurchaseOrder> purchaseOrders = await service.GetPurchaseOrdersForDepartment(departmentId);
+
+                if (purchaseOrders == null || !purchaseOrders.Any())
+                {
+                    return NotFound("No purchase orders found for the provided department.");
+                }
+
+                // Format the PO numbers and include all the purchase order details
+                var response = purchaseOrders.Select(po => new PurchaseOrder
+                {
+                    PoNumber = po.PoNumber,
+                    CreationDate = po.CreationDate,
+                    RowVersion = po.RowVersion,
+                    EmployeeNumber = po.EmployeeNumber,
+                    EmployeeName = po.EmployeeName,
+                    EmployeeSupervisorName = po.EmployeeSupervisorName,
+                    EmpDepartmentName = po.EmpDepartmentName,
+                    PurchaseOrderStatus = po.PurchaseOrderStatus,
+                    StatusId = po.StatusId,
+                    Items = po.Items,
+                    HasMergeOccurred = po.HasMergeOccurred,
+                    FormattedPoNumber = "00001" + po.PoNumber.ToString("D2"),
+                }).ToList();
+
+                return Ok(response);
+            }
+            catch (Exception)
+            {
+                return Problem(title: "An internal error has occurred. Please contact the system administrator");
+            }
+        }
+
+        // PUT: api/PurchaseOrder/ClosePO/{PONumber}
+        [Authorize]
+        [HttpPut("ClosePO/{PONumber}")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        public async Task<ActionResult<PurchaseOrder>> ClosePO(int PONumber)
+        {
+            try
+            {
+                PurchaseOrder po = await service.ClosePO(PONumber);
+
+                if (po == null)
+                {
+                    return NotFound("Purchase order not found.");
+                }
+                    
+                return Ok(po);
+            }
+            catch (Exception)
+            {
+                return Problem(title: "An internal error has occurred. Please contact the system administrator");
+            }
+        }
+
     }
 }

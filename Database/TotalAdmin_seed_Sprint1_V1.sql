@@ -18,7 +18,9 @@ GO
 -- Item Statuses
 INSERT INTO ItemStatus([Name]) 
 VALUES
-	('Pending')
+	('Pending'),
+	('Approved'),
+	('Denied')
 	
 -- employee status
 IF OBJECT_ID('TotalAdmin.dbo.EmployeeStatus', 'U') IS NULL
@@ -44,7 +46,9 @@ GO
 INSERT INTO PurchaseOrderStatus([Name]) 
 VALUES
 	('Pending'),
-	('Under Review')
+	('Under Review'),
+	('Closed'),
+	('All')
 	
 
 -- role
