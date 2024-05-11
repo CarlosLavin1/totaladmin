@@ -33,11 +33,8 @@
             </div>
         </div>
         <div class="mb-3">
-            <label for="hashedPassword" class="form-label">Password</label>
-            <input type="text" readonly class="form-control" id="hashedPassword" formControlName="hashedPassword">
-            <div *ngIf="employeeForm.get('hashedPassword')?.invalid && employeeForm.get('hashedPassword')?.touched">
-                <span class="text-danger">Password is required</span>
-            </div>
+            <label for="newPassword" class="form-label">New Password</label>
+            <input type="text" class="form-control" id="newPassword" formControlName="newPassword">
         </div>
         <div class="mb-3">
             <label for="streetAddress" class="form-label">Street Address</label>
@@ -117,7 +114,7 @@
             </div>
         </div>
         <div class="mb-3">
-            <label for="roleId" class="form-label">Status</label>
+            <label for="statusId" class="form-label">Status</label>
             <select class="form-control" id="statusId" formControlName="statusId">
                 <option value="1">Active</option>
                 <option value="2">Retired</option>
@@ -169,6 +166,7 @@
         </div>
         <input type="hidden" id="rowVersion" formControlName="rowVersion">
         <input type="hidden" id="employeeNumber" formControlName="employeeNumber">
+        <input type="hidden" id="hashedPassword" formControlName="hashedPassword">
         <app-errors [messages]="errors"></app-errors>
         <button type="submit" class="btn btn-primary mb-5" [disabled]="!employeeForm.valid">Save</button>
     </form>

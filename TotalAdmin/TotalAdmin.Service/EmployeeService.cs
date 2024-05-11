@@ -86,6 +86,7 @@ namespace TotalAdmin.Service
 
         private bool ValidateUpdateEmployee(Employee employee)
         {
+            bool containsSpecialChar = employee.HashedPassword.Any(ch => !char.IsLetterOrDigit(ch));
             // Validate Entity
             List<ValidationResult> results = new();
 
@@ -93,7 +94,9 @@ namespace TotalAdmin.Service
             var validationContext = new ValidationContext(employee);
 
             // Add validation context items to indicate that regex validation should be ignored
-            validationContext.Items["IgnoreRegexValidation"] = true;
+            validationContext.Items["IgnoreRegexValidation"] = !containsSpecialChar;
+            if(containsSpecialChar)
+                employee.HashedPassword = PasswordUtil.HashToSHA256(employee.HashedPassword);
 
             Validator.TryValidateObject(employee, validationContext, results, true);
 
@@ -101,7 +104,31 @@ namespace TotalAdmin.Service
             {
                 employee.AddError(new(e.ErrorMessage, ErrorType.Model));
             }
+            //validate employee is 16
+            if (employee.DateOfBirth != null && employee.DateOfBirth >= DateTime.Today.AddYears(-16))
+                employee.AddError(new("Employee must be at least 16 years of age", ErrorType.Model));
 
+            // validate job start date is after seniority date
+            if (employee.JobStartDate != null && employee.SeniorityDate != null && employee.JobStartDate <= employee.SeniorityDate)
+                employee.AddError(new("Job start date cannot be before seniority date", ErrorType.Business));
+
+            // validate supervisor does not already have 10 employees
+            if (GetEmployeesForSupervisorCount(employee.SupervisorEmployeeNumber, employee.EmployeeNumber) >= 10)
+                employee.AddError(new("Supervisor already has 10 employees, add another supervisor for this department", ErrorType.Business));
+
+            //validate employee and supervisor have same department and roles match
+            Employee supervisor = GetEmployeeById(employee.SupervisorEmployeeNumber)!;
+            if (supervisor.DepartmentId != employee.DepartmentId || (employee.RoleId == 2 || employee.RoleId == 3))
+                employee.AddError(new("Supervisor must belong to the same department", ErrorType.Business));
+            if (supervisor.RoleId == 1 && (employee.RoleId == 4 || employee.RoleId == 5))
+                employee.AddError(new("Only supervisor's can be supervised by the CEO", ErrorType.Business));
+            if (supervisor.RoleId == 2 && employee.RoleId != 4)
+                employee.AddError(new("HR employee's must be supervised by HR supervisors", ErrorType.Business));
+            if (supervisor.RoleId == 3 && employee.RoleId != 5)
+                employee.AddError(new("Employee's must be supervised by supervisors", ErrorType.Business));
+            //validate 65 years old to be retired
+            if (employee.StatusId == 2 && !IsAge65OrOlder(employee.DateOfBirth ?? DateTime.Today))
+                employee.AddError(new("Employee cannot retire until 65 years of age", ErrorType.Business));
             return !employee.Errors.Any();
         }
 
@@ -208,6 +235,16 @@ namespace TotalAdmin.Service
         public int GetEmployeesForSupervisorCount(int supervisor, int employee)
         {
             return repo.GetEmployeesForSupervisorCount(supervisor, employee);
+        }
+
+        private static bool IsAge65OrOlder(DateTime birthDate)
+        {
+            DateTime today = DateTime.Today;
+            int age = today.Year - birthDate.Year;
+
+            if (birthDate > today.AddYears(-age)) age--;
+
+            return age >= 65;
         }
     }
 }
