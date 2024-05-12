@@ -35,15 +35,16 @@
                         routerLink="/list-departments">Modify Departments</a>
                 </li>
                 <li class="nav-item">
-                    <a *ngIf="userIsAuthenticated" class="btn btn-info" routerLink="/purchase-order">Purchase Order</a>
+                    <a *ngIf="userIsAuthenticated" class="btn btn-info" routerLink="/purchase-order">Create Purchase
+                        Order</a>
                 </li>
-                <!-- <li class="nav-item">
-                    <a *ngIf="userIsAuthenticated" class="btn btn-info" routerLink="/review-purchase-order">Review
-                        Purchase Order</a>
-                </li> -->
                 <li class="nav-item">
                     <a *ngIf="userIsAuthenticated" class="btn btn-info" routerLink="/purchase-order-search">Search
                         Purchase Orders</a>
+                </li>
+                <li class="nav-item">
+                    <a *ngIf="userIsAuthenticated && role == 'Supervisor'" class="btn btn-info"
+                        routerLink="/search-department-po">Search Department POs</a>
                 </li>
                 <li class="nav-item">
                     <button class="btn btn-warning" *ngIf="userIsAuthenticated" (click)="logOut()">Logout</button>

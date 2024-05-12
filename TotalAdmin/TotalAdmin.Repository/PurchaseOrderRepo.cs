@@ -133,7 +133,7 @@ namespace TotalAdmin.Repository
                     {
                         DataRow? firstRow = g.First();
                         int purchaseOrderNumber = Convert.ToInt32(firstRow["PoNumber"]);
-                        string departmentName = GetEmployeeDepartmentByPONumber(departmentId).Result;
+                        string departmentName = GetEmployeeDepartmentByPONumber(purchaseOrderNumber).Result;
                         int employeeNumber = Convert.ToInt32(firstRow["EmployeeNumber"]);
                         string supervisorName = GetSupervisorFullNameForEmployee(employeeNumber).Result;
                         string employeeName = GetEmployeeFullName(employeeNumber).Result;
@@ -405,6 +405,101 @@ namespace TotalAdmin.Repository
 
             return results.ToList();
         }
+
+        public async Task<List<PurchaseOrder>> SearchPOForSupervisor(POSupervisorFiltersDTO filter)
+        {
+            try
+            {
+                // map the parameters
+                List<Parm> parms = new()
+                {
+                    new Parm("@DepartmentId", SqlDbType.Int, filter.DepartmentId),
+                    new Parm("@StartDate", SqlDbType.DateTime2, filter.StartDate),
+                    new Parm("@EndDate", SqlDbType.DateTime2, filter.EndDate),
+                    new Parm("@PoNumber", SqlDbType.Int, filter.PONumber),
+                    new Parm("@Status", SqlDbType.Int, filter.Status),
+                    new Parm("@EmployeeName", SqlDbType.NVarChar, filter.EmployeeName)
+                };
+
+                // Call the procedure and pass in the parameters
+                DataTable dt = await db.ExecuteAsync("spGetSupervisorPurchaseOrders", parms);
+
+                // If no rows found return null
+                if (dt.Rows.Count == 0)
+                    return null;
+
+                var tasks = dt.AsEnumerable().Select(async row =>
+                {
+                    // Create new PurchaseOrder object
+                    return new PurchaseOrder
+                    {
+                        PoNumber = Convert.ToInt32(row["PO Number"]),
+                        CreationDate = Convert.ToDateTime(row["PO Creation Date"]),
+                        PurchaseOrderStatus = row["PO Status"].ToString() ?? "Unkown",
+                        EmployeeName = row["EmployeeName"].ToString() ?? "Unkown",
+                        // Load the Items for this PurchaseOrder
+                        Items = await LoadItemsForPurchaseOrder(Convert.ToInt32(row["PO Number"]))
+                    };
+                });
+
+                // Wait for all tasks to complete and collect the results in a list
+                PurchaseOrder[]? purchaseOrders = await Task.WhenAll(tasks);
+
+                return purchaseOrders.ToList();
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine(ex.Message);
+                throw;
+            }
+        }
+
+        private async Task<ICollection<Item>> LoadItemsForPurchaseOrder(int poNumber)
+        {
+            try
+            {
+                // Define the parameters
+                List<Parm> parms = new()
+                {
+                    new Parm("@PoNumber", SqlDbType.Int, poNumber)
+                };
+
+                string sql = "SELECT * FROM Item WHERE PoNumber = @PoNumber";
+
+                // Call the procedure and pass in the parameters
+                DataTable dt = await db.ExecuteAsync(sql, parms, CommandType.Text);
+
+                // If no rows found return null
+                if (dt.Rows.Count == 0)
+                    return null;
+
+                // Map the data table to a list of Item objects
+                var items = dt.AsEnumerable().Select(row =>
+                {
+                    return new Item
+                    {
+                        ItemId = Convert.ToInt32(row["ItemId"]),
+                        Name = row["Name"].ToString(),
+                        Quantity = Convert.ToInt32(row["Quantity"]),
+                        Description = row["Description"].ToString(),
+                        Price = Convert.ToDecimal(row["Price"]),
+                        Justification = row["Justification"].ToString(),
+                        Location = row["ItemLocation"].ToString(),
+                        RejectedReason = row["RejectedReason"].ToString(),
+                        StatusId = Convert.ToInt32(row["ItemStatusId"])
+                    };
+                });
+
+                // Return the list of items
+                return items.ToList();
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine(ex.Message);
+                throw;
+            }
+        }
+
 
         /// <summary>
         /// Get all the items
