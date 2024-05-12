@@ -17,6 +17,7 @@ import { EmployeeDetailsComponent } from './employee-details/employee-details.co
 import { UpdatePersonalInfoComponent } from './update-personal-info/update-personal-info.component';
 import { EmployeeUpdateComponent } from './employee-update/employee-update.component';
 import { ReviewDepartmentPOComponent } from './review-department-po/review-department-po.component';
+import { SearchDepartmentPOComponent } from './search-department-po/search-department-po.component';
 
 // for routing
 const routes: Routes = [
@@ -26,6 +27,7 @@ const routes: Routes = [
   { path: 'purchase-order', component: CreatePurchaseOrderComponent, canActivate: [AuthGuard] },
   { path: 'items', component: ItemDialogFormComponent, canActivate: [ AuthGuard] },
   { path: 'review-department-po', component: ReviewDepartmentPOComponent, canActivate: [AuthGuard] },
+  { path: 'search-department-po', component: SearchDepartmentPOComponent, canActivate: [AuthGuard], data: { roles: ['CEO', 'Supervisor']} },
   { path: 'login', component: LoginComponent },
   { path: 'employee', component: EmployeeCreateComponent, canActivate: [AuthGuard], data: { roles: ['CEO', 'HR Employee']} },
   { path: 'department', component: DepartmentCreateComponent, canActivate: [AuthGuard], data: { roles: ['CEO', 'HR Employee']} },

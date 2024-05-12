@@ -6,6 +6,7 @@ import { POSearchFiltersDTO } from '../models/posearch-filters-dto';
 import { PODisplayDTO } from '../models/podisplay-dto';
 import { PurchaseOrder } from '../models/purchase-order';
 import { Item } from '../models/item';
+import { POSupervisorFiltersDTO } from '../models/posupervisor-filters-dto';
 
 
 @Injectable({
@@ -63,9 +64,9 @@ export class PurchaseOrderService extends SharedService {
 
   public closePO(poNumber: number): Observable<PurchaseOrder> {
     return this.http
-        .put<PurchaseOrder>(`${API_URL}/PurchaseOrder/ClosePO/${poNumber}`,
+      .put<PurchaseOrder>(`${API_URL}/PurchaseOrder/ClosePO/${poNumber}`,
         {}, { responseType: 'json' })
-        .pipe(catchError(super.handleError));
+      .pipe(catchError(super.handleError));
   }
 
   public updatePurchaseOrder(id: number): Observable<any> {
@@ -73,4 +74,21 @@ export class PurchaseOrderService extends SharedService {
       .put(`${API_URL}/PurchaseOrder/${id}`, {}, { responseType: 'text' })
       .pipe(catchError(super.handleError));
   }
+
+  public SearchPurchaseOrdersForSupervisor(filters: POSupervisorFiltersDTO): Observable<PurchaseOrder[]> {
+    const options = {
+      params: new HttpParams()
+        .set('DepartmentId', filters.DepartmentId.toString())
+        .set('StartDate', filters.StartDate ? new Date(filters.StartDate).toISOString() : '')
+        .set('EndDate', filters.EndDate ? new Date(filters.EndDate).toISOString() : '')
+        .set('PoNumber', filters.PONumber ? filters.PONumber.toString() : '')
+        .set('Status', filters.Status ? filters.Status : 'pending')
+        .set('EmployeeName', filters.EmployeeName ? filters.EmployeeName : '')
+    };
+
+    return this.http
+      .get<PurchaseOrder[]>(`${API_URL}/PurchaseOrder/Supervisor/PurchaseOrders/Search`, options)
+      .pipe(catchError(super.handleError));
+  }
+
 }

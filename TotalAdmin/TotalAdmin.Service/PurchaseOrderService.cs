@@ -101,6 +101,10 @@ namespace TotalAdmin.Service
             return await repo.SearchPurchaseOrders(filter);
         }
 
+        public async Task<List<PurchaseOrder>> SearchPurchaseOrdersForSupervisor(POSupervisorFiltersDTO filters)
+        {
+            return await repo.SearchPOForSupervisor(filters);
+        }
 
         private bool ValidatePurchaseOrder(PurchaseOrder po)
         {

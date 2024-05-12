@@ -240,3 +240,39 @@ BEGIN
 	END CATCH
 END
 GO
+
+-- Supervisor Searches employees purchase in department by id, start, end date, staus or name
+CREATE OR ALTER PROC [DBO].[spGetSupervisorPurchaseOrders]
+    @DepartmentId INT,
+    @StartDate DATETIME2(7) = NULL,
+    @EndDate DATETIME2(7) = NULL,
+    @PoNumber INT = NULL,
+    @Status INT = NULL,
+    @EmployeeName NVARCHAR(255) = NULL
+AS
+BEGIN
+    BEGIN TRY
+        SELECT 
+            PO.PoNumber AS 'PO Number', 
+            PO.CreationDate AS 'PO Creation Date', 
+            POS.[Name] AS 'PO Status',
+            E.FirstName + ' ' + E.LastName AS 'EmployeeName'
+        FROM 
+            PurchaseOrder PO 
+            JOIN Employee E ON PO.EmployeeNumber = E.EmployeeNumber
+            JOIN PurchaseOrderStatus POS ON PO.PurchaseOrderStatusId = POS.PoStatusId
+        WHERE 
+            E.DepartmentId = @DepartmentId
+            AND (@StartDate IS NULL OR PO.CreationDate >= @StartDate)
+            AND (@EndDate IS NULL OR PO.CreationDate <= @EndDate)
+            AND (@PoNumber IS NULL OR PO.PoNumber = @PoNumber)
+            AND (@Status IS NULL OR PO.PurchaseOrderStatusId = @Status)
+            AND (@EmployeeName IS NULL OR E.FirstName LIKE '%' + @EmployeeName + '%' OR E.LastName LIKE '%' + @EmployeeName + '%')
+        ORDER BY 
+            PO.CreationDate ASC;
+    END TRY
+    BEGIN CATCH
+        ;THROW
+    END CATCH
+END
+GO

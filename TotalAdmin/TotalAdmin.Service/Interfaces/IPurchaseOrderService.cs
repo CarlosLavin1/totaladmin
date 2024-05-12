@@ -18,5 +18,6 @@ namespace TotalAdmin.Service.Interfaces
         Task<List<PurchaseOrder>> GetPurchaseOrdersForDepartment(int departmentId);
         Task<PurchaseOrder> ClosePO(int PONumber);
         Task UpdatePurchaseOrder(int id);
+        Task<List<PurchaseOrder>> SearchPurchaseOrdersForSupervisor(POSupervisorFiltersDTO filter);
     }
 }

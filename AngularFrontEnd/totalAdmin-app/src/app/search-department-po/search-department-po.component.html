@@ -1,0 +1,81 @@
+<div class="container">
+    <h1 class="fw-bold m-5 text-center">Search Department Purchase Orders</h1>
+
+    <form [formGroup]="searchForm" (ngSubmit)="onSubmit()" class="form-inline m-5">
+        <div class="row">
+            <div class="col">
+                <div class="form-group">
+                    <label for="employeeName">Employee Name</label>
+                    <input type="text" id="employeeName" placeholder="Full or partial name..."
+                        formControlName="EmployeeName" class="form-control">
+                </div>
+            </div>
+            <div class="col">
+                <div class="form-group">
+                    <label for="startDate">Start Date</label>
+                    <input type="date" id="startDate" formControlName="StartDate" class="form-control">
+                </div>
+            </div>
+            <div class="col">
+                <div class="form-group">
+                    <label for="endDate">End Date</label>
+                    <input type="date" id="endDate" formControlName="EndDate" class="form-control">
+                </div>
+            </div>
+            <div class="col">
+                <div class="form-group">
+                    <label for="poNumber">PO Number</label>
+                    <input type="text" id="poNumber" formControlName="PONumber" class="form-control">
+                </div>
+            </div>
+            <div class="col">
+                <div class="form-group">
+                    <label for="status">Status</label>
+                    <select id="status" formControlName="Status" class="form-control">
+                        <option value="pending">Pending</option>
+                        <option value="under review">Under Review</option>
+                        <option value="closed">Closed</option>
+                        <option value="all">All</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+        <button type="submit" class="btn btn-primary inline" [disabled]="!searchForm.valid">Search</button>
+    </form>
+    <div *ngIf="errors.length > 0" class="alert alert-danger">
+        <ul>
+            <li *ngFor="let error of errors">{{error}}</li>
+        </ul>
+    </div>
+    <div *ngIf="searchResults.length > 0">
+        <h2>Search Results</h2>
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Purchase Order Number</th>
+                    <th>Creation Date</th>
+                    <th>Employee Name</th>
+                    <th>Status</th>
+                    <th>Subtotal</th>
+                    <th>Tax</th>
+                    <th>Grand Total</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr *ngFor="let result of searchResults">
+                    <td>{{ result.formattedPoNumber }}</td>
+                    <td>{{ result.creationDate | date:'shortDate' }}</td>
+                    <td>{{ result.employeeName }}</td>
+                    <td>{{ result.purchaseOrderStatus }}</td>
+                    <td>{{ result.subtotal | currency }}</td>
+                    <td>{{ result.tax | currency }}</td>
+                    <td>{{ result.grandTotal | currency }}</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+<ng-template #closedTemplate>
+    <span class="bg-light fw-bolder text-danger" style="cursor: pointer;"
+        title="This purchase order is closed. Can't be reviewed">PO Closed</span>
+</ng-template>

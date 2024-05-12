@@ -88,7 +88,7 @@ namespace TotalAdmin.API.Controllers
                     return BadRequest("Start Date cannot be later than End Date.");
                 }
 
-                if (filter.StartDate.HasValue && filter.EndDate.HasValue && filter.StartDate < filter.EndDate)
+                if (filter.StartDate.HasValue && filter.EndDate.HasValue && filter.EndDate < filter.StartDate)
                 {
                     return BadRequest("End Date cannot be before than Start Date.");
                 }
@@ -113,6 +113,57 @@ namespace TotalAdmin.API.Controllers
                     FormattedPoNumber = "00001" + po.PoNumber.ToString("D2")
                 }).ToList();
 
+
+                return Ok(response);
+            }
+            catch (Exception)
+            {
+                return Problem(title: "An internal error has occurred. Please contact the system administrator");
+            }
+        }
+
+        // GET: api/PurchaseOrder/Supervisor
+        [Authorize]
+        [HttpGet("Supervisor/PurchaseOrders/Search")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        public async Task<ActionResult<List<PurchaseOrder>>> SearchPurchaseOrdersForSupervisor([FromQuery] POSupervisorFiltersDTO filters)
+        {
+            try
+            {
+                // Check for the specific employee
+                if (filters.DepartmentId == 0)
+                {
+                    return BadRequest("Department Id is required.");
+                }
+
+                if (filters.StartDate.HasValue && filters.EndDate.HasValue && filters.StartDate > filters.EndDate)
+                {
+                    return BadRequest("Start Date cannot be later than End Date.");
+                }
+
+                if (filters.StartDate.HasValue && filters.EndDate.HasValue && filters.EndDate < filters.StartDate)
+                {
+                    return BadRequest("End Date cannot be before Start Date.");
+                }
+
+
+                List<PurchaseOrder> purchaseOrders = await service.SearchPurchaseOrdersForSupervisor(filters);
+                if (purchaseOrders == null || !purchaseOrders.Any())
+                {
+                    return NotFound("No purchase orders found for the provided filters.");
+                }
+
+                // Format the PO numbers and include all the purchase order details
+                var response = purchaseOrders.Select(po => new PurchaseOrder
+                {
+                    PoNumber = po.PoNumber,
+                    CreationDate = po.CreationDate,
+                    EmployeeName = po.EmployeeName,
+                    PurchaseOrderStatus = po.PurchaseOrderStatus,
+                    Items = po.Items,
+                    FormattedPoNumber = "00001" + po.PoNumber.ToString("D2"),
+                }).ToList();
 
                 return Ok(response);
             }
@@ -332,7 +383,5 @@ namespace TotalAdmin.API.Controllers
                 return Problem(title: "An internal error has occurred. Please contact the system administrator");
             }
         }
-
-
     }
 }
