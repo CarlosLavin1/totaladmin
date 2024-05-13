@@ -70,11 +70,13 @@ class _BrowseDepartmentPoState extends State<BrowseDepartmentPo> {
                 if (snapshot.connectionState == ConnectionState.waiting) {
                   return const CircularProgressIndicator();
                 } else if (snapshot.hasError) {
-                  return Text('Error: ${snapshot.error}');
+                  return Text('${snapshot.error}');
                 } else if (selectedDepartmentId == null) {
-                  return const Text(
-                      'Please select a department to view its purchase orders');
-                } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+                  return const Center(
+                    child: Text(
+                        'Please select a department to view its purchase orders'),
+                  );
+                } else if (snapshot.data?.isEmpty ?? false) {
                   return const Text(
                       'No purchase orders found for this department');
                 } else {

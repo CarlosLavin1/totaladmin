@@ -24,6 +24,8 @@ class PoService {
       return jsonResponse
           .map((item) => POSearchResultsApiDTO.fromJson(item))
           .toList();
+    } else if (response.statusCode == 404) {
+      throw 'No purchase orders found for this department';
     } else {
       throw Exception(response.body);
     }
