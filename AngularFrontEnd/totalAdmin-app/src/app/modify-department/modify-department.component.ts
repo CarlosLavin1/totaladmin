@@ -94,7 +94,7 @@ export class ModifyDepartmentComponent {
               this.errors.push(error.description);
             });
           } else {
-            this.errors.push(err.error);
+            this.errors.push(err.error); //this is for concurrency
           }
         },
       });
