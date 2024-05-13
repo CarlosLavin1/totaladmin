@@ -71,12 +71,17 @@ export class SearchDepartmentPOComponent implements OnInit, OnDestroy {
           // Get the status from the form
           const status = this.searchForm.value.Status;
 
+          // Convert the formatted PO number to a whole number
+          let poNumber = this.searchForm.value.PONumber ? Number(this.searchForm.value.PONumber.replace(/^00001/, '')) : null;
+          console.log(poNumber);
+          
+
           // Check the status
           if (status === 'all') {
             // load all purchase orders
-            this.loadPurchaseOrders(this.departmentId);
+            this.loadPurchaseOrders(this.departmentId, poNumber);
           } else {
-            this.loadPurchaseOrders(this.departmentId); // load with filiters
+            this.loadPurchaseOrders(this.departmentId, poNumber); // load with filiters
           }
         });
       }
@@ -89,7 +94,7 @@ export class SearchDepartmentPOComponent implements OnInit, OnDestroy {
     return userRole === 'Supervisor' || userRole === 'HR Employee' || userRole === 'HR Supervisor';
   }
 
-  loadPurchaseOrders(departmentId: number): Subscription {
+  loadPurchaseOrders(departmentId: number, poNumber: number | null): Subscription {
     let validationErrors: ValidationError[] = [];
     this.errors = [];
     this.searchResults = [];
@@ -107,7 +112,8 @@ export class SearchDepartmentPOComponent implements OnInit, OnDestroy {
     // Create a new object with the search criteria and department ID
     let filters: POSupervisorFiltersDTO = {
       ...searchCriteria,
-      DepartmentId: departmentId
+      DepartmentId: departmentId,
+      PONumber: poNumber
     };
 
     if (searchCriteria.Status !== null) {

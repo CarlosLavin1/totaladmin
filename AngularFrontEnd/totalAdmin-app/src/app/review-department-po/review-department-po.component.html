@@ -25,13 +25,13 @@
                         {{arrowState[purchaseOrder.formattedPoNumber || ''] || '▶ '}} Purchase Order Number:
                         #{{purchaseOrder.formattedPoNumber}}
                         <small class="text-muted">Creation Date: {{purchaseOrder.creationDate |
-                            date:'shortDate'}}</small>
+                            date:'shortDate'}}</small> /
+                        <p class="text-end d-inline justify-content-end text-primary">
+                            {{purchaseOrder.purchaseOrderStatus}}...</p>
                     </h5>
                 </div>
 
                 <div class="card-body" *ngIf="showCardBody[purchaseOrder.formattedPoNumber || '']">
-
-                    <p><strong>Status:</strong> {{purchaseOrder.purchaseOrderStatus}}</p>
 
                     <div class="card-footer bg-light">
                         <p><strong>Subtotal:</strong> {{purchaseOrder.subtotal | currency}}</p>
@@ -67,14 +67,20 @@
                                 <td>{{ item.tax | currency }}</td>
                                 <td>{{ item.grandTotal | currency }}</td>
                                 <th><button class="btn btn-light" title="Aprrove"
-                                        (click)="approveItem(item.itemId, purchaseOrder.poNumber)"
-                                        type="button">✔️</button></th>
+                                        (click)="approveItem(item.itemId, purchaseOrder.poNumber)" type="button"
+                                        [disabled]="purchaseOrder.purchaseOrderStatus === 'Closed' ||
+                                         allItemsProcessed(purchaseOrder)">✔️</button></th>
                                 <th><button class="btn btn-light" title="Deny"
-                                        (click)="denyItem(item.itemId, purchaseOrder.poNumber)" type="button">❌</button>
+                                        (click)="denyItem(item.itemId, purchaseOrder.poNumber)" type="button"
+                                        [disabled]="purchaseOrder.purchaseOrderStatus === 'Closed' ||
+                                         allItemsProcessed(purchaseOrder)">❌</button>
                                 </th>
                             </tr>
                         </tbody>
                     </table>
+                    <button class="btn btn-danger" *ngIf="showCloseButton[purchaseOrder.poNumber || '']"
+                        (click)="closePO(purchaseOrder.poNumber)"
+                        [disabled]="purchaseOrder.purchaseOrderStatus === 'Closed'">Close PO</button>
                 </div>
             </div>
         </div>
