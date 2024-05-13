@@ -9,6 +9,7 @@ import { AuthStatus } from '../models/auth-status';
 import { ValidationError } from '../models/validationError';
 import { DepartmentService } from '../services/department.service';
 import { ItemService } from '../services/item.service';
+import { Item } from '../models/item';
 
 @Component({
   selector: 'app-review-department-po',
@@ -21,6 +22,7 @@ export class ReviewDepartmentPOComponent implements OnInit {
   errors: string[] = [];
   showCardBody: { [key: string]: boolean } = {};
   arrowState: { [key: string]: string } = {};
+  showCloseButton: { [key: string]: boolean } = {};
 
 
   role: string;
@@ -80,6 +82,16 @@ export class ReviewDepartmentPOComponent implements OnInit {
           console.log('The purchase orders:');
           this.purchaseOrders.forEach((purchaseOrder) => {
             console.log(purchaseOrder);
+            const allItemsProcessed = purchaseOrder.items.every(item => item.statusId !== 1);
+
+            console.log("all ietm proccesed: " + allItemsProcessed);
+            
+            if (!this.showCloseButton[purchaseOrder.poNumber]) {
+              this.showCloseButton[purchaseOrder.poNumber] = allItemsProcessed;
+            }
+
+            console.log('The item procssed is: ' + !this.showCloseButton[purchaseOrder.poNumber]);
+            
           });
         },
         error: (error) => {
@@ -117,7 +129,17 @@ export class ReviewDepartmentPOComponent implements OnInit {
 
 
   approveItem(itemId: number, poNumber: number) {
-    this.itemService.updateItem(itemId, 2).subscribe({
+    this.showCloseButton[poNumber] = false;
+
+    console.log('The close all button is: ' + this.showCloseButton[poNumber]);
+
+    let item: Item = {
+      itemId: itemId,
+      statusId: 2,  // Approved status
+      rejectedReason: null 
+    };
+
+    this.itemService.updateItem(item).subscribe({
       next: (res) => {
         console.log(res.message);
         // Refresh the data
@@ -136,7 +158,7 @@ export class ReviewDepartmentPOComponent implements OnInit {
                 if (po && po.statusId === 3) {
                   this.snackbarService.showSnackBar('Cannot change the status of items on a closed purchase order.', 3000);
                   return;
-                }              
+                }
 
                 // Check if this is the first item to be processed
                 if (po) {
@@ -165,9 +187,13 @@ export class ReviewDepartmentPOComponent implements OnInit {
                   } else {
                     // show the close button
                     this.purchaseOrderService.showCloseButton[poNumber] = true;
+                    console.log('The close all button is: ' + this.showCloseButton[poNumber]);
+                    this.showCloseButton[poNumber] = true;
                     this.snackbarService.showSnackBar('Item cancelled. You can close item later by clicking ethier approve or deny again.', 4500);
                   }
 
+                  this.showCloseButton[poNumber] = true;
+                  console.log('The close all button is: ' + this.showCloseButton[poNumber]);
                 }
               }, 0);
             });
@@ -182,30 +208,38 @@ export class ReviewDepartmentPOComponent implements OnInit {
 
 
   denyItem(itemId: number, poNumber: number) {
+    this.showCloseButton[poNumber] = false;
     const po = this.purchaseOrders.find(po => po.poNumber === poNumber);
-    
+
     if (po && po.statusId === 3) {
       this.snackbarService.showSnackBar('Cannot change the status of items on a closed purchase order.', 3000);
       return;
     }
-     
+
     // Prompt the user for a reason
     const reason = window.prompt('Please enter a reason for denying this item:');
-    
+
     if (reason === null || reason.trim() === '') {
 
       this.snackbarService.showSnackBar('You must provide a reason to deny an item.', 3000);
       return;
     }
 
-    this.itemService.updateItem(itemId, 3, reason).subscribe({
+    // Item object
+    let item: Item = {
+      itemId: itemId,
+      statusId: 3,  // Denied status
+      rejectedReason: reason 
+    };
+
+    this.itemService.updateItem(item).subscribe({
       next: (res) => {
         console.log(res.message);
         // Refresh the data
         const employeeNumber = localStorage.getItem('employeeNumber');
         if (employeeNumber) {
           this.departmentService.getDepartmentForEmployee(Number(employeeNumber)).subscribe(department => {
-            
+
             this.loadPurchaseOrders(department.id).add(() => {
               setTimeout(() => {
                 this.snackbarService.showSnackBar('Item deined', 3000);
@@ -236,9 +270,12 @@ export class ReviewDepartmentPOComponent implements OnInit {
                     this.snackbarService.showSnackBar('Purchase order closed', 3000);
                   } else {
                     // show the close button
-                    this.purchaseOrderService.showCloseButton[poNumber] = false;
+                    // this.purchaseOrderService.showCloseButton[poNumber] = false;
+                    this.showCloseButton[poNumber] = true;
                     this.snackbarService.showSnackBar('Item cancelled. You can close item later by clicking ethier approve or deny again.', 4500);
                   }
+
+                  this.showCloseButton[poNumber] = true;
                 }
               }, 0);
             });
@@ -247,6 +284,7 @@ export class ReviewDepartmentPOComponent implements OnInit {
       },
       error: (error) => {
         console.error(error);
+        this.snackbarService.showSnackBar(error.error, 4500);
       }
     });
   }
@@ -270,5 +308,10 @@ export class ReviewDepartmentPOComponent implements OnInit {
       }
     });
   }
+
+  allItemsProcessed(purchaseOrder: PurchaseOrder): boolean {
+    return purchaseOrder.items.every(item => item.statusId !== 1);
+  }
+  
 
 }

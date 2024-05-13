@@ -42,7 +42,7 @@ namespace TotalAdmin.Model.Entities
 
         [Required(ErrorMessage = "Status is required.")]
         public int StatusId { get; set; }
-        public int RowVersion { get; set; }
+        public byte[] RowVersion { get; set; }
 
         // Derived properties
         public decimal Subtotal => Price * Quantity;

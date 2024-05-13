@@ -276,3 +276,42 @@ BEGIN
     END CATCH
 END
 GO
+
+
+GO
+-- Updates the status of an item
+CREATE OR ALTER PROC [DBO].[spUpdateItem]
+	@ItemId INT,
+    @NewStatusId INT,
+    @Reason NVARCHAR(100) = NULL
+AS
+BEGIN
+	BEGIN TRY
+
+	 DECLARE @RowVersion ROWVERSION;
+     SELECT @RowVersion = RowVersion FROM Item WHERE ItemId = @ItemId;
+
+		UPDATE Item SET 
+			ItemStatusId  = @NewStatusId,
+			RejectedReason = @Reason 
+		WHERE 
+			ItemId = @ItemId AND
+			[RowVersion] = @RowVersion;
+
+		IF @@ROWCOUNT = 0
+			BEGIN
+				;THROW 50110, 'The record has been modified by another user since it was last fetched. Please refresh the page', 1;
+			END
+		ELSE
+            BEGIN
+                SELECT * FROM Item WHERE ItemId = @ItemId;
+         END
+
+	END TRY
+	BEGIN CATCH
+        IF @@TRANCOUNT > 0
+            ROLLBACK TRAN;
+        THROW;
+    END CATCH
+END
+GO
