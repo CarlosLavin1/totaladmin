@@ -36,8 +36,8 @@ class _EmployeeSearchState extends State<EmployeeSearch> {
     List<Department> fetchedDepartments =
         await departmentService.getActiveDepartments();
     setState(() {
-      departments =
-          [Department(id: 0, name: 'Select A Department')] + fetchedDepartments;
+      departments = [Department(id: 0, name: '--Select A Department--')] +
+          fetchedDepartments;
     });
   }
 
@@ -89,7 +89,12 @@ class _EmployeeSearchState extends State<EmployeeSearch> {
                     .map<DropdownMenuItem<int>>((Department department) {
                   return DropdownMenuItem<int>(
                     value: department.id,
-                    child: Text(department.name),
+                    child: department.id == 0
+                        ? Text(
+                            department.name,
+                            style: const TextStyle(fontWeight: FontWeight.bold),
+                          )
+                        : Text(department.name),
                   );
                 }).toList(),
               ),

@@ -26,6 +26,12 @@ namespace TotalAdmin.Repository
             return dt.AsEnumerable().Select(row => new DepartmentDisplayDTO(Convert.ToInt32(row["DepartmentId"]), row["Name"].ToString())).ToList();
         }
 
+        public async Task<List<DepartmentDisplayDTO>> GetAllDepartmentsAsync()
+        {
+            DataTable dt = await db.ExecuteAsync("spGetAllDepartments");
+            return dt.AsEnumerable().Select(row => new DepartmentDisplayDTO(Convert.ToInt32(row["DepartmentId"]), row["Name"].ToString())).ToList();
+        }
+
         public Department AddDepartment(Department department)
         {
             List<Parm> parms = new()
@@ -155,6 +161,16 @@ namespace TotalAdmin.Repository
                 return null;
             DataRow row = dt.Rows[0];
             return Convert.ToDateTime(row["InvocationDate"]);
+        }
+
+        public bool DeleteDepartment(int departmentId)
+        {
+            List<Parm> parms = new()
+            {
+                new("@DepartmentId", SqlDbType.Int, departmentId)
+            };
+            int rowsAffected = db.ExecuteNonQuery("spDeleteDepartment", parms);
+            return rowsAffected > 0;
         }
     }
 }

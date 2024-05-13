@@ -10,6 +10,7 @@ namespace TotalAdmin.Repository
     public interface IDepartmentRepository
     {
         Task<List<DepartmentDisplayDTO>> GetActiveDepartmentsAsync();
+        Task<List<DepartmentDisplayDTO>> GetAllDepartmentsAsync();
         Task<Department> AddDepartmentAsync(Department department);
         Department AddDepartment(Department department);
         Task<Department?> GetDepartmentForEmployeeAsync(int employeeNumber);
@@ -17,5 +18,6 @@ namespace TotalAdmin.Repository
         Department UpdateDepartment(Department department);
         Task<Department?> GetDepartmentById(int id);
         DateTime? GetOldInvocationDate(int departmentId);
+        bool DeleteDepartment(int departmentId);
     }
 }

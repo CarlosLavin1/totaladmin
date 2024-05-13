@@ -23,6 +23,9 @@ export class EmployeeUpdateComponent {
   subscriptions: Subscription[] = [];
   errors: string[] = []
   hashedPassword: string;
+  loadingData: boolean = true;
+  oldJobTitle: string = '';
+  oldJobStartDate: string = '';
 
   employeeForm: FormGroup; 
 
@@ -68,7 +71,9 @@ export class EmployeeUpdateComponent {
     if (idParam != null) {
       this.employeeNumber = +idParam;
       if (!isNaN(this.employeeNumber)) {
+        this.loadingData = true;
         this.loadEmployee();
+        this.loadingData = false;
       } else {
         this.router.navigate(['']);
       }
@@ -85,6 +90,15 @@ export class EmployeeUpdateComponent {
 
     this.employeeForm.get('departmentId')!.valueChanges.subscribe(departmentId => {
       this.updateSupervisors();
+    });
+
+    this.employeeForm.get('jobTitle')?.valueChanges.subscribe(() => {
+      if (!this.loadingData && this.employeeForm.get('jobTitle')?.dirty && this.employeeForm.get('jobTitle')?.value != this.oldJobTitle) { 
+        const today = formatDate(new Date(), 'yyyy-MM-dd', 'en-US');
+        this.employeeForm.get('jobStartDate')?.setValue(today);
+      } else if (this.employeeForm.get('jobTitle')?.value == this.oldJobTitle){
+        this.employeeForm.get('jobStartDate')?.setValue(this.oldJobStartDate);
+      }
     });
 
     this.onStatusChange();
@@ -148,6 +162,9 @@ export class EmployeeUpdateComponent {
         this.employeeForm.get('statusId')?.disable();
         this.employeeForm.get('retiredDate')?.disable();
       }
+      // set old job title and job start date
+      this.oldJobStartDate = formattedJobStartDate;
+      this.oldJobTitle = e.jobTitle;
 
       this.employeeForm.patchValue(e);
     });
@@ -172,8 +189,8 @@ export class EmployeeUpdateComponent {
           this.errors.push("New password is too weak, please include 1 uppercase letter, 1 number, and 1 special character");
           return;
         }
-        // Send back the new password
-        employee.hashedPassword = newPassword;
+        // Send back the new password as hashed
+        employee.hashedPassword = sha256(newPassword);
         const subscription = this.employeeService.employeeUpdate(this.employeeNumber, employee).subscribe({
           next: () => {
             this.snackBarService.showSnackBar("Personal Info Updated Successfully", 0);
@@ -198,7 +215,7 @@ export class EmployeeUpdateComponent {
         this.subscriptions.push(subscription);
       } else {
         // If the password has not been changed
-        // Send back the hashed password
+        // Send back the old hashed password
         const subscription = this.employeeService.employeeUpdate(this.employeeNumber, employee).subscribe({
           next: () => {
             this.snackBarService.showSnackBar("Personal Info Updated Successfully", 0);
@@ -216,7 +233,7 @@ export class EmployeeUpdateComponent {
                 this.errors.push(error.description);
               });
             } else {
-              this.errors.push(err.error.title);
+              this.errors.push(err.error);
             }
           },
         });

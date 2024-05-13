@@ -29,9 +29,9 @@ namespace TotalAdmin.Service
             return item;
         }
 
-        public async Task<bool> UpdateItem(int itemId, int newItemStatus, string? reason = null)
+        public async Task<Item> UpdateItem(Item item)
         {
-            return await repo.UpdateItem(itemId, newItemStatus, reason);
+            return await repo.UpdateItem(item);
         }
 
         private bool ValidateItem(Item item) 

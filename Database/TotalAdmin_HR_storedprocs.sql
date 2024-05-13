@@ -51,6 +51,27 @@ BEGIN
 END
 GO
 
+-- get all departments
+CREATE OR ALTER PROC spGetAllDepartments
+AS
+BEGIN
+	BEGIN TRY
+		SELECT
+			DepartmentId,
+			[Name],
+			[Description],
+			InvocationDate
+		FROM
+			Department
+		ORDER BY
+			[Name]
+	END TRY
+	BEGIN CATCH
+		;THROW
+	END CATCH
+END
+GO
+
 -- create employee
 CREATE OR ALTER PROC spInsertEmployee
 	@FirstName NVARCHAR(50),

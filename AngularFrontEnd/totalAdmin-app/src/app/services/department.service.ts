@@ -33,4 +33,10 @@ export class DepartmentService extends SharedService{
       .get<DepartmentListDto[]>(`${API_URL7161}/department`)
       .pipe(catchError(super.handleError));
   }
+
+  getAllDepartments(): Observable<DepartmentListDto[]> {
+    return this.http
+      .get<DepartmentListDto[]>(`${API_URL7161}/department/all`)
+      .pipe(catchError(super.handleError));
+  }
 }

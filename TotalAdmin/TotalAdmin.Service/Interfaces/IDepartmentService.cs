@@ -12,7 +12,7 @@ namespace TotalAdmin.Service
     public interface IDepartmentService
     {
         Task<List<DepartmentDisplayDTO>> GetActiveDepartments();
-
+        Task<List<DepartmentDisplayDTO>> GetAllDepartmentsAsync();
         Task<Department> AddDepartmentAsync(Department department);
         Department AddDepartment(Department department);
         Department UpdateDepartment(Department department);
