@@ -7,6 +7,21 @@ GO
 USE TotalAdmin
 GO
 
+-- review status
+IF OBJECT_ID('TotalAdmin.dbo.ReviewRating', 'U') IS NULL
+	CREATE TABLE ReviewRating(
+		ReviewRatingId INT IDENTITY(1,1) NOT NULL PRIMARY KEY,
+		[Name] NVARCHAR(50) NOT NULL
+	);
+GO
+-- insert review statuses
+INSERT INTO ReviewRating([Name]) 
+VALUES
+	('Below Expectations'),
+	('Meets Expectations'),
+	('Exceeds Expectations')
+GO
+
 -- item status
 IF OBJECT_ID('TotalAdmin.dbo.ItemStatus', 'U') IS NULL
 	CREATE TABLE ItemStatus(
@@ -153,6 +168,21 @@ insert into Employee (FirstName, MiddleInitial, LastName, EmailAddress, HashedPa
 insert into Employee (FirstName, MiddleInitial, LastName, EmailAddress, HashedPassword, StreetAddress, City, PostalCode, [SIN], JobTitle, CompanyStartDate, DateOfBirth, JobStartDate, OfficeLocation, WorkPhoneNumber, CellPhoneNumber, StatusId, SupervisorEmpNumber, DepartmentId, RoleId) values ('William', null, 'Macmanaman', 'bmacb@eepurl.com', '785e68a22eb81d9e942cbc7f2dc2f86d6ca7d5f3d1222413f9e74e78b6b68a74', '38 Westminster Street', 'Moncton', 'E6E2S8', '924038125', 'Analyst', '11/11/2000', '7/28/1999', '8/18/2000', '7th Floor', '416-916-8912', '416-985-2090', 1, 3, 3, 5);
 insert into Employee (FirstName, MiddleInitial, LastName, EmailAddress, HashedPassword, StreetAddress, City, PostalCode, [SIN], JobTitle, CompanyStartDate, DateOfBirth, JobStartDate, OfficeLocation, WorkPhoneNumber, CellPhoneNumber, StatusId, SupervisorEmpNumber, DepartmentId, RoleId) values ('Steve', null, 'Macmanaman', 'steveb@eepurl.com', '785e68a22eb81d9e942cbc7f2dc2f86d6ca7d5f3d1222413f9e74e78b6b68a74', '38 Westminster Street', 'Moncton', 'E6E2S8', '024502932', 'DevOps', '9/11/1998', '7/28/1997', '10/18/2002', '7th Floor', '416-900-8932', '416-985-2140', 1, 3, 3, 5);
 
+GO
+
+-- employee review 
+IF OBJECT_ID('TotalAdmin.dbo.Review', 'U') IS NULL
+	CREATE TABLE Review(
+		ReviewId INT IDENTITY(1,1) NOT NULL PRIMARY KEY,
+		ReviewRatingId INT NOT NULL,
+		Comment NVARCHAR(MAX) NOT NULL,
+		ReviewDate DATETIME2(7) NOT NULL,
+		EmployeeNumber INT NOT NULL,
+		SupervisorEmployeeNumber INT NOT NULL,
+		CONSTRAINT FK_Rating_Review FOREIGN KEY (ReviewRatingId) REFERENCES ReviewRating(ReviewRatingId),
+		CONSTRAINT FK_Employee_Review FOREIGN KEY (EmployeeNumber) REFERENCES Employee(EmployeeNumber),
+		CONSTRAINT FK_Supervisor_Review FOREIGN KEY (SupervisorEmployeeNumber) REFERENCES Employee(EmployeeNumber)
+	);
 GO
 
 -- purchase order
