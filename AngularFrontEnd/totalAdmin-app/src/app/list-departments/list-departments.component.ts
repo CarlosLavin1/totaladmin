@@ -18,7 +18,7 @@ export class ListDepartmentsComponent {
   }
 
   loadDepartments(): void {
-    this.departmentService.getActiveDepartments().subscribe({
+    this.departmentService.getAllDepartments().subscribe({
       next: (data) => this.departments = data,
       error: (err) => console.error('Failed to load departments', err)
     });

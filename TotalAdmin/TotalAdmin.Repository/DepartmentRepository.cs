@@ -26,6 +26,12 @@ namespace TotalAdmin.Repository
             return dt.AsEnumerable().Select(row => new DepartmentDisplayDTO(Convert.ToInt32(row["DepartmentId"]), row["Name"].ToString())).ToList();
         }
 
+        public async Task<List<DepartmentDisplayDTO>> GetAllDepartmentsAsync()
+        {
+            DataTable dt = await db.ExecuteAsync("spGetAllDepartments");
+            return dt.AsEnumerable().Select(row => new DepartmentDisplayDTO(Convert.ToInt32(row["DepartmentId"]), row["Name"].ToString())).ToList();
+        }
+
         public Department AddDepartment(Department department)
         {
             List<Parm> parms = new()

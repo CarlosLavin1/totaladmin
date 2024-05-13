@@ -24,6 +24,11 @@ namespace TotalAdmin.Service
             return await repo.GetActiveDepartmentsAsync();
         }
 
+        public async Task<List<DepartmentDisplayDTO>> GetAllDepartmentsAsync()
+        {
+            return await repo.GetAllDepartmentsAsync();
+        }
+
         public async Task<Department> AddDepartmentAsync(Department department)
         {
             if (ValidateDepartment(department))

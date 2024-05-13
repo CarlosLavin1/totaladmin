@@ -82,7 +82,7 @@ export class DepartmentUpdateComponent {
               this.errors.push(error.description);
             });
           } else {
-            this.errors.push(err.error.title);
+            this.errors.push(err.error);
           }
         },
       });
