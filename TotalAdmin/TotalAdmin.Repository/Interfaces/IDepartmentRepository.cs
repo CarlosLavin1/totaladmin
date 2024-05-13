@@ -18,5 +18,6 @@ namespace TotalAdmin.Repository
         Department UpdateDepartment(Department department);
         Task<Department?> GetDepartmentById(int id);
         DateTime? GetOldInvocationDate(int departmentId);
+        bool DeleteDepartment(int departmentId);
     }
 }

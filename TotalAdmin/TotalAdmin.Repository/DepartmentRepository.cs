@@ -162,5 +162,15 @@ namespace TotalAdmin.Repository
             DataRow row = dt.Rows[0];
             return Convert.ToDateTime(row["InvocationDate"]);
         }
+
+        public bool DeleteDepartment(int departmentId)
+        {
+            List<Parm> parms = new()
+            {
+                new("@DepartmentId", SqlDbType.Int, departmentId)
+            };
+            int rowsAffected = db.ExecuteNonQuery("spDeleteDepartment", parms);
+            return rowsAffected > 0;
+        }
     }
 }
