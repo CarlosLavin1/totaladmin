@@ -23,6 +23,7 @@ export class EmployeeUpdateComponent {
   subscriptions: Subscription[] = [];
   errors: string[] = []
   hashedPassword: string;
+  loadingData: boolean = true;
 
   employeeForm: FormGroup; 
 
@@ -68,7 +69,9 @@ export class EmployeeUpdateComponent {
     if (idParam != null) {
       this.employeeNumber = +idParam;
       if (!isNaN(this.employeeNumber)) {
+        this.loadingData = true;
         this.loadEmployee();
+        this.loadingData = false;
       } else {
         this.router.navigate(['']);
       }
@@ -85,6 +88,13 @@ export class EmployeeUpdateComponent {
 
     this.employeeForm.get('departmentId')!.valueChanges.subscribe(departmentId => {
       this.updateSupervisors();
+    });
+
+    this.employeeForm.get('jobTitle')?.valueChanges.subscribe(() => {
+      if (!this.loadingData && this.employeeForm.get('jobTitle')?.dirty) { 
+        const today = formatDate(new Date(), 'yyyy-MM-dd', 'en-US');
+        this.employeeForm.get('jobStartDate')?.setValue(today);
+      }
     });
 
     this.onStatusChange();

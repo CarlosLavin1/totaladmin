@@ -52,7 +52,6 @@ namespace TotalAdmin.API.Controllers
         }
 
         [Authorize(Roles = "Employee, HR Employee, Supervisor")]
-
         [HttpGet]
         [ProducesResponseType(StatusCodes.Status200OK)]
         public async Task<ActionResult<List<DepartmentDisplayDTO>>> GetActiveDepartments()
@@ -60,6 +59,23 @@ namespace TotalAdmin.API.Controllers
             try
             {
                 List<DepartmentDisplayDTO> departments = await departmentService.GetActiveDepartments();
+
+                return departments;
+            }
+            catch (Exception)
+            {
+                return Problem(title: "An internal error has occurred. Please contact the system administrator.");
+            }
+        }
+
+        [Authorize(Roles = "Employee, HR Employee, Supervisor")]
+        [HttpGet("all")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        public async Task<ActionResult<List<DepartmentDisplayDTO>>> GetAllDepartments()
+        {
+            try
+            {
+                List<DepartmentDisplayDTO> departments = await departmentService.GetAllDepartmentsAsync();
 
                 return departments;
             }
