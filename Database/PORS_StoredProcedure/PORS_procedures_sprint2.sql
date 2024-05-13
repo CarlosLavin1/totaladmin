@@ -162,6 +162,50 @@ BEGIN
 END
 GO
 
+-- Review supervisor purchase in there department
+CREATE OR ALTER PROC [DBO].[spReviewDepartmentPO]
+    @DepartmentId INT
+AS
+BEGIN
+	BEGIN TRY
+		SELECT 
+			PO.PoNumber, 
+			PO.CreationDate, 
+			PO.PurchaseOrderStatusId,
+			I.ItemId,
+			I.[Name],
+			I.Quantity,
+			I.[Description],
+			I.Price,
+			I.Justification,
+			I.ItemLocation,
+			I.ItemStatusId,
+			S.[Name] AS ItemStatus,
+			PS.[Name] AS PurchaseOrderStatus,
+			E.EmployeeNumber
+		FROM 
+			PurchaseOrder PO
+		INNER JOIN 
+			Employee E ON PO.EmployeeNumber = E.EmployeeNumber
+		INNER JOIN 
+			Item I ON PO.PoNumber = I.PoNumber
+		INNER JOIN 
+			PurchaseOrderStatus PS ON PO.PurchaseOrderStatusId = PS.PoStatusId
+		INNER JOIN
+			ItemStatus S ON I.ItemStatusId = S.ItemStatusId
+		WHERE 
+			E.DepartmentId = @DepartmentId
+		ORDER BY 
+			PO.CreationDate DESC;
+	END TRY
+	BEGIN CATCH
+		;THROW
+	END CATCH
+END
+GO
+
+
+
 
 GO
 -- Search employees purchase orders by the employee number, po number, start and end date
@@ -194,5 +238,41 @@ BEGIN
 	BEGIN CATCH
 		;THROW
 	END CATCH
+END
+GO
+
+-- Supervisor Searches employees purchase in department by id, start, end date, staus or name
+CREATE OR ALTER PROC [DBO].[spGetSupervisorPurchaseOrders]
+    @DepartmentId INT,
+    @StartDate DATETIME2(7) = NULL,
+    @EndDate DATETIME2(7) = NULL,
+    @PoNumber INT = NULL,
+    @Status INT = NULL,
+    @EmployeeName NVARCHAR(255) = NULL
+AS
+BEGIN
+    BEGIN TRY
+        SELECT 
+            PO.PoNumber AS 'PO Number', 
+            PO.CreationDate AS 'PO Creation Date', 
+            POS.[Name] AS 'PO Status',
+            E.FirstName + ' ' + E.LastName AS 'EmployeeName'
+        FROM 
+            PurchaseOrder PO 
+            JOIN Employee E ON PO.EmployeeNumber = E.EmployeeNumber
+            JOIN PurchaseOrderStatus POS ON PO.PurchaseOrderStatusId = POS.PoStatusId
+        WHERE 
+            E.DepartmentId = @DepartmentId
+            AND (@StartDate IS NULL OR PO.CreationDate >= @StartDate)
+            AND (@EndDate IS NULL OR PO.CreationDate <= @EndDate)
+            AND (@PoNumber IS NULL OR PO.PoNumber = @PoNumber)
+            AND (@Status IS NULL OR PO.PurchaseOrderStatusId = @Status)
+            AND (@EmployeeName IS NULL OR E.FirstName LIKE '%' + @EmployeeName + '%' OR E.LastName LIKE '%' + @EmployeeName + '%')
+        ORDER BY 
+            PO.CreationDate ASC;
+    END TRY
+    BEGIN CATCH
+        ;THROW
+    END CATCH
 END
 GO

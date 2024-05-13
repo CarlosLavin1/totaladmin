@@ -112,6 +112,134 @@ namespace TotalAdmin.Repository
             }
         }
 
+        /// <summary>
+        /// Review a list of purchase orders by a specific department
+        /// </summary>
+        /// <param name="departmentId"></param>
+        /// <returns>A list of purchase orders of the specific department</returns>
+        public async Task<List<PurchaseOrder>> ReviewDepartmentPo(int departmentId)
+        {
+            try
+            {
+                List<Parm> parms = new()
+                {
+                    new Parm("@DepartmentId", SqlDbType.Int, departmentId)
+                };
+
+                DataTable dt = await db.ExecuteAsync("spReviewDepartmentPO", parms);
+
+                List<PurchaseOrder> purchaseOrders = dt.AsEnumerable()
+                    .GroupBy(row => row["PoNumber"]).Select(g =>
+                    {
+                        DataRow? firstRow = g.First();
+                        int purchaseOrderNumber = Convert.ToInt32(firstRow["PoNumber"]);
+                        string departmentName = GetEmployeeDepartmentByPONumber(purchaseOrderNumber).Result;
+                        int employeeNumber = Convert.ToInt32(firstRow["EmployeeNumber"]);
+                        string supervisorName = GetSupervisorFullNameForEmployee(employeeNumber).Result;
+                        string employeeName = GetEmployeeFullName(employeeNumber).Result;
+
+
+                        var purchaseOrder = new PurchaseOrder
+                        {
+                            PoNumber = purchaseOrderNumber,
+                            CreationDate = Convert.ToDateTime(firstRow["CreationDate"]),
+                            StatusId = Convert.ToInt32(firstRow["PurchaseOrderStatusId"]),
+                            PurchaseOrderStatus = Convert.ToString(firstRow["PurchaseOrderStatus"]),
+                            EmpDepartmentName = departmentName,
+                            EmployeeSupervisorName = supervisorName,
+                            EmployeeName = employeeName,
+                            EmployeeNumber = employeeNumber,
+
+                            Items = g.Select(row => new Item
+                            {
+                                ItemId = Convert.ToInt32(row["ItemId"] ?? 0),
+                                Name = row["Name"].ToString() ?? "UnKnown",
+                                Quantity = Convert.ToInt32(row["Quantity"]),
+                                Description = row["Description"].ToString() ?? "UnKnown",
+                                Price = Convert.ToDecimal(row["Price"]),
+                                Justification = row["Justification"].ToString() ?? "UnKnown",
+                                Location = row["ItemLocation"].ToString() ?? "UnKnown",
+                                ItemStatus = row["ItemStatus"].ToString() ?? "UnKnown",
+                                StatusId = Convert.ToInt32(row["ItemStatusId"])
+                            }).ToList()
+                        };
+
+                        return purchaseOrder;
+                    }).ToList();
+
+                return purchaseOrders;
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine(ex.Message);
+                throw;
+            }
+        }
+
+        public async Task<PurchaseOrder> ClosePO(int PONumber)
+        {
+            try
+            {
+                List<Parm> parms = new()
+                {
+                    new Parm("@PONumber", SqlDbType.Int, PONumber),
+                };
+
+                string sql = "UPDATE PurchaseOrder SET PurchaseOrderStatusId = 3 WHERE PONumber = @PONumber";
+                await db.ExecuteNonQueryAsync(sql, parms, CommandType.Text);
+
+                // fetch the updated purchase orders
+                sql = "SELECT * FROM PurchaseOrder WHERE PONumber = @PONumber";
+                DataTable dt = await db.ExecuteAsync(sql, parms, CommandType.Text);
+
+                // Get the employee's email
+                string employeeEmail = await GetEmployeeEmail(PONumber);
+
+                if (dt.Rows.Count > 0)
+                {
+                    DataRow firstRow = dt.Rows[0];
+                    PurchaseOrder po = new PurchaseOrder
+                    {
+                        PoNumber = Convert.ToInt32(firstRow["PoNumber"]),
+                        EmployeeEmail = employeeEmail,
+                        FormattedPoNumber = "00001" + firstRow["PoNumber"].ToString().PadLeft(2, '0')
+                    };
+
+                    return po;
+                }
+                else
+                {
+                    throw new Exception("Purchase order not found");
+                }
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine(ex.Message);
+                throw;
+            }
+        }
+
+        public async Task UpdatePurchaseOrder(int id)
+        {
+            try
+            {
+                List<Parm> parms = new()
+                {
+                    new Parm("@PONumber", SqlDbType.Int, id),
+                    new Parm("@NewStatusId", SqlDbType.Int, 2), // status for "under review"
+                };
+
+                string sql = "UPDATE PurchaseOrder SET PurchaseOrderStatusId = @NewStatusId WHERE PONumber = @PONumber";
+                await db.ExecuteNonQueryAsync(sql, parms, CommandType.Text);
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine(ex.Message);
+                throw;
+            }
+        }
+
+
 
         /// <summary>
         /// Adds a new purchase order along with its items
@@ -277,6 +405,101 @@ namespace TotalAdmin.Repository
 
             return results.ToList();
         }
+
+        public async Task<List<PurchaseOrder>> SearchPOForSupervisor(POSupervisorFiltersDTO filter)
+        {
+            try
+            {
+                // map the parameters
+                List<Parm> parms = new()
+                {
+                    new Parm("@DepartmentId", SqlDbType.Int, filter.DepartmentId),
+                    new Parm("@StartDate", SqlDbType.DateTime2, filter.StartDate),
+                    new Parm("@EndDate", SqlDbType.DateTime2, filter.EndDate),
+                    new Parm("@PoNumber", SqlDbType.Int, filter.PONumber),
+                    new Parm("@Status", SqlDbType.Int, filter.Status),
+                    new Parm("@EmployeeName", SqlDbType.NVarChar, filter.EmployeeName)
+                };
+
+                // Call the procedure and pass in the parameters
+                DataTable dt = await db.ExecuteAsync("spGetSupervisorPurchaseOrders", parms);
+
+                // If no rows found return null
+                if (dt.Rows.Count == 0)
+                    return null;
+
+                var tasks = dt.AsEnumerable().Select(async row =>
+                {
+                    // Create new PurchaseOrder object
+                    return new PurchaseOrder
+                    {
+                        PoNumber = Convert.ToInt32(row["PO Number"]),
+                        CreationDate = Convert.ToDateTime(row["PO Creation Date"]),
+                        PurchaseOrderStatus = row["PO Status"].ToString() ?? "Unkown",
+                        EmployeeName = row["EmployeeName"].ToString() ?? "Unkown",
+                        // Load the Items for this PurchaseOrder
+                        Items = await LoadItemsForPurchaseOrder(Convert.ToInt32(row["PO Number"]))
+                    };
+                });
+
+                // Wait for all tasks to complete and collect the results in a list
+                PurchaseOrder[]? purchaseOrders = await Task.WhenAll(tasks);
+
+                return purchaseOrders.ToList();
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine(ex.Message);
+                throw;
+            }
+        }
+
+        private async Task<ICollection<Item>> LoadItemsForPurchaseOrder(int poNumber)
+        {
+            try
+            {
+                // Define the parameters
+                List<Parm> parms = new()
+                {
+                    new Parm("@PoNumber", SqlDbType.Int, poNumber)
+                };
+
+                string sql = "SELECT * FROM Item WHERE PoNumber = @PoNumber";
+
+                // Call the procedure and pass in the parameters
+                DataTable dt = await db.ExecuteAsync(sql, parms, CommandType.Text);
+
+                // If no rows found return null
+                if (dt.Rows.Count == 0)
+                    return null;
+
+                // Map the data table to a list of Item objects
+                var items = dt.AsEnumerable().Select(row =>
+                {
+                    return new Item
+                    {
+                        ItemId = Convert.ToInt32(row["ItemId"]),
+                        Name = row["Name"].ToString(),
+                        Quantity = Convert.ToInt32(row["Quantity"]),
+                        Description = row["Description"].ToString(),
+                        Price = Convert.ToDecimal(row["Price"]),
+                        Justification = row["Justification"].ToString(),
+                        Location = row["ItemLocation"].ToString(),
+                        RejectedReason = row["RejectedReason"].ToString(),
+                        StatusId = Convert.ToInt32(row["ItemStatusId"])
+                    };
+                });
+
+                // Return the list of items
+                return items.ToList();
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine(ex.Message);
+                throw;
+            }
+        }
+
 
         /// <summary>
         /// Get all the items
@@ -455,6 +678,31 @@ namespace TotalAdmin.Repository
                 throw new Exception($"Employee with number {employeeNumber} not found.");
             }
         }
+
+        private async Task<string> GetEmployeeEmail(int poNumber)
+        {
+            // get supervisor number for the given employee
+            List<Parm> parms = new()
+            {
+                new Parm("@PONumber", SqlDbType.Int, poNumber)
+            };
+
+            string sql = "SELECT po.*, e.EmailAddress FROM PurchaseOrder po JOIN Employee e ON po.EmployeeNumber = e.EmployeeNumber WHERE po.PoNumber = @PONumber";
+            DataTable dt = await db.ExecuteAsync(sql, parms, CommandType.Text);
+
+            if (dt.Rows.Count > 0)
+            {
+                DataRow row = dt.Rows[0];
+                string employeeEmail = Convert.ToString(row["EmailAddress"]);
+
+                return employeeEmail; // Return the email address
+            }
+            else
+            {
+                throw new Exception($"Purchase order with number {poNumber} not found.");
+            }
+        }
+
 
         /// <summary>
         /// Get the department name for a given purchase order number

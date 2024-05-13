@@ -12,10 +12,12 @@ namespace TotalAdmin.API.Controllers
     public class PurchaseOrderController : Controller
     {
         private readonly IPurchaseOrderService service;
+        private readonly EmailService _emailService;
 
-        public PurchaseOrderController(IPurchaseOrderService s)
+        public PurchaseOrderController(IPurchaseOrderService s, EmailService emailService)
         {
             this.service = s;
+            _emailService = emailService;
         }
 
 
@@ -86,7 +88,7 @@ namespace TotalAdmin.API.Controllers
                     return BadRequest("Start Date cannot be later than End Date.");
                 }
 
-                if (filter.StartDate.HasValue && filter.EndDate.HasValue && filter.StartDate < filter.EndDate)
+                if (filter.StartDate.HasValue && filter.EndDate.HasValue && filter.EndDate < filter.StartDate)
                 {
                     return BadRequest("End Date cannot be before than Start Date.");
                 }
@@ -111,6 +113,57 @@ namespace TotalAdmin.API.Controllers
                     FormattedPoNumber = "00001" + po.PoNumber.ToString("D2")
                 }).ToList();
 
+
+                return Ok(response);
+            }
+            catch (Exception)
+            {
+                return Problem(title: "An internal error has occurred. Please contact the system administrator");
+            }
+        }
+
+        // GET: api/PurchaseOrder/Supervisor
+        [Authorize]
+        [HttpGet("Supervisor/PurchaseOrders/Search")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        public async Task<ActionResult<List<PurchaseOrder>>> SearchPurchaseOrdersForSupervisor([FromQuery] POSupervisorFiltersDTO filters)
+        {
+            try
+            {
+                // Check for the specific employee
+                if (filters.DepartmentId == 0)
+                {
+                    return BadRequest("Department Id is required.");
+                }
+
+                if (filters.StartDate.HasValue && filters.EndDate.HasValue && filters.StartDate > filters.EndDate)
+                {
+                    return BadRequest("Start Date cannot be later than End Date.");
+                }
+
+                if (filters.StartDate.HasValue && filters.EndDate.HasValue && filters.EndDate < filters.StartDate)
+                {
+                    return BadRequest("End Date cannot be before Start Date.");
+                }
+
+
+                List<PurchaseOrder> purchaseOrders = await service.SearchPurchaseOrdersForSupervisor(filters);
+                if (purchaseOrders == null || !purchaseOrders.Any())
+                {
+                    return NotFound("No purchase orders found for the provided filters.");
+                }
+
+                // Format the PO numbers and include all the purchase order details
+                var response = purchaseOrders.Select(po => new PurchaseOrder
+                {
+                    PoNumber = po.PoNumber,
+                    CreationDate = po.CreationDate,
+                    EmployeeName = po.EmployeeName,
+                    PurchaseOrderStatus = po.PurchaseOrderStatus,
+                    Items = po.Items,
+                    FormattedPoNumber = "00001" + po.PoNumber.ToString("D2"),
+                }).ToList();
 
                 return Ok(response);
             }
@@ -229,5 +282,106 @@ namespace TotalAdmin.API.Controllers
             }
         }
 
+
+        // GET: api/PurchaseOrder/Department
+        [Authorize]
+        [HttpGet("department/{departmentId}")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        public async Task<ActionResult<List<PurchaseOrder>>> GetPurchaseOrdersForDepartment([FromRoute] int departmentId)
+        {
+            try
+            {
+                List<PurchaseOrder> purchaseOrders = await service.GetPurchaseOrdersForDepartment(departmentId);
+
+                if (purchaseOrders == null || !purchaseOrders.Any())
+                {
+                    return NotFound("No purchase orders found for the provided department.");
+                }
+
+                // Format the PO numbers and include all the purchase order details
+                var response = purchaseOrders.Select(po => new PurchaseOrder
+                {
+                    PoNumber = po.PoNumber,
+                    CreationDate = po.CreationDate,
+                    RowVersion = po.RowVersion,
+                    EmployeeNumber = po.EmployeeNumber,
+                    EmployeeName = po.EmployeeName,
+                    EmployeeSupervisorName = po.EmployeeSupervisorName,
+                    EmpDepartmentName = po.EmpDepartmentName,
+                    PurchaseOrderStatus = po.PurchaseOrderStatus,
+                    StatusId = po.StatusId,
+                    Items = po.Items,
+                    HasMergeOccurred = po.HasMergeOccurred,
+                    FormattedPoNumber = "00001" + po.PoNumber.ToString("D2"),
+                }).ToList();
+
+                return Ok(response);
+            }
+            catch (Exception)
+            {
+                return Problem(title: "An internal error has occurred. Please contact the system administrator");
+            }
+        }
+
+        // PUT: api/PurchaseOrder/ClosePO/{PONumber}
+        [Authorize]
+        [HttpPut("ClosePO/{PONumber}")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        public async Task<ActionResult<PurchaseOrder>> ClosePO(int PONumber)
+        {
+            try
+            {
+                PurchaseOrder po = await service.ClosePO(PONumber);
+
+                if (po == null)
+                {
+                    return NotFound("Purchase order not found.");
+                }
+
+                // Send an email notification
+                EmailDTO email = new EmailDTO
+                {
+                    To = po.EmployeeEmail, 
+                    From = "totalAdmin@mail.com",
+                    Subject = "Your PO request has been processed",
+                    Body = $"Your purchase order (PO Number: {po.FormattedPoNumber}) has been closed and processed."
+                };
+
+                _emailService.Send(email);
+
+
+                return Ok(po);
+            }
+            catch (Exception)
+            {
+                return Problem(title: "An internal error has occurred. Please contact the system administrator");
+            }
+        }
+
+
+        // PUT: api/PurchaseOrder/{id}
+        [Authorize]
+        [HttpPut("{id}")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        public async Task<IActionResult> UpdatePurchaseOrder(int id)
+        {
+            try
+            {
+                // Check if the id is valid
+                if (id <= 0)
+                    return BadRequest("Invalid purchase order number.");
+
+                await service.UpdatePurchaseOrder(id);
+
+                return Ok("Purchase order updated successfully.");
+            }
+            catch (Exception)
+            {
+                return Problem(title: "An internal error has occurred. Please contact the system administrator");
+            }
+        }
     }
 }

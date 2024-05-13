@@ -17,5 +17,9 @@ namespace TotalAdmin.Repository.Interfaces
         Task<List<Item>> GetAllItems();
         Task<bool> AddItemsToPurchaseOrderAsync(int poNumber, Item item);
         Task<(int TotalItems, decimal GrandTotal)> GetOrderTotals(int poNumber);
+        Task<List<PurchaseOrder>> ReviewDepartmentPo(int departmentId);
+        Task<PurchaseOrder> ClosePO(int PONumber);
+        Task UpdatePurchaseOrder(int id);
+        Task<List<PurchaseOrder>> SearchPOForSupervisor(POSupervisorFiltersDTO filters);
     }
 }

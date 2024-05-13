@@ -18,7 +18,9 @@ GO
 -- Item Statuses
 INSERT INTO ItemStatus([Name]) 
 VALUES
-	('Pending')
+	('Pending'),
+	('Approved'),
+	('Denied')
 	
 -- employee status
 IF OBJECT_ID('TotalAdmin.dbo.EmployeeStatus', 'U') IS NULL
@@ -44,7 +46,9 @@ GO
 INSERT INTO PurchaseOrderStatus([Name]) 
 VALUES
 	('Pending'),
-	('Under Review')
+	('Under Review'),
+	('Closed'),
+	('All')
 	
 
 -- role
@@ -166,11 +170,18 @@ GO
 INSERT INTO PurchaseOrder (CreationDate, PurchaseOrderStatusId, EmployeeNumber)
 VALUES
 ('2024-04-01', 1, 5),
-('2024-03-15', 2, 5),
+('2024-03-15', 1, 5),
 ('2024-02-28', 1, 3),
-('2024-05-2', 2, 3),
+('2024-05-2', 1, 3),
 ('2024-04-10', 1, 9),
-('2024-03-20', 2, 2);
+('2024-03-20', 1, 2),
+('2024-04-20', 1, 17),
+('2024-05-10', 1, 9),
+('2024-05-13', 1, 9),
+('2024-01-13', 1, 18),
+('2023-08-03', 1, 11),
+('2023-12-07', 1, 11),
+('2023-05-11', 2, 11);
 
 GO
 -- item
@@ -198,4 +209,18 @@ VALUES
 ('Whiteboard/flipchart', 3, 'Facilitate brainstorming sessions and presentations', 58.08, 'Support collaborative work and visual communication in HR department', 'Warehouse - Office Supplies Section', NULL, 4, 1),
 ('Projectors', 3, 'Multimedia projectors for conference rooms', 799.00, 'Enhance presentation capabilities', 'Training Room', NULL, 3, 1),
 ('Printers', 8, 'High-volume printers for office use', 504.99, 'Replace old printers', 'Print Room', NULL, 4, 1),
-('Headsets', 20, 'Noise-cancelling headsets for customer support', 158.85, 'Improve communication quality', 'Customer Service Desk', NULL, 5, 1);
+('Headsets', 20, 'Noise-cancelling headsets for customer support', 158.85, 'Improve communication quality', 'Customer Service Desk', NULL, 5, 1),
+('External Hard Drives', 15, '4TB portable hard drives for data backup', 89.99, 'Improve data security and storage', 'Data Center', NULL, 6, 1),
+('Webcams', 30, 'HD webcams for video conferencing', 65.89, 'Enable remote collaboration', 'Warehouse', NULL, 7, 1),
+('Monitors', 12, '27-inch LED monitors for workstations', 199.99, 'Replace outdated monitors', 'Warehouse - IT Equipment', NULL, 7, 1),
+('Sony WH-1000XM4', 30, 'Sony WH-1000XM4: Industry-leading noise-canceling headphones with exceptional sound quality and long battery life', 349.99, 'Upgrade employee productivity and comfort with top-of-the-line noise-canceling headphones', 'Walmart Distribution Center', NULL, 7, 1),
+('Smartphones', 20, 'Latest model smartphones for executives', 899.00, 'Upgrade to new devices', 'Warehouse - Mobile Devices', NULL, 8, 1),
+('Tablets', 8, 'High-end tablets for sales team', 599.00, 'Enhance mobility and productivity', 'Sales Department', NULL, 8, 1),
+('Document Scanners', 3, 'High-speed duplex document scanners for digitizing employee records', 799.99, 'Transition to paperless employee file management', 'HR File Room', NULL, 8, 1),
+('Payroll Software', 1, 'Integrated payroll and HR management software', 14999.99, 'Streamline payroll processes and ensure compliance', 'HR Department', NULL, 9, 1),
+('Virtual Machines', 1, 'Annual subscription for virtual machine hosting and management', 6999.99, 'Enable isolated dev environments and rapid provisioning', 'Online Service', NULL, 7, 1),
+('Programmable Keyboards', 15, 'Customizable mechanical keyboards for developers', 149.99, 'Enhance coding experience and productivity', 'Development Lab', NULL, 10, 1),
+('Virtual Event Platform', 1, 'Subscription for hosting virtual events, webinars, and live streams', 4999.00, 'Facilitate online marketing events and customer engagement', 'Online Service', NULL, 13, 1),
+('Graphic Design Software', 10, 'Professional-grade graphic design suite for creating marketing materials', 899.99, 'Enable in-house design capabilities and reduce outsourcing costs', 'Marketing Department', NULL, 11, 1),
+('Social Media Management Tool', 1, 'All-in-one platform for managing social media campaigns and analytics', 3999.00, 'Streamline social media marketing efforts and track performance', 'Online Service', NULL, 12, 1),
+('High-end Laptops', 5, 'Powerful laptops with dedicated GPUs for graphic design and video editing', 2499.99, 'Enable efficient creation and rendering of multimedia content', 'Marketing Department', NULL, 11, 1);

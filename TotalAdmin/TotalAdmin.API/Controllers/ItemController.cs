@@ -30,5 +30,31 @@ namespace TotalAdmin.API.Controllers
 
             return Ok(item);
         }
+
+        [HttpPatch("{itemId}/{newItemStatus}/{reason}")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<IActionResult> UpdateItem(int itemId, int newItemStatus, string? reason)
+        {
+            try
+            {
+                bool isUpdated = await service.UpdateItem(itemId, newItemStatus, reason);
+                if (isUpdated)
+                {
+                    return Ok(new { message = "Item updated successfully" });
+                }
+                else
+                {
+                    return NotFound(new { message = "Item not found" });
+                }
+            }
+            catch (Exception)
+            {
+                return Problem(title: "An internal error has occurred. Please contact the system administrator");
+            }
+        }
+
     }
+
 }

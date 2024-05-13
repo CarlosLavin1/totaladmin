@@ -55,10 +55,24 @@ namespace TotalAdmin.Service
         }
 
 
-
         public async Task<List<PurchaseOrder>> GetPurchaseOrdersForEmployee(int employeeNumber)
         {
             return await repo.ReviewEmployeePO(employeeNumber);
+        }
+
+        public async Task<List<PurchaseOrder>> GetPurchaseOrdersForDepartment(int departmentId)
+        {
+            return await repo.ReviewDepartmentPo(departmentId);
+        }
+
+        public async Task<PurchaseOrder> ClosePO(int PONumber)
+        {
+            return await repo.ClosePO(PONumber);
+        }
+
+        public async Task UpdatePurchaseOrder(int id)
+        {
+            await repo.UpdatePurchaseOrder(id);
         }
 
 
@@ -87,6 +101,10 @@ namespace TotalAdmin.Service
             return await repo.SearchPurchaseOrders(filter);
         }
 
+        public async Task<List<PurchaseOrder>> SearchPurchaseOrdersForSupervisor(POSupervisorFiltersDTO filters)
+        {
+            return await repo.SearchPOForSupervisor(filters);
+        }
 
         private bool ValidatePurchaseOrder(PurchaseOrder po)
         {

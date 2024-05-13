@@ -31,6 +31,8 @@ import { EmployeeSearchComponent } from './employee-search/employee-search.compo
 import { EmployeeDetailsComponent } from './employee-details/employee-details.component';
 import { UpdatePersonalInfoComponent } from './update-personal-info/update-personal-info.component';
 import { EmployeeUpdateComponent } from './employee-update/employee-update.component';
+import { ReviewDepartmentPOComponent } from './review-department-po/review-department-po.component';
+import { SearchDepartmentPOComponent } from './search-department-po/search-department-po.component';
 
 
 @NgModule({
@@ -54,7 +56,9 @@ import { EmployeeUpdateComponent } from './employee-update/employee-update.compo
     EmployeeSearchComponent,
     EmployeeDetailsComponent,
     UpdatePersonalInfoComponent,
-    EmployeeUpdateComponent
+    EmployeeUpdateComponent,
+    ReviewDepartmentPOComponent,
+    SearchDepartmentPOComponent
   ],
   imports: [
     BrowserModule,

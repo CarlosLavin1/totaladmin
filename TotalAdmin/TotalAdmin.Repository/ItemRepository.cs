@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -47,5 +48,27 @@ namespace TotalAdmin.Repository
             return item;
         }
 
+        public async Task<bool> UpdateItem(int itemId, int newItemStatus, string? reason = null)
+        {
+            try
+            {
+                List<Parm> parms = new()
+                {
+                    new Parm("@ItemId", SqlDbType.Int, itemId),
+                    new Parm("@NewStatusId", SqlDbType.Int, newItemStatus),
+                    new Parm("@Reason", SqlDbType.NVarChar, reason),
+                };
+
+                string sql = "UPDATE Item SET ItemStatusId  = @NewStatusId, RejectedReason = @Reason WHERE ItemId = @ItemId";
+                int rowsAffected = await db.ExecuteNonQueryAsync(sql, parms, CommandType.Text);
+
+                return rowsAffected > 0;
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine(ex.Message);
+                throw;
+            }
+        }
     }
 }

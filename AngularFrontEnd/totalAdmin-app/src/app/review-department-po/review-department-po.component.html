@@ -1,16 +1,7 @@
 <div class="container">
 
-    <h1 class="fw-bold mt-5 text-center" *ngIf="showSearchForm">Review Purchase Orders</h1>
+    <h1 class="fw-bold mt-5 text-center">Review Purchase Orders</h1>
 
-
-    <form [formGroup]="employeeForm" (ngSubmit)="onSubmit()" *ngIf="showSearchForm">
-        <div class="form-group">
-            <label for="employeeNumber">Enter Employee Number</label>
-            <input type="text" id="employeeNumber" placeholder="8-digit number..." formControlName="EmployeeNumber"
-                class="form-control" [value]="employeeNumber" required>
-        </div>
-        <button type="submit" class="btn btn-primary" [disabled]="!employeeForm.valid">Search</button>
-    </form>
 
     <div *ngIf="errors.length > 0" class="alert alert-danger">
         <ul>
@@ -19,10 +10,9 @@
     </div>
 
     <div class="m-5" *ngIf="purchaseOrders.length > 0">
+
         <h2 class="text-start ">{{ purchaseOrders.length }} Purchase Orders found</h2>
 
-        <p><strong>Employee Name:</strong> {{purchaseOrders[0].employeeName}}</p>
-        <p><strong>Supervisor Name:</strong> {{purchaseOrders[0].employeeSupervisorName}}</p>
         <p><strong>Department Name:</strong> {{purchaseOrders[0].empDepartmentName}}</p>
 
         <div *ngFor="let purchaseOrder of purchaseOrders">
@@ -31,8 +21,9 @@
                 <div class="card-header bg-light mice-p"
                     (click)="toggleCardBody(purchaseOrder.formattedPoNumber || '', cardElement)"
                     title="Click to view details">
-                    <h5 class="mb-0 po-text-link"> {{arrowState[purchaseOrder.formattedPoNumber || ''] || '▶ '}}
-                        Purchase Order Number: #{{purchaseOrder.formattedPoNumber}}
+                    <h5 class="mb-0 po-text-link">
+                        {{arrowState[purchaseOrder.formattedPoNumber || ''] || '▶ '}} Purchase Order Number:
+                        #{{purchaseOrder.formattedPoNumber}}
                         <small class="text-muted">Creation Date: {{purchaseOrder.creationDate |
                             date:'shortDate'}}</small>
                     </h5>
@@ -41,6 +32,7 @@
                 <div class="card-body" *ngIf="showCardBody[purchaseOrder.formattedPoNumber || '']">
 
                     <p><strong>Status:</strong> {{purchaseOrder.purchaseOrderStatus}}</p>
+
                     <div class="card-footer bg-light">
                         <p><strong>Subtotal:</strong> {{purchaseOrder.subtotal | currency}}</p>
                         <p><strong>Tax:</strong> {{purchaseOrder.tax | currency}}</p>
@@ -60,6 +52,8 @@
                                 <th>Subtotal</th>
                                 <th>Tax</th>
                                 <th>Grand Total</th>
+                                <th>Manage</th>
+                                <th></th>
                             </tr>
                         </thead>
                         <tbody>
@@ -68,11 +62,16 @@
                                 <td>{{ item.description }}</td>
                                 <td>{{ item.price | currency }}</td>
                                 <td>{{ item.justification }}</td>
-                                <td *ngIf="purchaseOrder.purchaseOrderStatus === 'Closed'">{{ item.itemStatus }}</td>
-                                <td *ngIf="purchaseOrder.purchaseOrderStatus !== 'Closed'">Pending</td>
+                                <td>{{ item.itemStatus }}</td>
                                 <td>{{ item.subtotal | currency }}</td>
                                 <td>{{ item.tax | currency }}</td>
                                 <td>{{ item.grandTotal | currency }}</td>
+                                <th><button class="btn btn-light" title="Aprrove"
+                                        (click)="approveItem(item.itemId, purchaseOrder.poNumber)"
+                                        type="button">✔️</button></th>
+                                <th><button class="btn btn-light" title="Deny"
+                                        (click)="denyItem(item.itemId, purchaseOrder.poNumber)" type="button">❌</button>
+                                </th>
                             </tr>
                         </tbody>
                     </table>
