@@ -24,6 +24,8 @@ export class EmployeeUpdateComponent {
   errors: string[] = []
   hashedPassword: string;
   loadingData: boolean = true;
+  oldJobTitle: string = '';
+  oldJobStartDate: string = '';
 
   employeeForm: FormGroup; 
 
@@ -91,9 +93,11 @@ export class EmployeeUpdateComponent {
     });
 
     this.employeeForm.get('jobTitle')?.valueChanges.subscribe(() => {
-      if (!this.loadingData && this.employeeForm.get('jobTitle')?.dirty) { 
+      if (!this.loadingData && this.employeeForm.get('jobTitle')?.dirty && this.employeeForm.get('jobTitle')?.value != this.oldJobTitle) { 
         const today = formatDate(new Date(), 'yyyy-MM-dd', 'en-US');
         this.employeeForm.get('jobStartDate')?.setValue(today);
+      } else if (this.employeeForm.get('jobTitle')?.value == this.oldJobTitle){
+        this.employeeForm.get('jobStartDate')?.setValue(this.oldJobStartDate);
       }
     });
 
@@ -158,6 +162,9 @@ export class EmployeeUpdateComponent {
         this.employeeForm.get('statusId')?.disable();
         this.employeeForm.get('retiredDate')?.disable();
       }
+      // set old job title and job start date
+      this.oldJobStartDate = formattedJobStartDate;
+      this.oldJobTitle = e.jobTitle;
 
       this.employeeForm.patchValue(e);
     });
