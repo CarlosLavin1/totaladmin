@@ -354,9 +354,9 @@ namespace TotalAdmin.API.Controllers
 
                 return Ok(po);
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                return Problem(title: "An internal error has occurred. Please contact the system administrator");
+                return Problem(ex.Message);
             }
         }
 
