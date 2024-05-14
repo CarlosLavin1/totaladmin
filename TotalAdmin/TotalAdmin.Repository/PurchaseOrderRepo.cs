@@ -180,17 +180,24 @@ namespace TotalAdmin.Repository
         {
             try
             {
+                // Fetch the current RowVersion of the purchase order
+                string sql = "SELECT RowVersion FROM PurchaseOrder WHERE PONumber = @PONumber";
+                byte[] rowVersion = (byte[])await db.ExecuteScalarAsync
+                    (sql, new List<Parm> { new Parm("@PONumber", SqlDbType.Int, PONumber) }, CommandType.Text);
+
+
                 List<Parm> parms = new()
                 {
                     new Parm("@PONumber", SqlDbType.Int, PONumber),
+                    new Parm("@RowVersion", SqlDbType.Timestamp,rowVersion)
                 };
 
-                string sql = "UPDATE PurchaseOrder SET PurchaseOrderStatusId = 3 WHERE PONumber = @PONumber";
-                await db.ExecuteNonQueryAsync(sql, parms, CommandType.Text);
 
-                // fetch the updated purchase orders
-                sql = "SELECT * FROM PurchaseOrder WHERE PONumber = @PONumber";
-                DataTable dt = await db.ExecuteAsync(sql, parms, CommandType.Text);
+                // Execute the stored procedure
+                await db.ExecuteNonQueryAsync("spClosePO", parms, CommandType.StoredProcedure);
+
+                // Fetch the updated purchase orders
+                DataTable dt = await db.ExecuteAsync("spClosePO", parms, CommandType.StoredProcedure);
 
                 // Get the employee's email
                 string employeeEmail = await GetEmployeeEmail(PONumber);

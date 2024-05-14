@@ -85,13 +85,13 @@ export class ReviewDepartmentPOComponent implements OnInit {
             const allItemsProcessed = purchaseOrder.items.every(item => item.statusId !== 1);
 
             console.log("all ietm proccesed: " + allItemsProcessed);
-            
+
             if (!this.showCloseButton[purchaseOrder.poNumber]) {
               this.showCloseButton[purchaseOrder.poNumber] = allItemsProcessed;
             }
 
             console.log('The item procssed is: ' + !this.showCloseButton[purchaseOrder.poNumber]);
-            
+
           });
         },
         error: (error) => {
@@ -136,7 +136,7 @@ export class ReviewDepartmentPOComponent implements OnInit {
     let item: Item = {
       itemId: itemId,
       statusId: 2,  // Approved status
-      rejectedReason: null 
+      rejectedReason: null
     };
 
     this.itemService.updateItem(item).subscribe({
@@ -202,6 +202,11 @@ export class ReviewDepartmentPOComponent implements OnInit {
       },
       error: (error) => {
         console.error(error);
+        if (error.error.errors) {
+          this.showErrorMessage(error.error.errors[0].description);
+        } else {
+          this.showErrorMessage(error.error);
+        }
       }
     });
   }
@@ -229,7 +234,7 @@ export class ReviewDepartmentPOComponent implements OnInit {
     let item: Item = {
       itemId: itemId,
       statusId: 3,  // Denied status
-      rejectedReason: reason 
+      rejectedReason: reason
     };
 
     this.itemService.updateItem(item).subscribe({
@@ -284,7 +289,11 @@ export class ReviewDepartmentPOComponent implements OnInit {
       },
       error: (error) => {
         console.error(error);
-        this.snackbarService.showSnackBar(error.error, 4500);
+        if (error.error.errors) {
+          this.showErrorMessage(error.error.errors[0].description);
+        } else {
+          this.showErrorMessage(error.error);
+        }
       }
     });
   }
@@ -305,6 +314,14 @@ export class ReviewDepartmentPOComponent implements OnInit {
       },
       error: (error) => {
         console.error(error);
+        if (error.error.errors) {
+          this.showErrorMessage(error.error.errors[0].description);
+        }
+        else if (error.error.detail) {
+          this.showErrorMessage(error.error.detail);
+        } else {
+          this.showErrorMessage(error.error);
+        }
       }
     });
   }
@@ -312,6 +329,6 @@ export class ReviewDepartmentPOComponent implements OnInit {
   allItemsProcessed(purchaseOrder: PurchaseOrder): boolean {
     return purchaseOrder.items.every(item => item.statusId !== 1);
   }
-  
+
 
 }
