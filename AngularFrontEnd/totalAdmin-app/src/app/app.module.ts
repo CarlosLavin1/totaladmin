@@ -33,6 +33,7 @@ import { UpdatePersonalInfoComponent } from './update-personal-info/update-perso
 import { EmployeeUpdateComponent } from './employee-update/employee-update.component';
 import { ReviewDepartmentPOComponent } from './review-department-po/review-department-po.component';
 import { SearchDepartmentPOComponent } from './search-department-po/search-department-po.component';
+import { DepartmentDeleteComponent } from './department-delete/department-delete.component';
 
 
 @NgModule({
@@ -58,7 +59,8 @@ import { SearchDepartmentPOComponent } from './search-department-po/search-depar
     UpdatePersonalInfoComponent,
     EmployeeUpdateComponent,
     ReviewDepartmentPOComponent,
-    SearchDepartmentPOComponent
+    SearchDepartmentPOComponent,
+    DepartmentDeleteComponent
   ],
   imports: [
     BrowserModule,

@@ -7,6 +7,14 @@ GO
 USE TotalAdmin
 GO
 
+-- review reminder
+IF OBJECT_ID('TotalAdmin.dbo.ReviewReminder', 'U') IS NULL
+	CREATE TABLE ReviewReminder(
+		Id INT IDENTITY(1,1) NOT NULL PRIMARY KEY,
+		DaySent DATETIME2(7) NOT NULL
+	);
+GO
+
 -- review status
 IF OBJECT_ID('TotalAdmin.dbo.ReviewRating', 'U') IS NULL
 	CREATE TABLE ReviewRating(

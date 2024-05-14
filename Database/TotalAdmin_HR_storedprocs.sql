@@ -505,3 +505,17 @@ BEGIN
 	END CATCH
 END
 GO
+
+--get review reminder date
+CREATE OR ALTER PROC spGetMostRecentReviewReminderDate
+AS
+BEGIN
+	BEGIN TRY	
+		SELECT MAX(DaySent) AS MostRecentDate
+		FROM ReviewReminder
+	END TRY
+	BEGIN CATCH
+		;THROW
+	END CATCH
+END
+GO
