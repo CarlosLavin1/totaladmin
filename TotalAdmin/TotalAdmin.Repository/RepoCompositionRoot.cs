@@ -21,6 +21,7 @@ namespace TotalAdmin.Repository
             services.AddScoped<IEmployeeRepository, EmployeeRepository>();
             services.AddScoped<ILoginRepository, LoginRepository>();
             services.AddScoped<IPurchaseOrderRepo, PurchaseOrderRepo>();
+            services.AddScoped<IReviewRepository, ReviewRepository>();
         }
     }
 }
