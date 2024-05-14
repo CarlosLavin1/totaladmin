@@ -20,7 +20,7 @@ namespace TotalAdmin.API.Controllers
         [HttpPost]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        public ActionResult<Department> Create(Review review)
+        public ActionResult<Review> Create(Review review)
         {
             try
             {
