@@ -19,6 +19,7 @@ namespace TotalAdmin.Service
             services.AddScoped<IEmployeeService, EmployeeService>();
             services.AddScoped<ILoginService, LoginService>();
             services.AddScoped<IPurchaseOrderService, PurchaseOrderService>();
+            services.AddScoped<IReviewService, ReviewService>();
 
             // Register repository dependencies
             RepoCompositionRoot.RegisterDependencies(services);

@@ -26,8 +26,13 @@ namespace TotalAdmin.Repository
                 new("@ReviewId", SqlDbType.Int, review.Id, 0, ParameterDirection.Output),
                 new("@RatingId", SqlDbType.Int, review.RatingId),
                 new("@Comment", SqlDbType.NVarChar, review.Comment, int.MaxValue),
+                new("@EmployeeNumber", SqlDbType.Int, review.EmployeeNumber),
+                new("@SupervisorEmployeeNumber", SqlDbType.Int, review.SupervisorEmployeeNumber),
+                new("@ReviewDate", SqlDbType.DateTime2, review.ReviewDate),
+                new("@HasBeenRead", SqlDbType.Bit, 0),
+
             };
-            if (db.ExecuteNonQuery("spInsertDepartment", parms) > 0)
+            if (db.ExecuteNonQuery("spInsertReview", parms) > 0)
             {
                 review.Id = (int?)parms.FirstOrDefault(p => p.Name == "@ReviewId")!.Value ?? 0;
             }
