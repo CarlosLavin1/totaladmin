@@ -1,4 +1,5 @@
 ﻿using DAL;
+using Microsoft.Data.SqlClient;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -57,30 +58,24 @@ namespace TotalAdmin.Repository
                     new Parm("@ItemId", SqlDbType.Int, i.ItemId),
                     new Parm("@NewStatusId", SqlDbType.Int, i.StatusId),
                     new Parm("@Reason", SqlDbType.NVarChar, i.RejectedReason),
+                    new Parm("@RowVersion", SqlDbType.Timestamp, i.RowVersion, 0, ParameterDirection.Output)
                 };
 
-
-                // Execute the stored procedure and get the result
-                DataTable dt = await db.ExecuteAsync("spUpdateItem", parms);
-
-                // Map the result to an Item object
-                Item updatedItem = new Item();
-                if (dt.Rows.Count > 0)
+                // Execute the stored procedure and check the result
+                int results = await db.ExecuteNonQueryAsync("spUpdateItem", parms);
+                if (results == -1)
                 {
-                    DataRow row = dt.Rows[0];
-                    updatedItem.ItemId = Convert.ToInt32(row["ItemId"]);
-                    updatedItem.Name = Convert.ToString(row["Name"]);
-                    updatedItem.Quantity = Convert.ToInt32(row["Quantity"]);
-                    updatedItem.Description = Convert.ToString(row["Description"]);
-                    updatedItem.Price = Convert.ToDecimal(row["Price"]);
-                    updatedItem.Justification = Convert.ToString(row["Justification"]);
-                    updatedItem.Location = Convert.ToString(row["ItemLocation"]);
-                    updatedItem.RejectedReason = Convert.ToString(row["RejectedReason"]);
-                    updatedItem.StatusId = Convert.ToInt32(row["ItemStatusId"]);
-                    updatedItem.RowVersion = (byte[])row["RowVersion"];
+                    // Concurrency conflict occurred
+                    i.AddError(new ValidationError("The record has been modified by another user since it was last fetched. Please refresh the page", ErrorType.Model));
                 }
 
-                return updatedItem;
+                return i;
+            }
+            catch (SqlException ex) when (ex.Message.Contains("The record has been modified by another user since it was last fetched. Please refresh the page"))
+            {
+                // Concurrency conflict occurred
+                i.AddError(new ValidationError(ex.Message, ErrorType.Model));
+                return i;
             }
             catch (Exception ex)
             {
