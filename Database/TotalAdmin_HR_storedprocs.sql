@@ -447,6 +447,21 @@ BEGIN
 END
 GO
 
+-- delete department
+CREATE OR ALTER PROC spDeleteDepartment
+	@DepartmentId INT
+AS
+BEGIN
+	BEGIN TRY	
+		DELETE FROM Department
+		WHERE DepartmentId = @DepartmentId;
+	END TRY
+	BEGIN CATCH
+		;THROW
+	END CATCH
+END
+GO
+
 -- select * from Role
 -- login
 CREATE OR ALTER PROC spLogin
@@ -468,6 +483,22 @@ BEGIN
 			EmployeeNumber = @EmployeeNumber
 			AND UPPER([HashedPassword]) = UPPER(@HashedPassword)
 			AND StatusId = 1
+	END TRY
+	BEGIN CATCH
+		;THROW
+	END CATCH
+END
+GO
+
+-- get reviews for employee
+CREATE OR ALTER PROC spGetReviewsForEmployee
+	@EmployeeNumber INT
+AS
+BEGIN
+	BEGIN TRY	
+		SELECT *
+		FROM Review
+		WHERE EmployeeNumber = @EmployeeNumber
 	END TRY
 	BEGIN CATCH
 		;THROW

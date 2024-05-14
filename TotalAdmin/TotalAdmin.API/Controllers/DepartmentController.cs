@@ -138,5 +138,28 @@ namespace TotalAdmin.API.Controllers
             }
 
         }
+
+        [Authorize(Roles = "HR Employee")]
+        [HttpDelete("{id}")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        public ActionResult<bool> Delete(int id)
+        {
+            try
+            {
+                bool success = departmentService.DeleteDepartment(id);
+
+                return success ? Ok() : BadRequest();
+            }
+            catch (SqlException e)
+            {
+                return e.Number == 50100 ? BadRequest(e.Message) : BadRequest();
+            }
+            catch (Exception)
+            {
+                return Problem(title: "An internal error has occurred. Please contact the system administrator.");
+            }
+
+        }
     }
 }
