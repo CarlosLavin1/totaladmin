@@ -39,4 +39,8 @@ export class DepartmentService extends SharedService{
       .get<DepartmentListDto[]>(`${API_URL7161}/department/all`)
       .pipe(catchError(super.handleError));
   }
+
+  deleteDepartment(departmentId: number): Observable<boolean> {
+    return this.http.delete<boolean>(`${API_URL7161}/department/${departmentId}`).pipe(catchError(super.handleError));
+  }
 }
