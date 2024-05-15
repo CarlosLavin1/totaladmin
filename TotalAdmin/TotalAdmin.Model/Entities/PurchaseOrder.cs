@@ -45,5 +45,6 @@ namespace TotalAdmin.Model.Entities
         public decimal Subtotal => Items?.Sum(item => item.Subtotal) ?? 0;
         public decimal Tax => Items?.Sum(item => item.Tax) ?? 0;
         public decimal GrandTotal => Items?.Sum(item => item.GrandTotal) ?? 0;
+        public decimal TotalExpenseAmt => Subtotal + Tax + GrandTotal;
     }
 }

@@ -47,6 +47,10 @@
                         routerLink="/search-department-po">Search Department POs</a>
                 </li>
                 <li class="nav-item">
+                    <a *ngIf="userIsAuthenticated && role == 'Supervisor'" class="btn btn-info"
+                        routerLink="/supervisor-dashboard">Dashboard</a>
+                </li>
+                <li class="nav-item">
                     <button class="btn btn-warning" *ngIf="userIsAuthenticated" (click)="logOut()">Logout</button>
                 </li>
             </ul>

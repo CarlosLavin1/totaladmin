@@ -33,7 +33,10 @@ import { UpdatePersonalInfoComponent } from './update-personal-info/update-perso
 import { EmployeeUpdateComponent } from './employee-update/employee-update.component';
 import { ReviewDepartmentPOComponent } from './review-department-po/review-department-po.component';
 import { SearchDepartmentPOComponent } from './search-department-po/search-department-po.component';
+import { SupervisorDashboardComponent } from './supervisor-dashboard/supervisor-dashboard.component';
+import { DatePipe } from '@angular/common';
 import { DepartmentDeleteComponent } from './department-delete/department-delete.component';
+
 
 
 @NgModule({
@@ -60,6 +63,7 @@ import { DepartmentDeleteComponent } from './department-delete/department-delete
     EmployeeUpdateComponent,
     ReviewDepartmentPOComponent,
     SearchDepartmentPOComponent,
+    SupervisorDashboardComponent
     DepartmentDeleteComponent
   ],
   imports: [
@@ -77,6 +81,7 @@ import { DepartmentDeleteComponent } from './department-delete/department-delete
       useClass: AuthInterceptor,
       multi: true,
     },
+    DatePipe
   ],
   bootstrap: [AppComponent]
 })
