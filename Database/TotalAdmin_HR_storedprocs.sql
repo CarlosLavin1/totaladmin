@@ -587,10 +587,16 @@ BEGIN
 			WHEN MONTH(@CurrentDate) IN (10, 11, 12) THEN DATEFROMPARTS(YEAR(@CurrentDate), 12, 31)
 		END;
 		-- get all employees that don't have a review in this quarter
-		SELECT *
-		FROM Employee
-		WHERE SupervisorEmpNumber = @SupervisorEmployeeNumber
-		AND (SELECT COUNT(*) FROM Review WHERE EmployeeNumber = Employee.EmployeeNumber AND (ReviewDate BETWEEN @StartOfQuarter AND @EndOfQuarter)) = 0
+		SELECT 
+			*
+		FROM 
+			Employee
+		WHERE 
+			SupervisorEmpNumber = @SupervisorEmployeeNumber
+			AND (SELECT COUNT(*) FROM Review WHERE EmployeeNumber = Employee.EmployeeNumber AND (ReviewDate BETWEEN @StartOfQuarter AND @EndOfQuarter)) = 0
+		ORDER BY
+			LastName,
+			FirstName
 	END TRY
 	BEGIN CATCH
 		;THROW

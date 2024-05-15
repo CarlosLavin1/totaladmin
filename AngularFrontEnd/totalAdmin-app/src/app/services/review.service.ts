@@ -17,7 +17,7 @@ export class ReviewService extends SharedService{
         return this.http.post<Review>(`${API_URL7161}/review`, review).pipe(catchError(super.handleError));
     }
 
-    getEmployeesDueForReviewForSupervisor(supervisorEmployeeNumber: number): Observable<Employee> {
-        return this.http.get<Employee>(`${API_URL7161}/review/due/${supervisorEmployeeNumber}`).pipe(catchError(super.handleError));
+    getEmployeesDueForReviewForSupervisor(supervisorEmployeeNumber: number): Observable<Employee[]> {
+        return this.http.get<Employee[]>(`${API_URL7161}/review/due/${supervisorEmployeeNumber}`).pipe(catchError(super.handleError));
     }
 }
