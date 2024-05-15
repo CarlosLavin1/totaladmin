@@ -19,6 +19,7 @@ import { EmployeeUpdateComponent } from './employee-update/employee-update.compo
 import { ReviewDepartmentPOComponent } from './review-department-po/review-department-po.component';
 import { SearchDepartmentPOComponent } from './search-department-po/search-department-po.component';
 import { SupervisorDashboardComponent } from './supervisor-dashboard/supervisor-dashboard.component';
+import { DepartmentDeleteComponent } from './department-delete/department-delete.component';
 
 // for routing
 const routes: Routes = [
@@ -40,6 +41,7 @@ const routes: Routes = [
   { path: 'employee-details/:id', component: EmployeeDetailsComponent, canActivate: [AuthGuard], data: { roles: ['CEO', 'HR Employee']} },
   { path: 'update-employee/:id', component: EmployeeUpdateComponent, canActivate: [AuthGuard], data: { roles: ['CEO', 'HR Employee']} },
   { path: 'update-personal-info/:id', component: UpdatePersonalInfoComponent, canActivate: [AuthGuard], data: { roles: ['CEO', 'Employee', 'HR Employee']} },
+  { path: 'delete-department/:id', component: DepartmentDeleteComponent, canActivate: [AuthGuard], data: { roles: ['CEO', 'HR Employee']} },
   { path: '**', redirectTo: '' },
 ]
 
