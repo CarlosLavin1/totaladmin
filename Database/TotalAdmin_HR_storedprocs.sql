@@ -505,3 +505,54 @@ BEGIN
 	END CATCH
 END
 GO
+
+--get review reminder date
+CREATE OR ALTER PROC spGetMostRecentReviewReminderDate
+AS
+BEGIN
+	BEGIN TRY	
+		SELECT MAX(DaySent) AS MostRecentDate
+		FROM ReviewReminder
+	END TRY
+	BEGIN CATCH
+		;THROW
+	END CATCH
+END
+GO
+
+-- add review
+CREATE OR ALTER PROC spInsertReview
+	@ReviewId INT OUTPUT,
+	@RatingId INT,
+	@Comment NVARCHAR(MAX),
+	@EmployeeNumber INT,
+	@SupervisorEmployeeNumber INT,
+	@ReviewDate DATETIME2(7),
+	@HasBeenRead BIT
+AS
+BEGIN
+	BEGIN TRY	
+		INSERT INTO Review (
+			ReviewRatingId,
+			Comment,
+			EmployeeNumber,
+			SupervisorEmployeeNumber,
+			ReviewDate,
+			IsRead
+		)
+		VALUES (
+			@RatingId,
+			@Comment,
+			@EmployeeNumber,
+			@SupervisorEmployeeNumber,
+			@ReviewDate,
+			@HasBeenRead
+		)
+		-- Retrieve the last inserted ReviewId
+		SET @ReviewId = SCOPE_IDENTITY()
+	END TRY
+	BEGIN CATCH
+		;THROW
+	END CATCH
+END 
+GO

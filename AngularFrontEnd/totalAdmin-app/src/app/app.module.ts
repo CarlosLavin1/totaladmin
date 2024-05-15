@@ -35,6 +35,9 @@ import { ReviewDepartmentPOComponent } from './review-department-po/review-depar
 import { SearchDepartmentPOComponent } from './search-department-po/search-department-po.component';
 import { SupervisorDashboardComponent } from './supervisor-dashboard/supervisor-dashboard.component';
 import { DatePipe } from '@angular/common';
+import { DepartmentDeleteComponent } from './department-delete/department-delete.component';
+
+
 
 @NgModule({
   declarations: [
@@ -61,6 +64,7 @@ import { DatePipe } from '@angular/common';
     ReviewDepartmentPOComponent,
     SearchDepartmentPOComponent,
     SupervisorDashboardComponent
+    DepartmentDeleteComponent
   ],
   imports: [
     BrowserModule,
