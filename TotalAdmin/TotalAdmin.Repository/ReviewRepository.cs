@@ -44,14 +44,33 @@ namespace TotalAdmin.Repository
             return review;
         }
 
-        public Task<List<Review>> GetReviewsForEmployee(int employeeNumber)
+        public async Task<List<Review>> GetReviewsForEmployee(int employeeNumber)
         {
-            throw new NotImplementedException();
+            List<Parm> parms = new()
+            {
+                new("@EmployeeNumber", SqlDbType.Int, employeeNumber),
+            };
+            DataTable dt = await db.ExecuteAsync("spGetReviewsForEmployee", parms);
+            return dt.AsEnumerable().Select(row => PopulateReview(row)).ToList();
         }
 
         public Review ChangeReviewRead(int reviewId)
         {
             throw new NotImplementedException();
+        }
+
+        private Review PopulateReview(DataRow row)
+        {
+            return new Review()
+            {
+                Id = Convert.ToInt32(row["Id"]),
+                RatingId = Convert.ToInt32(row["RatingId"]),
+                Comment = row["Comment"].ToString(),
+                HasBeenRead = Convert.ToBoolean(row["IsRead"]),
+                ReviewDate = Convert.ToDateTime(row["ReviewDate"]),
+                EmployeeNumber = Convert.ToInt32(row["EmployeeNumber"]),
+                SupervisorEmployeeNumber = Convert.ToInt32(row["SupervisorEmployeeNumber"])
+            };
         }
     }
 }

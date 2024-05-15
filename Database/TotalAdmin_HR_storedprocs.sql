@@ -452,7 +452,12 @@ CREATE OR ALTER PROC spDeleteDepartment
 	@DepartmentId INT
 AS
 BEGIN
-	BEGIN TRY	
+	BEGIN TRY
+		IF (SELECT COUNT(EmployeeNumber) FROM Employee WHERE DepartmentId = @DepartmentId) > 0
+			BEGIN
+				;THROW 50100, 'This department has associated employees, please remove all employees from department before deleting department', 1;
+			END
+
 		DELETE FROM Department
 		WHERE DepartmentId = @DepartmentId;
 	END TRY
