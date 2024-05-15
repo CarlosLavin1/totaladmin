@@ -10,5 +10,6 @@ namespace TotalAdmin.Service
     public interface IReviewService
     {
         Review CreateReview(Review review);
+        Task<List<Employee>> GetEmployeesDueForReviewForSupervisor(int supervisorEmployeeNumber);
     }
 }

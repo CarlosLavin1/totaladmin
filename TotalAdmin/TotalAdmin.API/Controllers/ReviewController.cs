@@ -16,7 +16,7 @@ namespace TotalAdmin.API.Controllers
             this.reviewService = reviewService;
         }
 
-        [Authorize(Roles = "HR Employee")]
+        [Authorize(Roles = "Supervisor")]
         [HttpPost]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -32,6 +32,23 @@ namespace TotalAdmin.API.Controllers
 
                 // this returns get route for newly created department
                 return Ok(review);
+            }
+            catch (Exception)
+            {
+                return Problem(title: "An internal error has occurred. Please contact the system administrator.");
+            }
+        }
+
+        [Authorize(Roles = "Supervisor")]
+        [HttpGet("due/{id}")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        public async Task<ActionResult<List<Employee>>> GetEmployeesDueForReviewForSupervisor(int id)
+        {
+            try
+            {
+                List<Employee> employees = await reviewService.GetEmployeesDueForReviewForSupervisor(id);
+
+                return employees;
             }
             catch (Exception)
             {

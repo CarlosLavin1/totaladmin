@@ -36,6 +36,8 @@ import { SearchDepartmentPOComponent } from './search-department-po/search-depar
 import { SupervisorDashboardComponent } from './supervisor-dashboard/supervisor-dashboard.component';
 import { DatePipe } from '@angular/common';
 import { DepartmentDeleteComponent } from './department-delete/department-delete.component';
+import { ReviewCreateComponent } from './review-create/review-create.component';
+import { EmployeesDueForReviewComponent } from './employees-due-for-review/employees-due-for-review.component';
 
 
 
@@ -64,7 +66,9 @@ import { DepartmentDeleteComponent } from './department-delete/department-delete
     ReviewDepartmentPOComponent,
     SearchDepartmentPOComponent,
     SupervisorDashboardComponent,
-    DepartmentDeleteComponent
+    DepartmentDeleteComponent,
+    ReviewCreateComponent,
+    EmployeesDueForReviewComponent
   ],
   imports: [
     BrowserModule,

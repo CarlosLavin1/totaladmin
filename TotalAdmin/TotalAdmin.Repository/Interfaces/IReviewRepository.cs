@@ -12,5 +12,6 @@ namespace TotalAdmin.Repository
         Review CreateReview(Review review);
         Review ChangeReviewRead(int reviewId);
         Task<List<Review>> GetReviewsForEmployee(int employeeNumber); 
+        Task<List<Employee>> GetEmployeesDueForReviewForSupervisor(int supervisorEmployeeNumber);
     }
 }
