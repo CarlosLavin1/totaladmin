@@ -16,7 +16,7 @@ namespace TotalAdmin.API.Controllers
             this.reviewService = reviewService;
         }
 
-        [Authorize(Roles = "HR Employee")]
+        [Authorize(Roles = "Supervisor")]
         [HttpPost]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
