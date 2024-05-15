@@ -51,6 +51,7 @@ export class DepartmentDeleteComponent {
       console.log(d);
       const formattedDate = formatDate(d.invocationDate, 'yyyy-MM-dd', 'en-US');
       this.invocationDate = formattedDate;
+      this.department = d;
     });
     this.subscriptions.push(sub);
   }

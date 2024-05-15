@@ -63,7 +63,7 @@ import { DepartmentDeleteComponent } from './department-delete/department-delete
     EmployeeUpdateComponent,
     ReviewDepartmentPOComponent,
     SearchDepartmentPOComponent,
-    SupervisorDashboardComponent
+    SupervisorDashboardComponent,
     DepartmentDeleteComponent
   ],
   imports: [
