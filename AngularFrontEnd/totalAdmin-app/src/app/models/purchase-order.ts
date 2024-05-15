@@ -16,6 +16,7 @@ export class PurchaseOrder {
     subtotal: number;
     tax: number;
     grandTotal: number;
+    totalExpenseAmt: number;
 }
 
   

@@ -33,7 +33,8 @@ import { UpdatePersonalInfoComponent } from './update-personal-info/update-perso
 import { EmployeeUpdateComponent } from './employee-update/employee-update.component';
 import { ReviewDepartmentPOComponent } from './review-department-po/review-department-po.component';
 import { SearchDepartmentPOComponent } from './search-department-po/search-department-po.component';
-
+import { SupervisorDashboardComponent } from './supervisor-dashboard/supervisor-dashboard.component';
+import { DatePipe } from '@angular/common';
 
 @NgModule({
   declarations: [
@@ -58,7 +59,8 @@ import { SearchDepartmentPOComponent } from './search-department-po/search-depar
     UpdatePersonalInfoComponent,
     EmployeeUpdateComponent,
     ReviewDepartmentPOComponent,
-    SearchDepartmentPOComponent
+    SearchDepartmentPOComponent,
+    SupervisorDashboardComponent
   ],
   imports: [
     BrowserModule,
@@ -75,6 +77,7 @@ import { SearchDepartmentPOComponent } from './search-department-po/search-depar
       useClass: AuthInterceptor,
       multi: true,
     },
+    DatePipe
   ],
   bootstrap: [AppComponent]
 })

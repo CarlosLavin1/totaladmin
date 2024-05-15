@@ -13,9 +13,12 @@ BEGIN
 		ItemJust NVARCHAR(255),
 		ItemLoc NVARCHAR(255),
 		RejectedReason NVARCHAR(100),
+		ModifiedReason NVARCHAR(100),
 		ItemStatus INT)
 END
 GO
+
+
 
 -- Stored procedure to create a PurchaseOrder
 CREATE OR ALTER PROC [dbo].[spAddPurchaseOrder]
@@ -43,8 +46,8 @@ BEGIN
 
 		-- add the the new PO items data
 		INSERT INTO Item
-		([Name], Quantity, [Description], Price, Justification, ItemLocation, RejectedReason, PoNumber, ItemStatusId)
-			SELECT ItemName, ItemQty, ItemDesc, ItemPrice, ItemJust, ItemLoc, RejectedReason, @PoNumber, ItemStatus FROM @POItems
+		([Name], Quantity, [Description], Price, Justification, ItemLocation, RejectedReason, ModifiedReason, PoNumber, ItemStatusId)
+			SELECT ItemName, ItemQty, ItemDesc, ItemPrice, ItemJust, ItemLoc, RejectedReason, ModifiedReason, @PoNumber, ItemStatus FROM @POItems
 
 
 			SET @RowVersion = (SELECT [RowVersion] FROM PurchaseOrder WHERE PoNumber = @PoNumber)
@@ -59,6 +62,66 @@ BEGIN
 
 END
 GO
+
+
+-- Stored procedure to modify a PurchaseOrder
+CREATE OR ALTER PROC [dbo].[spUpdatePurchaseOrder]
+	@PoNumber INT,
+	@RowVersion ROWVERSION OUTPUT,
+	@CreationDate DATETIME2(7),
+	@PurchaseOrderStatusId INT,
+	@EmployeeNumber int,
+	@POItems PoItemsTableType READONLY -- Contains rows of item thats part of the PO
+AS
+BEGIN
+	BEGIN TRY
+		BEGIN TRAN
+		
+			-- Update the PurchaseOrder
+			UPDATE PurchaseOrder
+			SET 
+				CreationDate = @CreationDate,
+				PurchaseOrderStatusId = @PurchaseOrderStatusId,
+				EmployeeNumber = @EmployeeNumber
+			WHERE 
+				PoNumber = @PoNumber AND
+				[RowVersion] = @RowVersion;
+
+
+			-- Update the PO items data
+			UPDATE Item
+			SET 
+				[Name] = POItems.ItemName, 
+				Quantity = POItems.ItemQty, 
+				[Description] = POItems.ItemDesc, 
+				Price = POItems.ItemPrice, 
+				Justification = POItems.ItemJust, 
+				ItemLocation = POItems.ItemLoc, 
+				RejectedReason = POItems.RejectedReason, 
+				ModifiedReason = POItems.ModifiedReason,
+				ItemStatusId = POItems.ItemStatus
+			FROM 
+				@POItems AS POItems
+			WHERE
+				Item.PoNumber = @PoNumber AND Item.ItemId = POItems.ItemId
+
+
+			IF @@ROWCOUNT = 0
+			BEGIN
+				-- No rows updated, possible RowVersion mismatch
+				;THROW 50100, 'The record has been modified by another user since it was last fetched. Please refresh the page', 1;
+			END
+
+		COMMIT TRAN
+	END TRY
+	BEGIN CATCH
+		IF @@TRANCOUNT > 0
+				ROLLBACK TRAN
+		;THROW
+	END CATCH
+END
+GO
+
 
 
 

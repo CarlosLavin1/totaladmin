@@ -1,0 +1,15 @@
+<div class="d-flex justify-content-center mt-5">
+    <div class="col-lg-8 col-md-5 col-sm-3">
+        <h3 class="text-center m-5">Monitor Purchase Orders</h3>
+        <canvas id="chart" class="w-100"></canvas>
+    </div>
+    <div class="d-flex flex-column">
+        <button  *ngIf="pendingReviews > 0" type="button" class="btn btn-warning text-white h-10">
+            <span class="badge badge-light"> {{ pendingReviews }} </span> Pending Reviews
+        </button>
+        <br>
+        <button title="This is just for test purposes, It will not be displayed if no reviews found" *ngIf="pendingReviews > 0" type="button" class="btn btn-info text-white h-10">
+            <span class="badge badge-light"> testing </span> Unread Reviews
+        </button>
+    </div>
+</div>
