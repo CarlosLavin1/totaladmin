@@ -33,7 +33,7 @@ namespace TotalAdmin.API.Controllers
                 // this returns get route for newly created department
                 return Ok(review);
             }
-            catch (Exception)
+            catch (Exception e)
             {
                 return Problem(title: "An internal error has occurred. Please contact the system administrator.");
             }
