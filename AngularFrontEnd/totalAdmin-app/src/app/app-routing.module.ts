@@ -20,6 +20,7 @@ import { EmployeeUpdateComponent } from './employee-update/employee-update.compo
 import { ReviewDepartmentPOComponent } from './review-department-po/review-department-po.component';
 import { SearchDepartmentPOComponent } from './search-department-po/search-department-po.component';
 import { SupervisorDashboardComponent } from './supervisor-dashboard/supervisor-dashboard.component';
+import { EmployeeDashboardComponent } from './employee-dashboard/employee-dashboard.component';
 import { DepartmentDeleteComponent } from './department-delete/department-delete.component';
 import { ReviewCreateComponent } from './review-create/review-create.component';
 import { EmployeesDueForReviewComponent } from './employees-due-for-review/employees-due-for-review.component';
@@ -37,6 +38,7 @@ const routes: Routes = [
   { path: 'review-department-po', component: ReviewDepartmentPOComponent, canActivate: [AuthGuard] },
   { path: 'search-department-po', component: SearchDepartmentPOComponent, canActivate: [AuthGuard], data: { roles: ['CEO', 'Supervisor']} },
   { path: 'supervisor-dashboard', component: SupervisorDashboardComponent, canActivate: [AuthGuard], data: { roles: ['CEO', 'Supervisor']} },
+  { path: 'employee-dashboard', component: EmployeeDashboardComponent, canActivate: [AuthGuard], data: { roles: ['Employee']} },
   { path: 'login', component: LoginComponent },
   { path: 'employee', component: EmployeeCreateComponent, canActivate: [AuthGuard], data: { roles: ['CEO', 'HR Employee']} },
   { path: 'department', component: DepartmentCreateComponent, canActivate: [AuthGuard], data: { roles: ['CEO', 'HR Employee']} },
