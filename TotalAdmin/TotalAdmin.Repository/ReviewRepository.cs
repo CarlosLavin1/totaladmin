@@ -69,6 +69,16 @@ namespace TotalAdmin.Repository
             return dt.AsEnumerable().Select(row => PopulateEmployee(row)).ToList();
         }
 
+        public async Task<List<MissingReviewDTO>> GetEmployeesDueForReviewForSupervisorWithQuarter(int supervisorEmployeeNumber)
+        {
+            List<Parm> parms = new()
+            {
+                new("@SupervisorEmployeeNumber", SqlDbType.Int, supervisorEmployeeNumber),
+            };
+            DataTable dt = await db.ExecuteAsync("spGetEmployeesDueForReviewForSupervisor", parms);
+            return dt.AsEnumerable().Select(row => PopulateReviewDTO(row)).ToList();
+        }
+
         public void ReadReview(int reviewId)
         {
             List<Parm> parms = new()
@@ -132,6 +142,18 @@ namespace TotalAdmin.Repository
                 TerminatedDate = row["TerminatedDate"] != DBNull.Value ? (DateTime)row["TerminatedDate"] : null,
                 StatusId = (int)row["StatusId"],
                 RowVersion = (byte[])row["RowVersion"]
+            };
+        }
+
+        private MissingReviewDTO PopulateReviewDTO(DataRow row)
+        {
+            return new MissingReviewDTO()
+            {
+                EmployeeNumber = Convert.ToInt32(row["EmployeeNumber"]),
+                FirstName = row["FirstName"].ToString(),
+                LastName = row["LastName"].ToString(),
+                Year = Convert.ToInt32(row["Year"]),
+                Quarter = Convert.ToInt32(row["Quarter"])
             };
         }
     }

@@ -30,6 +30,11 @@ namespace TotalAdmin.Service
             return await repo.GetEmployeesDueForReviewForSupervisor(supervisorEmployeeNumber);
         }
 
+        public async Task<List<MissingReviewDTO>> GetEmployeesDueForReviewForSupervisorWithQuarter(int supervisorEmployeeNumber)
+        {
+            return await repo.GetEmployeesDueForReviewForSupervisorWithQuarter(supervisorEmployeeNumber);
+        }
+
         public async Task<List<Review>> GetReviewsForEmployee(int employeeNumber)
         {
             return await repo.GetReviewsForEmployee(employeeNumber);

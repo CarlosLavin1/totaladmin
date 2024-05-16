@@ -4,8 +4,12 @@
         <li *ngFor="let e of employees" class="rounded employee-item">
             <div>
                 <h2>{{ e.firstName }} {{ e.lastName }}</h2>
+                <h5>{{ e.year }} Q{{ e.quarter }}</h5>
                 <a [routerLink]="['/create-review', e.employeeNumber]" class="btn btn-primary me-2">Create Review</a>
             </div>
         </li>
     </ul>
+    <div *ngIf="employees.length == 0">
+        <h5 class="text-center">No pending employee reviews</h5>
+    </div>
 </div>
