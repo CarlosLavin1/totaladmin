@@ -56,6 +56,23 @@ namespace TotalAdmin.API.Controllers
             }
         }
 
+        [Authorize(Roles = "Supervisor")]
+        [HttpGet("pending/{id}")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        public async Task<ActionResult<List<MissingReviewDTO>>> GetEmployeesDueForReviewForSupervisorWithQuarter(int id)
+        {
+            try
+            {
+                List<MissingReviewDTO> employees = await reviewService.GetEmployeesDueForReviewForSupervisorWithQuarter(id);
+
+                return employees;
+            }
+            catch (Exception)
+            {
+                return Problem(title: "An internal error has occurred. Please contact the system administrator.");
+            }
+        }
+
         [Authorize(Roles = "Employee")]
         [HttpGet("employee/{id}")]
         [ProducesResponseType(StatusCodes.Status200OK)]

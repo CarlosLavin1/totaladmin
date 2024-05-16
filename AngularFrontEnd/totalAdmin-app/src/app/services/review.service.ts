@@ -4,6 +4,7 @@ import { Observable, catchError } from 'rxjs';
 import { API_URL7161, SharedService } from './shared.service';
 import { Review } from '../models/review';
 import { Employee } from '../models/employee';
+import { ReviewDTO } from '../models/review-dto';
 
 @Injectable({
   providedIn: 'root'
@@ -19,6 +20,10 @@ export class ReviewService extends SharedService{
 
     getEmployeesDueForReviewForSupervisor(supervisorEmployeeNumber: number): Observable<Employee[]> {
         return this.http.get<Employee[]>(`${API_URL7161}/review/due/${supervisorEmployeeNumber}`).pipe(catchError(super.handleError));
+    }
+
+    getEmployeesDueForReviewForSupervisorWithQuarter(supervisorEmployeeNumber: number): Observable<ReviewDTO[]> {
+        return this.http.get<ReviewDTO[]>(`${API_URL7161}/review/pending/${supervisorEmployeeNumber}`).pipe(catchError(super.handleError));
     }
 
     getReviewsForEmployee(employeeNumber: number): Observable<Review[]>{
