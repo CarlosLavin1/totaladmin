@@ -594,7 +594,16 @@ BEGIN
 			Employee
 		WHERE 
 			SupervisorEmpNumber = @SupervisorEmployeeNumber
-			AND (SELECT COUNT(*) FROM Review WHERE EmployeeNumber = Employee.EmployeeNumber AND (ReviewDate BETWEEN @StartOfQuarter AND @EndOfQuarter)) = 0
+			AND SupervisorEmpNumber != 1
+			AND StatusId = 1
+			AND NOT EXISTS (
+				SELECT 1 
+				FROM Review 
+				WHERE EmployeeNumber = Employee.EmployeeNumber 
+				AND ReviewDate <= @EndOfQuarter
+				AND ReviewDate >= @StartOfQuarter
+			)
+			--AND (SELECT COUNT(*) FROM Review WHERE EmployeeNumber = Employee.EmployeeNumber AND (ReviewDate BETWEEN @StartOfQuarter AND @EndOfQuarter)) = 0
 		ORDER BY
 			LastName,
 			FirstName
