@@ -504,6 +504,7 @@ BEGIN
 		SELECT *
 		FROM Review
 		WHERE EmployeeNumber = @EmployeeNumber
+		ORDER BY ReviewDate DESC
 	END TRY
 	BEGIN CATCH
 		;THROW

@@ -22,6 +22,7 @@ import { SupervisorDashboardComponent } from './supervisor-dashboard/supervisor-
 import { DepartmentDeleteComponent } from './department-delete/department-delete.component';
 import { ReviewCreateComponent } from './review-create/review-create.component';
 import { EmployeesDueForReviewComponent } from './employees-due-for-review/employees-due-for-review.component';
+import { ReviewsForEmployeeComponent } from './reviews-for-employee/reviews-for-employee.component';
 
 // for routing
 const routes: Routes = [
@@ -46,6 +47,7 @@ const routes: Routes = [
   { path: 'delete-department/:id', component: DepartmentDeleteComponent, canActivate: [AuthGuard], data: { roles: ['CEO', 'HR Employee']} },
   { path: 'create-review/:id', component: ReviewCreateComponent, canActivate: [AuthGuard], data: { roles: ['CEO', 'Supervisor']} },
   { path: 'employees-due-for-review', component: EmployeesDueForReviewComponent, canActivate: [AuthGuard], data: { roles: ['CEO', 'Supervisor']} },
+  { path: 'reviews-for-employee', component: ReviewsForEmployeeComponent, canActivate: [AuthGuard], data: { roles: ['CEO', 'Employee']} },
   { path: '**', redirectTo: '' },
 ]
 

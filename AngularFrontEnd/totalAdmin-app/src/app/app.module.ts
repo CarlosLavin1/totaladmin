@@ -38,6 +38,7 @@ import { DatePipe } from '@angular/common';
 import { DepartmentDeleteComponent } from './department-delete/department-delete.component';
 import { ReviewCreateComponent } from './review-create/review-create.component';
 import { EmployeesDueForReviewComponent } from './employees-due-for-review/employees-due-for-review.component';
+import { ReviewsForEmployeeComponent } from './reviews-for-employee/reviews-for-employee.component';
 
 
 
@@ -68,7 +69,8 @@ import { EmployeesDueForReviewComponent } from './employees-due-for-review/emplo
     SupervisorDashboardComponent,
     DepartmentDeleteComponent,
     ReviewCreateComponent,
-    EmployeesDueForReviewComponent
+    EmployeesDueForReviewComponent,
+    ReviewsForEmployeeComponent
   ],
   imports: [
     BrowserModule,
