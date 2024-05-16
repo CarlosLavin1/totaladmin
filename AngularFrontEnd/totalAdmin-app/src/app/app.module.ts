@@ -41,6 +41,7 @@ import { ReviewCreateComponent } from './review-create/review-create.component';
 import { EmployeesDueForReviewComponent } from './employees-due-for-review/employees-due-for-review.component';
 import { ReviewsForEmployeeComponent } from './reviews-for-employee/reviews-for-employee.component';
 import { ReviewDetailsComponent } from './review-details/review-details.component';
+import { EmployeeDashboardComponent } from './employee-dashboard/employee-dashboard.component';
 
 
 
@@ -75,7 +76,8 @@ import { ReviewDetailsComponent } from './review-details/review-details.componen
     ReviewCreateComponent,
     EmployeesDueForReviewComponent,
     ReviewsForEmployeeComponent,
-    ReviewDetailsComponent
+    ReviewDetailsComponent,
+    EmployeeDashboardComponent
   ],
   imports: [
     BrowserModule,

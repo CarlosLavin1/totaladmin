@@ -59,6 +59,10 @@
                         routerLink="/supervisor-dashboard">Dashboard</a>
                 </li>
                 <li class="nav-item">
+                    <a *ngIf="userIsAuthenticated && role == 'Employee'" class="btn btn-info"
+                        routerLink="/employee-dashboard">Dashboard</a>
+                </li>
+                <li class="nav-item">
                     <button class="btn btn-warning" *ngIf="userIsAuthenticated" (click)="logOut()">Logout</button>
                 </li>
             </ul>

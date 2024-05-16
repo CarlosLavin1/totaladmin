@@ -1,35 +1,32 @@
-import { Component, OnInit } from '@angular/core';
-import { Chart, registerables, TooltipItem } from 'chart.js';
+import { Component } from '@angular/core';
 import { PurchaseOrder } from '../models/purchase-order';
 import { Subscription } from 'rxjs';
 import { PurchaseOrderService } from '../services/purchase-order.service';
-import { SnackbarService } from '../services/snackbar.service';
-import { AuthenticationService } from '../auth/services/authentication.service';
-import { ItemService } from '../services/item.service';
-import { DepartmentService } from '../services/department.service';
-import { ValidationError } from '../models/validationError';
 import { DatePipe } from '@angular/common';
-import { ReviewService } from '../services/review.service';
+import { Chart, TooltipItem } from 'chart.js';
+import { AuthenticationService } from '../auth/services/authentication.service';
+import { ValidationError } from '../models/validationError';
+import { DepartmentService } from '../services/department.service';
 import { EmployeeService } from '../services/employee.service';
-Chart.register(...registerables)
+import { ReviewService } from '../services/review.service';
+import { SnackbarService } from '../services/snackbar.service';
 
 @Component({
-  selector: 'app-supervisor-dashboard',
-  templateUrl: './supervisor-dashboard.component.html',
-  styleUrls: ['./supervisor-dashboard.component.css']
+  selector: 'app-employee-dashboard',
+  templateUrl: './employee-dashboard.component.html',
+  styleUrls: ['./employee-dashboard.component.css']
 })
-export class SupervisorDashboardComponent implements OnInit {
+export class EmployeeDashboardComponent {
   purchaseOrders: PurchaseOrder[] = [];
   errors: string[] = [];
   pendingReviews: number = 0;
   unreadEmployeReviews: number = 0;
 
-
   role: string;
   public userRole = localStorage.getItem('userRole');
   private authSubscription: Subscription;
   public employeeNumber = localStorage.getItem('employeeNumber');
-  
+
 
   constructor(
     public purchaseOrderService: PurchaseOrderService,
@@ -44,32 +41,23 @@ export class SupervisorDashboardComponent implements OnInit {
   ngOnInit(): void {
     if (this.checkRole()) {
       this.employeeNumber = localStorage.getItem('employeeNumber');
-      
+
       if (this.employeeNumber) {
-        this.employeeService.getEmployeeById(Number(this.employeeNumber)).subscribe(employee => {
-          
-          const supervisorEmployeeNumber = employee.supervisorEmployeeNumber;
-          console.log('The supervisor number is: ' + supervisorEmployeeNumber);
-          
 
-          this.reviewService.getEmployeesDueForReviewForSupervisor(supervisorEmployeeNumber).subscribe(employees => {
-            this.pendingReviews = employees.length;
-          });
+        this.reviewService.getReviewsForEmployee(Number(this.employeeNumber)).subscribe(employees => {
+          this.pendingReviews = employees.length;
+          this.loadPurchaseOrders(Number(this.employeeNumber));
         });
 
-
-        this.departmentService.getDepartmentForEmployee(Number(this.employeeNumber)).subscribe(department => {
-          this.loadPurchaseOrders(department.id);
-        });
       }
-    
+
     }
   }
 
   checkRole(): boolean {
     const userRole = this.authService.getRole();
     console.log('Checking role, userRole:', userRole);
-    return userRole === 'Supervisor' || userRole === 'HR Employee' || userRole === 'HR Supervisor';
+    return userRole === 'Employee';
   }
 
   RenderChart(labels: string[], data: number[], formattedData: string[]) {
@@ -87,7 +75,7 @@ export class SupervisorDashboardComponent implements OnInit {
             'rgb(255, 159, 64)'
           ],
           borderWidth: 1
-        },]
+        }]
       },
       options: {
         scales: {
@@ -98,9 +86,9 @@ export class SupervisorDashboardComponent implements OnInit {
         plugins: {
           tooltip: {
             callbacks: {
-              label: function(context: TooltipItem<'bar'>) {
+              label: function (context: TooltipItem<'bar'>) {
                 var label = context.dataset.label || '';
-  
+
                 if (label) {
                   label += ': ';
                 }
@@ -113,18 +101,17 @@ export class SupervisorDashboardComponent implements OnInit {
       }
     });
   }
-  
 
 
-  loadPurchaseOrders(departmentId: number): Subscription {
+  loadPurchaseOrders(employeeNumber: number): Subscription {
     let validationErrors: ValidationError[] = [];
     this.errors = [];
-  
+
     // Initialize an array with 12 zeros
     let monthlyExpenses = Array(12).fill(0);
     let monthlyLabels = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-  
-    return this.purchaseOrderService.ReviewDepartmentPO(departmentId)
+
+    return this.purchaseOrderService.ReviewEmployeePO(employeeNumber)
       .subscribe({
         next: (purchaseOrders: PurchaseOrder[]) => {
           this.purchaseOrders = purchaseOrders.map(po => {
@@ -133,21 +120,23 @@ export class SupervisorDashboardComponent implements OnInit {
             }
             return po;
           });
-  
+
           // Update the monthlyExpenses array with the actual expenses
           this.purchaseOrders.forEach(po => {
-            let month = new Date(po.creationDate).getMonth(); 
-            monthlyExpenses[month] += po.totalExpenseAmt; 
+            let month = new Date(po.creationDate).getMonth();
+            monthlyExpenses[month] += po.totalExpenseAmt;
           });
-  
+
           // Prepare the data for the chart
           const labels = monthlyLabels;
           const data = monthlyExpenses;
+
           const formattedData = monthlyExpenses.map(expense => {
-            const formatter = new Intl.NumberFormat('en-CA', { style: 'currency', currency: 'CAD', });
+            const formatter = new Intl.NumberFormat('en-CA',
+              { style: 'currency', currency: 'CAD', });
             return formatter.format(expense);
           });
-  
+
           // Render the chart with the data
           this.RenderChart(labels, data, formattedData);
         },
@@ -156,7 +145,7 @@ export class SupervisorDashboardComponent implements OnInit {
           this.purchaseOrders = [];
           this.errors = [];
           if (error.status === 404) {
-            this.showErrorMessage('No purchase orders found for the provided department ID.');
+            this.showErrorMessage('No purchase orders found for the provided Employee number');
           } else if (error.error.errors) {
             validationErrors = error.error.errors;
             validationErrors.forEach((error) => {
@@ -168,7 +157,8 @@ export class SupervisorDashboardComponent implements OnInit {
         }
       });
   }
-  
+
+
   showErrorMessage(message: string) {
     this.errors.push(message);
   }
