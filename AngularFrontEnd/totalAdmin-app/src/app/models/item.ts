@@ -13,4 +13,7 @@ export class Item {
     tax?: number;
     grandTotal?: number;
     rejectedReason?: string | null
+    modifiedReason?: string | null
+    isEditing?: boolean
+    editingColumn?: string | null
 }

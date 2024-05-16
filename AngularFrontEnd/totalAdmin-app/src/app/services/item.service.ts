@@ -21,8 +21,7 @@ export class ItemService extends SharedService {
 
   public updateItem(item: Item): Observable<any> {
     return this.http
-      .patch(`${API_URL}/item/${item.itemId}/${item.statusId}/${item.rejectedReason}`, item)
+      .patch(`${API_URL}/item/${item.itemId}/${item.statusId}/${item.rejectedReason}/${item.quantity}/${item.price}/${item.description}/${item.location}/${item.modifiedReason}`, item)
       .pipe(catchError(super.handleError));
   }
-  
 }
