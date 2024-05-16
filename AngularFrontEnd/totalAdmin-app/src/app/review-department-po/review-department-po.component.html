@@ -54,6 +54,7 @@
                                 <th>Grand Total</th>
                                 <th>Manage</th>
                                 <th></th>
+                                <th></th>
                             </tr>
                         </thead>
                         <tbody>
@@ -74,6 +75,10 @@
                                         (click)="denyItem(item.itemId, purchaseOrder.poNumber)" type="button"
                                         [disabled]="purchaseOrder.purchaseOrderStatus === 'Closed' ||
                                          allItemsProcessed(purchaseOrder)">❌</button>
+                                </th>
+                                <th><button class="btn btn-light" title="Set No Longer Required"
+                                     (click)="markItemAsNoLongerRequired(item.itemId)" type="button"
+                                    *ngIf="showBtn[purchaseOrder.poNumber.toString() + '-' + item.itemId]">🚫</button>
                                 </th>
                             </tr>
                         </tbody>

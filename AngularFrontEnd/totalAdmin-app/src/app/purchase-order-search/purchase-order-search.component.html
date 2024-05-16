@@ -58,6 +58,7 @@
           <th>Tax</th>
           <th>Grand Total</th>
           <th >Manage</th>
+          <th></th>
         </tr>
       </thead>
       <tbody>
@@ -69,6 +70,7 @@
           <td>{{ result.tax | currency }}</td>
           <td>{{ result.grandTotal | currency }}</td>
           <td><a *ngIf="result.status !== 'Closed'; else closedTemplate"  class="btn btn-danger" (click)="navigateToAddItem(result.poNumber)">Add More</a></td>
+          <td><a *ngIf="result.status !== 'Closed'; else closedTemplate"  class="btn btn-warning" (click)="navigateToUpdatePo(result.poNumber)">Update</a></td>
         </tr>
       </tbody>
     </table>

@@ -1,9 +1,9 @@
 export class Item {
     itemId: number;
     name?: string;
-    quantity?: number;
+    quantity?: number | null;
     description?: string;
-    price?: number;
+    price?: number | null;
     justification?: string;
     location?: string;
     statusId?: number;

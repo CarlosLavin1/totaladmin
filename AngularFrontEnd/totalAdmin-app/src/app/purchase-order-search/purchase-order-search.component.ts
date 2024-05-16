@@ -109,7 +109,7 @@ export class PurchaseOrderSearchComponent implements OnInit, OnDestroy, AfterVie
           console.log('the search results:');
           this.searchResults.forEach((result) => {
             if (results) {
-              console.log(results.toString);
+              console.log(results);
             }
           });
         },
@@ -140,6 +140,11 @@ export class PurchaseOrderSearchComponent implements OnInit, OnDestroy, AfterVie
     this.sharedDataService.setPONumber(poNumber.toString(), false);
 
     this.router.navigate(['/items', { poNumber: poNumber }]);
+  }
+  
+  navigateToUpdatePo(poNumber: number) {
+    this.sharedDataService.setPONumber(poNumber.toString(), false);
+    this.router.navigate(['/update-purchase-order', { poNumber: poNumber }]);
   }
   
 

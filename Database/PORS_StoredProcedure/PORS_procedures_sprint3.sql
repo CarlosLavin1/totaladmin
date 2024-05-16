@@ -347,6 +347,9 @@ CREATE OR ALTER PROC [DBO].[spUpdateItem]
 	@ItemId INT,
     @NewStatusId INT,
     @Reason NVARCHAR(100) = NULL,
+	@Quantity INT = -1,
+    @Price MONEY = -1,
+    @Description NVARCHAR(100) = NULL,
 	@RowVersion ROWVERSION OUTPUT
 AS
 BEGIN
@@ -357,7 +360,10 @@ BEGIN
 	   -- WAITFOR DELAY '00:00:04'; -- Delay the execution for to 4 seconds
 		UPDATE Item SET 
 			ItemStatusId  = @NewStatusId,
-			RejectedReason = @Reason 
+			RejectedReason = @Reason,
+            Quantity = CASE WHEN @Quantity = -1 THEN Quantity ELSE @Quantity END,  --Only updates if values are provided
+            Price = CASE WHEN @Price = -1 THEN Price ELSE @Price END,
+            [Description] = ISNULL(@Description, Description)
 		WHERE 
 			ItemId = @ItemId AND
 			[RowVersion] = @RowVersion;

@@ -58,6 +58,9 @@ namespace TotalAdmin.Repository
                     new Parm("@ItemId", SqlDbType.Int, i.ItemId),
                     new Parm("@NewStatusId", SqlDbType.Int, i.StatusId),
                     new Parm("@Reason", SqlDbType.NVarChar, i.RejectedReason),
+                    new Parm("@Quantity", SqlDbType.Int, i.Quantity),
+                    new Parm("@Price", SqlDbType.Decimal, i.Price),
+                    new Parm("@Description", SqlDbType.NVarChar, i.Description),
                     new Parm("@RowVersion", SqlDbType.Timestamp, i.RowVersion, 0, ParameterDirection.Output)
                 };
 

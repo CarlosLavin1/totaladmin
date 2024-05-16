@@ -62,12 +62,12 @@ export class CreatePurchaseOrderComponent implements OnInit {
 
 
     const itemGroup = this.formBuilder.group({
-      name: ['', Validators.required],
-      quantity: ['', Validators.required],
-      description: ['', Validators.required],
-      price: ['', Validators.required],
-      justification: ['', Validators.required],
-      location: ['', Validators.required],
+      name: ['', [Validators.required, Validators.minLength(3), Validators.maxLength(45)]],
+      quantity: ['', [Validators.required, Validators.min(1)]],
+      description: ['', [Validators.required, Validators.minLength(5)]],
+      price: ['', [Validators.required, Validators.min(0.01)]],
+      justification: ['', [Validators.required, Validators.minLength(4)]],
+      location: ['', [Validators.required, Validators.minLength(5)]],
       statusId: [1]
     });
 
@@ -94,80 +94,84 @@ export class CreatePurchaseOrderComponent implements OnInit {
       return;
     }
 
-    
+
     if (this.purchaseOrderForm.valid) {
-
-      const purchaseOrder = this.preparePurchaseOrderData();
-
-      this.poService.addPurchaseOrder(purchaseOrder).subscribe({
-        next: (res: PurchaseOrder) => {
-          console.log('Server Response:', res);
-          this.purchaseOrder = res;
-          this.purchaseOrderCreated = true;
-
-
-          // Store the data in the shared service
-          const data = {
-            EmployeeNumber: this.employeeNumber,
-            PONumber: res.formattedPoNumber ? res.formattedPoNumber : '',
-            autoSearch: true
-          };
-          this.sharedDataService.setData(data);
-          console.log('Shared data:', data);
-
-
-          // Navigate to the purchase order details page
-          this.router.navigate(['/purchase-order-search']);
-
-          console.log('Server Response:', res);
-
-          // Update the displayedItems array with the items from the server response
-          if (Array.isArray((res as any).purchaseOrder.items)) {
-            this.displayedItems = [...this.displayedItems, ...(res as any).purchaseOrder.items];
-
-            localStorage.setItem('displayedItems', JSON.stringify(this.displayedItems));  // Save to local storage
-            console.log("The displayed items: ", this.displayedItems);
-          }
-
-
-          this.hasValidationErrors = false;
-          console.log("The ITEMS response are: : " + res.items);
-
-          // Clear the fields of the items form
-          this.items.controls.forEach(item => {
-            item.reset();
-            item.get('statusId')?.setValue(1);
-          });
-
-          this.snackBarService.showSnackBar("Purchase order added successfully", 0);
-          setTimeout(() => {
-            console.log('Succesfully added po');
-            console.log("Valdation erros is:" + this.hasValidationErrors);
-
-            this.snackBarService.dismissSnackBar();
-          }, 5000);
-        },
-        error: (err) => {
-          this.hasValidationErrors = true;
-
-          console.log(err);
-
-          if (err.error.errors) {
-
-            this.validationErrors = err.error.errors;
-
-            this.validationErrors.forEach((error) => {
-              this.errors.push(error.description);
-            });
-          } else {
-            this.errors.push(err.error.title);
-          }
-        }
-      });
+      this.processForm()
     } else {
       this.hasValidationErrors = true;
     }
   }
+
+  private processForm(): void {
+    const purchaseOrder = this.preparePurchaseOrderData();
+
+    this.poService.addPurchaseOrder(purchaseOrder).subscribe({
+      next: (res: PurchaseOrder) => {
+        console.log('Server Response:', res);
+        this.purchaseOrder = res;
+        this.purchaseOrderCreated = true;
+
+
+        // Store the data in the shared service
+        const data = {
+          EmployeeNumber: this.employeeNumber,
+          PONumber: res.formattedPoNumber ? res.formattedPoNumber : '',
+          autoSearch: true
+        };
+        this.sharedDataService.setData(data);
+        console.log('Shared data:', data);
+
+
+        // Navigate to the purchase order details page
+        this.router.navigate(['/purchase-order-search']);
+
+        console.log('Server Response:', res);
+
+        // Update the displayedItems array with the items from the server response
+        if (Array.isArray((res as any).purchaseOrder.items)) {
+          this.displayedItems = [...this.displayedItems, ...(res as any).purchaseOrder.items];
+
+          localStorage.setItem('displayedItems', JSON.stringify(this.displayedItems));  // Save to local storage
+          console.log("The displayed items: ", this.displayedItems);
+        }
+
+
+        this.hasValidationErrors = false;
+        console.log("The ITEMS response are: : " + res.items);
+
+        // Clear the fields of the items form
+        this.items.controls.forEach(item => {
+          item.reset();
+          item.get('statusId')?.setValue(1);
+        });
+
+        this.snackBarService.showSnackBar("Purchase order added successfully", 0);
+        setTimeout(() => {
+          console.log('Succesfully added po');
+          console.log("Valdation erros is:" + this.hasValidationErrors);
+
+          this.snackBarService.dismissSnackBar();
+        }, 5000);
+      },
+      error: (err) => {
+        this.hasValidationErrors = true;
+
+        console.log(err);
+
+        if (err.error.errors) {
+
+          this.validationErrors = err.error.errors;
+
+          this.validationErrors.forEach((error) => {
+            this.errors.push(error.description);
+          });
+        } else {
+          this.errors.push(err.error.title);
+        }
+      }
+    });
+  }
+
 
   public allItemsValid(): boolean {
     return this.items.controls.every(item => item.valid);
@@ -187,6 +191,8 @@ export class CreatePurchaseOrderComponent implements OnInit {
       // Handle the case when employeeNumber is null
       purchaseOrder.employeeNumber = 0;
     }
+
+    // update 
 
     // Set the creationDate to the current date
     purchaseOrder.creationDate = new Date()
