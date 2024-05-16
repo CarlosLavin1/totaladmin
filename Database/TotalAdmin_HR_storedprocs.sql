@@ -623,3 +623,23 @@ BEGIN
 	END CATCH
 END 
 GO
+
+
+-- get review by id
+CREATE OR ALTER PROC spGetReviewById
+	@ReviewId INT
+AS
+BEGIN
+	BEGIN TRY	
+		SELECT
+			*
+		FROM
+			Review
+		WHERE
+			ReviewId = @ReviewId
+	END TRY
+	BEGIN CATCH
+		;THROW
+	END CATCH
+END 
+GO

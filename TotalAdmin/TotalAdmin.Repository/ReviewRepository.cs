@@ -78,12 +78,24 @@ namespace TotalAdmin.Repository
             db.ExecuteNonQuery("spReadReview", parms);
         }
 
+        public async Task<Review?> GetReviewById(int reviewId)
+        {
+            List<Parm> parms = new()
+            {
+                new("@ReviewId", SqlDbType.Int, reviewId),
+            };
+            DataTable dt = await db.ExecuteAsync("spGetReviewById", parms);
+            if(dt.Rows.Count == 0)
+                return null;
+            return PopulateReview(dt.Rows[0]);
+        }
+
         private Review PopulateReview(DataRow row)
         {
             return new Review()
             {
-                Id = Convert.ToInt32(row["Id"]),
-                RatingId = Convert.ToInt32(row["RatingId"]),
+                Id = Convert.ToInt32(row["ReviewId"]),
+                RatingId = Convert.ToInt32(row["ReviewRatingId"]),
                 Comment = row["Comment"].ToString(),
                 HasBeenRead = Convert.ToBoolean(row["IsRead"]),
                 ReviewDate = Convert.ToDateTime(row["ReviewDate"]),

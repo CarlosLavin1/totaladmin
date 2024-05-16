@@ -40,6 +40,11 @@ namespace TotalAdmin.Service
             repo.ReadReview(reviewId);
         }
 
+        public async Task<Review?> GetReviewById(int reviewId)
+        {
+            return await repo.GetReviewById(reviewId);
+        }
+
         private bool ValidateReview(Review review)
         {
             // Validate Entity

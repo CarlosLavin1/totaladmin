@@ -1,1 +1,6 @@
-<p>review-details works!</p>
+<div class="container">
+    <h2>Employee Review for {{getFormattedDate(review.reviewDate)}}</h2>
+    <h5>Review Date: {{review.reviewDate | date}}</h5>
+    <p>Supervisor Comments: {{review.comment}}</p>
+    <p>Rating: {{getRating(review.ratingId)}}</p>
+</div>
