@@ -452,7 +452,12 @@ CREATE OR ALTER PROC spDeleteDepartment
 	@DepartmentId INT
 AS
 BEGIN
-	BEGIN TRY	
+	BEGIN TRY
+		IF (SELECT COUNT(EmployeeNumber) FROM Employee WHERE DepartmentId = @DepartmentId) > 0
+			BEGIN
+				;THROW 50100, 'This department has associated employees, please remove all employees from department before deleting department', 1;
+			END
+
 		DELETE FROM Department
 		WHERE DepartmentId = @DepartmentId;
 	END TRY
@@ -499,6 +504,7 @@ BEGIN
 		SELECT *
 		FROM Review
 		WHERE EmployeeNumber = @EmployeeNumber
+		ORDER BY ReviewDate DESC
 	END TRY
 	BEGIN CATCH
 		;THROW
@@ -550,6 +556,87 @@ BEGIN
 		)
 		-- Retrieve the last inserted ReviewId
 		SET @ReviewId = SCOPE_IDENTITY()
+	END TRY
+	BEGIN CATCH
+		;THROW
+	END CATCH
+END 
+GO
+
+-- get employees due for review for a supervisor
+CREATE OR ALTER PROC spGetEmployeesDueForReviewForSupervisor
+	@SupervisorEmployeeNumber INT
+AS
+BEGIN
+	BEGIN TRY	
+		DECLARE @CurrentDate DATE = GETDATE();
+		DECLARE @StartOfQuarter DATE;
+		DECLARE @EndOfQuarter DATE;
+
+		-- Determine the start and end dates of the current quarter
+		SELECT 
+		@StartOfQuarter = CASE
+			WHEN MONTH(@CurrentDate) IN (1, 2, 3) THEN DATEFROMPARTS(YEAR(@CurrentDate), 1, 1)
+			WHEN MONTH(@CurrentDate) IN (4, 5, 6) THEN DATEFROMPARTS(YEAR(@CurrentDate), 4, 1)
+			WHEN MONTH(@CurrentDate) IN (7, 8, 9) THEN DATEFROMPARTS(YEAR(@CurrentDate), 7, 1)
+			WHEN MONTH(@CurrentDate) IN (10, 11, 12) THEN DATEFROMPARTS(YEAR(@CurrentDate), 10, 1)
+		END,
+		@EndOfQuarter = CASE
+			WHEN MONTH(@CurrentDate) IN (1, 2, 3) THEN DATEFROMPARTS(YEAR(@CurrentDate), 3, 31)
+			WHEN MONTH(@CurrentDate) IN (4, 5, 6) THEN DATEFROMPARTS(YEAR(@CurrentDate), 6, 30)
+			WHEN MONTH(@CurrentDate) IN (7, 8, 9) THEN DATEFROMPARTS(YEAR(@CurrentDate), 9, 30)
+			WHEN MONTH(@CurrentDate) IN (10, 11, 12) THEN DATEFROMPARTS(YEAR(@CurrentDate), 12, 31)
+		END;
+		-- get all employees that don't have a review in this quarter
+		SELECT 
+			*
+		FROM 
+			Employee
+		WHERE 
+			SupervisorEmpNumber = @SupervisorEmployeeNumber
+			AND (SELECT COUNT(*) FROM Review WHERE EmployeeNumber = Employee.EmployeeNumber AND (ReviewDate BETWEEN @StartOfQuarter AND @EndOfQuarter)) = 0
+		ORDER BY
+			LastName,
+			FirstName
+	END TRY
+	BEGIN CATCH
+		;THROW
+	END CATCH
+END 
+GO
+
+-- read review
+CREATE OR ALTER PROC spReadReview
+	@ReviewId INT
+AS
+BEGIN
+	BEGIN TRY	
+		UPDATE 
+			Review
+		SET
+			IsRead = 1
+		WHERE
+			ReviewId = @ReviewId
+	END TRY
+	BEGIN CATCH
+		;THROW
+	END CATCH
+END 
+GO
+
+
+-- get review by id
+CREATE OR ALTER PROC spGetReviewById
+	@ReviewId INT
+AS
+BEGIN
+	BEGIN TRY	
+		SELECT
+			*
+		FROM
+			Review
+		WHERE
+			ReviewId = @ReviewId
 	END TRY
 	BEGIN CATCH
 		;THROW

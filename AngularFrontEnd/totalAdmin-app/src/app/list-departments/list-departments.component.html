@@ -1,8 +1,13 @@
 <div class="container mt-4">
     <ul class="list-unstyled">
         <li *ngFor="let department of departments" class="rounded department-item">
-            <a [routerLink]="['/modify-department', department.departmentId]"
-                class="btn btn-link text-decoration-none fs-4">{{ department.name }}</a>
+            <div>
+                <h2>{{ department.name }}</h2>
+                <a [routerLink]="['/modify-department', department.departmentId]"
+                    class="btn btn-primary me-2">Update</a>
+                <a [routerLink]="['/delete-department', department.departmentId]"
+                    class="btn btn-warning me-2">Delete</a>
+            </div>
         </li>
     </ul>
 </div>

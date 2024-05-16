@@ -16,7 +16,7 @@ namespace TotalAdmin.API.Controllers
             this.reviewService = reviewService;
         }
 
-        [Authorize(Roles = "HR Employee")]
+        [Authorize(Roles = "Supervisor")]
         [HttpPost]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -33,7 +33,75 @@ namespace TotalAdmin.API.Controllers
                 // this returns get route for newly created department
                 return Ok(review);
             }
+            catch (Exception e)
+            {
+                return Problem(title: "An internal error has occurred. Please contact the system administrator.");
+            }
+        }
+
+        [Authorize(Roles = "Supervisor")]
+        [HttpGet("due/{id}")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        public async Task<ActionResult<List<Employee>>> GetEmployeesDueForReviewForSupervisor(int id)
+        {
+            try
+            {
+                List<Employee> employees = await reviewService.GetEmployeesDueForReviewForSupervisor(id);
+
+                return employees;
+            }
             catch (Exception)
+            {
+                return Problem(title: "An internal error has occurred. Please contact the system administrator.");
+            }
+        }
+
+        [Authorize(Roles = "Employee")]
+        [HttpGet("employee/{id}")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        public async Task<ActionResult<List<Review>>> GetReviewsForEmployee(int id)
+        {
+            try
+            {
+                List<Review> reviews = await reviewService.GetReviewsForEmployee(id);
+
+                return Ok(reviews);
+            }
+            catch (Exception e)
+            {
+                return Problem(title: "An internal error has occurred. Please contact the system administrator.");
+            }
+        }
+
+        [Authorize(Roles = "Employee")]
+        [HttpGet("{id}")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        public async Task<ActionResult<Review>> GetReview(int id)
+        {
+            try
+            {
+                Review? r = await reviewService.GetReviewById(id);
+
+                return r != null ? Ok(r) : BadRequest();
+            }
+            catch (Exception e)
+            {
+                return Problem(title: "An internal error has occurred. Please contact the system administrator.");
+            }
+        }
+
+        [Authorize(Roles = "Employee, Supervisor")]
+        [HttpGet("read/{id}")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        public ActionResult ReadReview(int id)
+        {
+            try
+            {
+                reviewService.ReadReview(id);
+
+                return Ok();
+            }
+            catch (Exception e)
             {
                 return Problem(title: "An internal error has occurred. Please contact the system administrator.");
             }

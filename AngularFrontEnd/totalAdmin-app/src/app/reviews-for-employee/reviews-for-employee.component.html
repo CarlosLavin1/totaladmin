@@ -1,0 +1,10 @@
+<div class="container">
+    <h2 class="text-center">Reviews</h2>
+    <ul class="list-group">
+        <li *ngFor="let review of reviews" class="list-group-item">
+            <a [routerLink]="['/review-details', review.id]" class="btn btn-primary"> {{
+                getFormattedDate(review.reviewDate) }}</a>
+        </li>
+    </ul>
+    <h3 class="text-center" *ngIf="reviews.length == 0">No reviews</h3>
+</div>

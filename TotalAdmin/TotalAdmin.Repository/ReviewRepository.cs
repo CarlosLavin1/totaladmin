@@ -44,14 +44,95 @@ namespace TotalAdmin.Repository
             return review;
         }
 
-        public Task<List<Review>> GetReviewsForEmployee(int employeeNumber)
+        public async Task<List<Review>> GetReviewsForEmployee(int employeeNumber)
         {
-            throw new NotImplementedException();
+            List<Parm> parms = new()
+            {
+                new("@EmployeeNumber", SqlDbType.Int, employeeNumber),
+            };
+            DataTable dt = await db.ExecuteAsync("spGetReviewsForEmployee", parms);
+            return dt.AsEnumerable().Select(row => PopulateReview(row)).ToList();
         }
 
         public Review ChangeReviewRead(int reviewId)
         {
             throw new NotImplementedException();
+        }
+
+        public async Task<List<Employee>> GetEmployeesDueForReviewForSupervisor(int supervisorEmployeeNumber)
+        {
+            List<Parm> parms = new()
+            {
+                new("@SupervisorEmployeeNumber", SqlDbType.Int, supervisorEmployeeNumber),
+            };
+            DataTable dt = await db.ExecuteAsync("spGetEmployeesDueForReviewForSupervisor", parms);
+            return dt.AsEnumerable().Select(row => PopulateEmployee(row)).ToList();
+        }
+
+        public void ReadReview(int reviewId)
+        {
+            List<Parm> parms = new()
+            {
+                new("@ReviewId", SqlDbType.Int, reviewId)
+            };
+            db.ExecuteNonQuery("spReadReview", parms);
+        }
+
+        public async Task<Review?> GetReviewById(int reviewId)
+        {
+            List<Parm> parms = new()
+            {
+                new("@ReviewId", SqlDbType.Int, reviewId),
+            };
+            DataTable dt = await db.ExecuteAsync("spGetReviewById", parms);
+            if(dt.Rows.Count == 0)
+                return null;
+            return PopulateReview(dt.Rows[0]);
+        }
+
+        private Review PopulateReview(DataRow row)
+        {
+            return new Review()
+            {
+                Id = Convert.ToInt32(row["ReviewId"]),
+                RatingId = Convert.ToInt32(row["ReviewRatingId"]),
+                Comment = row["Comment"].ToString(),
+                HasBeenRead = Convert.ToBoolean(row["IsRead"]),
+                ReviewDate = Convert.ToDateTime(row["ReviewDate"]),
+                EmployeeNumber = Convert.ToInt32(row["EmployeeNumber"]),
+                SupervisorEmployeeNumber = Convert.ToInt32(row["SupervisorEmployeeNumber"])
+            };
+        }
+
+        private Employee PopulateEmployee(DataRow row)
+        {
+            return new()
+            {
+                EmployeeNumber = Convert.ToInt32(row["EmployeeNumber"]),
+                HashedPassword = (string)row["HashedPassword"],
+                FirstName = row["FirstName"].ToString(),
+                MiddleInitial = row["MiddleInitial"] != DBNull.Value ? Convert.ToChar(row["MiddleInitial"]) : '\0',
+                LastName = row["LastName"].ToString(),
+                RoleId = Convert.ToInt32(row["RoleId"]),
+                WorkPhoneNumber = row["WorkPhoneNumber"].ToString(),
+                OfficeLocation = row["OfficeLocation"].ToString(),
+                JobTitle = row["JobTitle"].ToString(),
+                DepartmentId = row["DepartmentId"] != DBNull.Value ? Convert.ToInt32(row["DepartmentId"]) : 0,
+                DateOfBirth = Convert.ToDateTime(row["DateOfBirth"]),
+                StreetAddress = row["StreetAddress"].ToString(),
+                City = row["City"].ToString(),
+                PostalCode = (string)row["PostalCode"],
+                SupervisorEmployeeNumber = row["SupervisorEmpNumber"] != DBNull.Value ? Convert.ToInt32(row["SupervisorEmpNumber"]) : 0,
+                SIN = row["SIN"].ToString(),
+                CellPhoneNumber = row["CellPhoneNumber"].ToString(),
+                Email = (string)row["EmailAddress"],
+                SeniorityDate = (DateTime)row["CompanyStartDate"],
+                JobStartDate = (DateTime)row["JobStartDate"],
+                RetiredDate = row["RetiredDate"] != DBNull.Value ? (DateTime)row["RetiredDate"] : null,
+                TerminatedDate = row["TerminatedDate"] != DBNull.Value ? (DateTime)row["TerminatedDate"] : null,
+                StatusId = (int)row["StatusId"],
+                RowVersion = (byte[])row["RowVersion"]
+            };
         }
     }
 }

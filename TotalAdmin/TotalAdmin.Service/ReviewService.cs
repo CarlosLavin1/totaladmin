@@ -25,6 +25,26 @@ namespace TotalAdmin.Service
             return review;
         }
 
+        public async Task<List<Employee>> GetEmployeesDueForReviewForSupervisor(int supervisorEmployeeNumber)
+        {
+            return await repo.GetEmployeesDueForReviewForSupervisor(supervisorEmployeeNumber);
+        }
+
+        public async Task<List<Review>> GetReviewsForEmployee(int employeeNumber)
+        {
+            return await repo.GetReviewsForEmployee(employeeNumber);
+        }
+
+        public void ReadReview(int reviewId)
+        {
+            repo.ReadReview(reviewId);
+        }
+
+        public async Task<Review?> GetReviewById(int reviewId)
+        {
+            return await repo.GetReviewById(reviewId);
+        }
+
         private bool ValidateReview(Review review)
         {
             // Validate Entity
@@ -35,6 +55,10 @@ namespace TotalAdmin.Service
             {
                 review.AddError(new(e.ErrorMessage, ErrorType.Model));
             }
+
+            // review cannot be in future
+            if (review.ReviewDate > DateTime.Now)
+                review.AddError(new ("Review date cannot be in the future", ErrorType.Model));
 
             return !review.Errors.Any();
         }
