@@ -40,14 +40,17 @@
                                 <label for="itemName" class="form-label">Name</label>
                                 <input type="text" class="form-control" id="itemName" formControlName="name">
                                 <div *ngIf="item.get('name')?.invalid && item.get('name')?.touched">
-                                    <span class="text-danger">Name is required</span>
+                                    <span class="text-danger" *ngIf="item.get('name')?.errors?.['required']">Name is required</span>
+                                    <span class="text-danger" *ngIf="item.get('name')?.errors?.['minlength']">Name must be at least 3 characters</span>
+                                    <span class="text-danger" *ngIf="item.get('name')?.errors?.['maxlength']">Name must not exceed 45 characters</span>
                                 </div>
                             </div>
                             <div class="mb-3">
                                 <label for="quantity" class="form-label">Quantity</label>
                                 <input type="number" class="form-control" id="quantity" formControlName="quantity">
                                 <div *ngIf="item.get('quantity')?.invalid && item.get('quantity')?.touched">
-                                    <span class="text-danger">Quantity is required</span>
+                                    <span class="text-danger" *ngIf="item.get('quantity')?.errors?.['required']">Quantity is required.</span>
+                                    <span class="text-danger" *ngIf="item.get('quantity')?.errors?.['min']">Item quantity must be greater than zero.</span>
                                 </div>
                             </div>
                         </div>
@@ -56,14 +59,16 @@
                                 <label for="price" class="form-label">Price</label>
                                 <input type="number" class="form-control" id="price" formControlName="price">
                                 <div *ngIf="item.get('price')?.invalid && item.get('price')?.touched">
-                                    <span class="text-danger">Price is required</span>
+                                    <span class="text-danger" *ngIf="item.get('price')?.errors?.['required']">Price is required.</span>
+                                    <span class="text-danger" *ngIf="item.get('price')?.errors?.['min']">Item price must be greater than zero.</span>
                                 </div>
                             </div>
                             <div class="mb-3">
                                 <label for="itemLoc" class="form-label">Location</label>
                                 <input class="form-control" id="itemLoc" formControlName="location">
                                 <div *ngIf="item.get('location')?.invalid && item.get('location')?.touched">
-                                    <span class="text-danger">Location is required</span>
+                                    <span class="text-danger" *ngIf="item.get('location')?.errors?.['required']">Location is required.</span>
+                                    <span class="text-danger" *ngIf="item.get('location')?.errors?.['minlength']">Item purchase location minimum length is 5.</span>
                                 </div>
                             </div>
                         </div>
@@ -72,14 +77,16 @@
                             <textarea class="form-control" id="just" rows="3"
                                 formControlName="justification"></textarea>
                             <div *ngIf="item.get('justification')?.invalid && item.get('justification')?.touched">
-                                <span class="text-danger">Justification is required</span>
+                                <span class="text-danger" *ngIf="item.get('justification')?.errors?.['required']">Justification is required.</span>
+                                <span class="text-danger" *ngIf="item.get('justification')?.errors?.['minlength']">Item justification minimum length is 4.</span>
                             </div>
                         </div>
                         <div class="mb-3">
                             <label for="desc" class="form-label">Description</label>
                             <textarea class="form-control" id="desc" rows="3" formControlName="description"></textarea>
                             <div *ngIf="item.get('description')?.invalid && item.get('description')?.touched">
-                                <span class="text-danger">Description is required</span>
+                                <span class="text-danger" *ngIf="item.get('description')?.errors?.['required']">Description is required</span>
+                                <span class="text-danger" *ngIf="item.get('description')?.errors?.['minlength']">Item description minimum length is 5.</span>
                             </div>
 
                         </div>

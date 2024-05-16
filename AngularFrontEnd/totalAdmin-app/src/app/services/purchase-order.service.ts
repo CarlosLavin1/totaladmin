@@ -91,4 +91,15 @@ export class PurchaseOrderService extends SharedService {
       .pipe(catchError(super.handleError));
   }
 
+  public updatePO(id: number, purchaseOrder: PurchaseOrder): Observable<PurchaseOrder> {
+    return this.http
+      .put<PurchaseOrder>(`${API_URL}/purchaseOrder/update/${id}`, purchaseOrder)
+      .pipe(catchError(super.handleError));
+  }
+
+  getExistingPurchaseOrder(poNumber: number): Observable<PurchaseOrder> {
+    return this.http.get<PurchaseOrder>(`${API_URL}/purchaseOrder/get-existing-po/${poNumber}`);
+  }
+
+  
 }

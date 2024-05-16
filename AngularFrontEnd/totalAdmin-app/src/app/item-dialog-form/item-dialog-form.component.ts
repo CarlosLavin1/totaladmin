@@ -68,9 +68,9 @@ export class ItemDialogFormComponent implements OnInit {
             this.submitted = false;
             this.router.navigateByUrl('/')
 
-            this.snackBarService.showSnackBar("Purchase order item added successfully", 0);
+            this.snackBarService.showSnackBar("Purchase order updated successfully", 0);
             setTimeout(() => {
-              console.log('Succesfully added po');
+              console.log('Succesfully uupdated po');
 
               this.snackBarService.dismissSnackBar();
             }, 5000);

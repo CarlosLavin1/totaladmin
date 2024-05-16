@@ -7,6 +7,7 @@ import { EmployeeCreateComponent } from './employee-create/employee-create.compo
 import { AuthGuard } from './guards/auth.guard';
 import { DepartmentCreateComponent } from './department-create/department-create.component';
 import { CreatePurchaseOrderComponent } from './create-purchase-order/create-purchase-order.component';
+import { UpdatePurchaseOrderComponent } from './update-purchase-order/update-purchase-order.component';
 import { UnauthorizedComponent } from './unauthorized/unauthorized.component';
 import { DepartmentUpdateComponent } from './department-update/department-update.component';
 import { ItemDialogFormComponent } from './item-dialog-form/item-dialog-form.component';
@@ -26,6 +27,7 @@ const routes: Routes = [
   { path: 'unauthorized', component: UnauthorizedComponent },
   { path: 'purchase-order-search', component: PurchaseOrderSearchComponent, canActivate: [AuthGuard] },
   { path: 'purchase-order', component: CreatePurchaseOrderComponent, canActivate: [AuthGuard] },
+  { path: 'update-purchase-order', component: UpdatePurchaseOrderComponent, canActivate: [AuthGuard] },
   { path: 'items', component: ItemDialogFormComponent, canActivate: [ AuthGuard] },
   { path: 'review-department-po', component: ReviewDepartmentPOComponent, canActivate: [AuthGuard] },
   { path: 'search-department-po', component: SearchDepartmentPOComponent, canActivate: [AuthGuard], data: { roles: ['CEO', 'Supervisor']} },

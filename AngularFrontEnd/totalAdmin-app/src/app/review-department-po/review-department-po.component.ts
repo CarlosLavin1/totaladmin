@@ -23,6 +23,7 @@ export class ReviewDepartmentPOComponent implements OnInit {
   showCardBody: { [key: string]: boolean } = {};
   arrowState: { [key: string]: string } = {};
   showCloseButton: { [key: string]: boolean } = {};
+  showBtn: { [key: string]: boolean } = {};
 
 
   role: string;
@@ -92,6 +93,11 @@ export class ReviewDepartmentPOComponent implements OnInit {
 
             console.log('The item procssed is: ' + !this.showCloseButton[purchaseOrder.poNumber]);
 
+            purchaseOrder.items.forEach(item => {
+              this.showBtn[`${purchaseOrder.poNumber}-${item.itemId}`] =
+                purchaseOrder.purchaseOrderStatus !== 'Closed' && item.itemStatus === 'Pending';
+            });
+
           });
         },
         error: (error) => {
@@ -136,8 +142,11 @@ export class ReviewDepartmentPOComponent implements OnInit {
     let item: Item = {
       itemId: itemId,
       statusId: 2,  // Approved status
-      rejectedReason: null
+      rejectedReason: null,
+      price: -1,
+      quantity: -1,
     };
+
 
     this.itemService.updateItem(item).subscribe({
       next: (res) => {
@@ -234,7 +243,9 @@ export class ReviewDepartmentPOComponent implements OnInit {
     let item: Item = {
       itemId: itemId,
       statusId: 3,  // Denied status
-      rejectedReason: reason
+      rejectedReason: reason,
+      price: -1,
+      quantity: -1,
     };
 
     this.itemService.updateItem(item).subscribe({
@@ -326,9 +337,48 @@ export class ReviewDepartmentPOComponent implements OnInit {
     });
   }
 
+  markItemAsNoLongerRequired(itemId: number) {
+    let item: Item = {
+      itemId: itemId,
+      quantity: 0,
+      price: 0,
+      description: "No longer needed.",
+      statusId: 3,  // Denied status
+      rejectedReason: "No longer needed."
+    };
+    this.itemService.updateItem(item).subscribe({
+      next: (res) => {
+        console.log(res.message);
+        // Refresh the data
+        const employeeNumber = localStorage.getItem('employeeNumber');
+        if (employeeNumber) {
+          this.departmentService.getDepartmentForEmployee(Number(employeeNumber)).subscribe(department => {
+            this.loadPurchaseOrders(department.id).add(() => {
+              setTimeout(() => {
+                this.snackbarService.showSnackBar('Item set to no longer required', 3000);
+              }, 0);
+            });
+          });
+        }
+      },
+      error: (error) => {
+        console.error(error);
+        if (error.error.errors) {
+          this.showErrorMessage(error.error.errors[0].description);
+        } else {
+          this.showErrorMessage(error.error);
+        }
+      }
+    });
+  }
+
+  
   allItemsProcessed(purchaseOrder: PurchaseOrder): boolean {
     return purchaseOrder.items.every(item => item.statusId !== 1);
   }
+
+
+  
 
 
 }
