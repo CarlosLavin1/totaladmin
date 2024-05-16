@@ -78,7 +78,7 @@ export class SupervisorDashboardComponent implements OnInit {
       data: {
         labels: labels,
         datasets: [{
-          label: '# PO Exepenses',
+          label: '# Total PO Exepenses',
           data: data,
           backgroundColor: [
             'rgba(255, 159, 64, 0.2)'
@@ -87,7 +87,7 @@ export class SupervisorDashboardComponent implements OnInit {
             'rgb(255, 159, 64)'
           ],
           borderWidth: 1
-        }]
+        },]
       },
       options: {
         scales: {
@@ -119,8 +119,11 @@ export class SupervisorDashboardComponent implements OnInit {
   loadPurchaseOrders(departmentId: number): Subscription {
     let validationErrors: ValidationError[] = [];
     this.errors = [];
-
-
+  
+    // Initialize an array with 12 zeros
+    let monthlyExpenses = Array(12).fill(0);
+    let monthlyLabels = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+  
     return this.purchaseOrderService.ReviewDepartmentPO(departmentId)
       .subscribe({
         next: (purchaseOrders: PurchaseOrder[]) => {
@@ -130,41 +133,28 @@ export class SupervisorDashboardComponent implements OnInit {
             }
             return po;
           });
-
-          //this.purchaseOrders = purchaseOrders;
-          console.log(purchaseOrders);
-
-          // Prepare the data for the chart
-          const labels = this.purchaseOrders
-          .map(po => this.datePipe.transform(po.creationDate, 'Y MMM d', 'en-CA'))
-          .filter(label => label !== null) as string[];
-
-          const data = this.purchaseOrders.map(po => po.totalExpenseAmt || 0);
-
-          const formattedData = this.purchaseOrders.map(po => {
-            const formatter = new Intl.NumberFormat('en-CA', {
-              style: 'currency',
-              currency: 'CAD',
-            });
-            return formatter.format(po.totalExpenseAmt || 0);
+  
+          // Update the monthlyExpenses array with the actual expenses
+          this.purchaseOrders.forEach(po => {
+            let month = new Date(po.creationDate).getMonth(); 
+            monthlyExpenses[month] += po.totalExpenseAmt; 
           });
-
-          
-         
+  
+          // Prepare the data for the chart
+          const labels = monthlyLabels;
+          const data = monthlyExpenses;
+          const formattedData = monthlyExpenses.map(expense => {
+            const formatter = new Intl.NumberFormat('en-CA', { style: 'currency', currency: 'CAD', });
+            return formatter.format(expense);
+          });
+  
           // Render the chart with the data
           this.RenderChart(labels, data, formattedData);
-
-          console.log('The purchase orders:');
-          this.purchaseOrders.forEach((purchaseOrder) => {
-            console.log(purchaseOrder);
-
-          });
         },
         error: (error) => {
           console.error('Error retrieving purchase orders:', error);
           this.purchaseOrders = [];
           this.errors = [];
-
           if (error.status === 404) {
             this.showErrorMessage('No purchase orders found for the provided department ID.');
           } else if (error.error.errors) {
@@ -178,7 +168,7 @@ export class SupervisorDashboardComponent implements OnInit {
         }
       });
   }
-
+  
   showErrorMessage(message: string) {
     this.errors.push(message);
   }

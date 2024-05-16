@@ -41,16 +41,16 @@ export class EmployeeDashboardComponent {
   ngOnInit(): void {
     if (this.checkRole()) {
       this.employeeNumber = localStorage.getItem('employeeNumber');
-      
+
       if (this.employeeNumber) {
-       
-          this.reviewService.getReviewsForEmployee(Number(this.employeeNumber)).subscribe(employees => {
-            this.pendingReviews = employees.length;
-            this.loadPurchaseOrders(Number(this.employeeNumber));
-          });
-      
+
+        this.reviewService.getReviewsForEmployee(Number(this.employeeNumber)).subscribe(employees => {
+          this.pendingReviews = employees.length;
+          this.loadPurchaseOrders(Number(this.employeeNumber));
+        });
+
       }
-    
+
     }
   }
 
@@ -66,7 +66,7 @@ export class EmployeeDashboardComponent {
       data: {
         labels: labels,
         datasets: [{
-          label: '# PO Exepenses',
+          label: '# Total PO Exepenses',
           data: data,
           backgroundColor: [
             'rgba(255, 159, 64, 0.2)'
@@ -86,9 +86,9 @@ export class EmployeeDashboardComponent {
         plugins: {
           tooltip: {
             callbacks: {
-              label: function(context: TooltipItem<'bar'>) {
+              label: function (context: TooltipItem<'bar'>) {
                 var label = context.dataset.label || '';
-  
+
                 if (label) {
                   label += ': ';
                 }
@@ -101,12 +101,15 @@ export class EmployeeDashboardComponent {
       }
     });
   }
-  
+
 
   loadPurchaseOrders(employeeNumber: number): Subscription {
     let validationErrors: ValidationError[] = [];
     this.errors = [];
 
+    // Initialize an array with 12 zeros
+    let monthlyExpenses = Array(12).fill(0);
+    let monthlyLabels = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 
     return this.purchaseOrderService.ReviewEmployeePO(employeeNumber)
       .subscribe({
@@ -118,37 +121,29 @@ export class EmployeeDashboardComponent {
             return po;
           });
 
-          console.log(purchaseOrders);
+          // Update the monthlyExpenses array with the actual expenses
+          this.purchaseOrders.forEach(po => {
+            let month = new Date(po.creationDate).getMonth();
+            monthlyExpenses[month] += po.totalExpenseAmt;
+          });
 
           // Prepare the data for the chart
-          const labels = this.purchaseOrders
-          .map(po => this.datePipe.transform(po.creationDate, 'Y MMM d', 'en-CA'))
-          .filter(label => label !== null) as string[];
+          const labels = monthlyLabels;
+          const data = monthlyExpenses;
 
-          const data = this.purchaseOrders.map(po => po.totalExpenseAmt || 0);
-
-          const formattedData = this.purchaseOrders.map(po => {
-            const formatter = new Intl.NumberFormat('en-CA', {
-              style: 'currency',
-              currency: 'CAD',
-            });
-            return formatter.format(po.totalExpenseAmt || 0);
+          const formattedData = monthlyExpenses.map(expense => {
+            const formatter = new Intl.NumberFormat('en-CA',
+              { style: 'currency', currency: 'CAD', });
+            return formatter.format(expense);
           });
 
           // Render the chart with the data
           this.RenderChart(labels, data, formattedData);
-
-          console.log('The purchase orders:');
-          this.purchaseOrders.forEach((purchaseOrder) => {
-            console.log(purchaseOrder);
-
-          });
         },
         error: (error) => {
           console.error('Error retrieving purchase orders:', error);
           this.purchaseOrders = [];
           this.errors = [];
-
           if (error.status === 404) {
             this.showErrorMessage('No purchase orders found for the provided Employee number');
           } else if (error.error.errors) {
@@ -162,6 +157,7 @@ export class EmployeeDashboardComponent {
         }
       });
   }
+
 
   showErrorMessage(message: string) {
     this.errors.push(message);
