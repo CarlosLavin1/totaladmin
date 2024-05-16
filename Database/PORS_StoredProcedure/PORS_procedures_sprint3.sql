@@ -350,6 +350,8 @@ CREATE OR ALTER PROC [DBO].[spUpdateItem]
 	@Quantity INT = -1,
     @Price MONEY = -1,
     @Description NVARCHAR(100) = NULL,
+	@Location NVARCHAR(100) = NULL,
+	@ModifiedReason NVARCHAR(100) = NULL,
 	@RowVersion ROWVERSION OUTPUT
 AS
 BEGIN
@@ -363,7 +365,9 @@ BEGIN
 			RejectedReason = @Reason,
             Quantity = CASE WHEN @Quantity = -1 THEN Quantity ELSE @Quantity END,  --Only updates if values are provided
             Price = CASE WHEN @Price = -1 THEN Price ELSE @Price END,
-            [Description] = ISNULL(@Description, Description)
+            [Description] = ISNULL(@Description, [Description]),
+			ItemLocation = ISNULL(@Location, ItemLocation),
+			ModifiedReason = ISNULL(@ModifiedReason, ModifiedReason)
 		WHERE 
 			ItemId = @ItemId AND
 			[RowVersion] = @RowVersion;

@@ -30,7 +30,7 @@ export class ReviewDepartmentPOComponent implements OnInit {
   public userRole = localStorage.getItem('userRole');
 
 
-  private formToShow: boolean;
+  private updateReason: string | null = null;
   authSubscription: Subscription;
 
   constructor(
@@ -214,7 +214,7 @@ export class ReviewDepartmentPOComponent implements OnInit {
         if (error.error.errors) {
           this.showErrorMessage(error.error.errors[0].description);
         } else {
-          this.showErrorMessage(error.error);
+          this.showErrorMessage(error.error.title);
         }
       }
     });
@@ -303,7 +303,7 @@ export class ReviewDepartmentPOComponent implements OnInit {
         if (error.error.errors) {
           this.showErrorMessage(error.error.errors[0].description);
         } else {
-          this.showErrorMessage(error.error);
+          this.showErrorMessage(error.error.title);
         }
       }
     });
@@ -366,19 +366,69 @@ export class ReviewDepartmentPOComponent implements OnInit {
         if (error.error.errors) {
           this.showErrorMessage(error.error.errors[0].description);
         } else {
-          this.showErrorMessage(error.error);
+          this.showErrorMessage(error.error.title);
         }
       }
     });
   }
 
-  
+
   allItemsProcessed(purchaseOrder: PurchaseOrder): boolean {
     return purchaseOrder.items.every(item => item.statusId !== 1);
   }
 
 
-  
+  updateItem(item: Item) {
+    // Prompt the user for a reason only if it's not already set
+    if (this.updateReason === null) {
+      this.updateReason = window.prompt('Please enter a reason for updating this item:');
 
+      if (this.updateReason === null || this.updateReason.trim() === '') {
+        this.snackbarService.showSnackBar('Please provide a reason for updating this item.', 3000);
+        return;
+      }
+    }
+
+    // Update the item object with the reason
+    item.modifiedReason = this.updateReason;
+
+    this.itemService.updateItem(item).subscribe({
+      next: (res) => {
+        console.log(res.message);
+        // Refresh the data
+        const employeeNumber = localStorage.getItem('employeeNumber');
+        if (employeeNumber) {
+          this.departmentService.getDepartmentForEmployee(Number(employeeNumber)).subscribe(department => {
+            this.loadPurchaseOrders(department.id);
+          });
+        }
+        this.snackbarService.showSnackBar('Item updated succesfully!', 3000);
+        // item.modifiedReason = null; // reset the reason
+        // this.updateReason = null;
+      },
+      error: (error) => {
+        console.error(error);
+        if (error.error.errors) {
+          this.showErrorMessage(error.error.errors[0].description);
+        } else {
+          this.showErrorMessage(error.error.title);
+        }
+      }
+    });
+  }
+
+  toggleEditMode(item: Item, column: string) {
+    if (item.editingColumn === column) {
+      item.isEditing = false;
+      item.editingColumn = null;
+    } else {
+      item.isEditing = true;
+      item.editingColumn = column;
+    }
+  }
+
+  cancelEdit(item: Item) {
+    item.isEditing = false;
+  }
 
 }

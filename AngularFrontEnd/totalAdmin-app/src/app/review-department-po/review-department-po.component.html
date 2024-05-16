@@ -48,6 +48,7 @@
                                 <th>Description</th>
                                 <th>Price</th>
                                 <th>Justification</th>
+                                <th>Location</th>
                                 <th>Item Status</th>
                                 <th>Subtotal</th>
                                 <th>Tax</th>
@@ -59,10 +60,32 @@
                         </thead>
                         <tbody>
                             <tr *ngFor="let item of purchaseOrder.items">
-                                <td>{{ item.quantity }}</td>
+                                <td>
+                                    <span *ngIf="!item.isEditing || item.editingColumn !== 'quantity'">{{ item.quantity }}</span>
+                                    <input *ngIf="item.isEditing && item.editingColumn === 'quantity'" [(ngModel)]="item.quantity" (blur)="updateItem(item); item.isEditing = false; item.editingColumn = null;" />
+                                    <button [disabled]="purchaseOrder.purchaseOrderStatus === 'Closed'" class="btn btn-light btn-sm" (click)="toggleEditMode(item, 'quantity')">
+                                    <i title="Edit" *ngIf="!item.isEditing || item.editingColumn !== 'quantity'" class="bi bi-pencil"></i>
+                                    <i title="Save" *ngIf="item.isEditing && item.editingColumn === 'quantity'" class="bi bi-check"></i>
+                                </button>
+                                </td>
                                 <td>{{ item.description }}</td>
-                                <td>{{ item.price | currency }}</td>
+                                <td>
+                                    <span *ngIf="!item.isEditing || item.editingColumn !== 'price'">{{ item.price | currency }}</span>
+                                    <input *ngIf="item.isEditing && item.editingColumn === 'price'" [(ngModel)]="item.price" (blur)="updateItem(item); item.isEditing = false; item.editingColumn = null;" />
+                                    <button [disabled]="purchaseOrder.purchaseOrderStatus === 'Closed'" class="btn btn-light btn-sm" (click)="toggleEditMode(item, 'price')">
+                                      <i title="Edit" *ngIf="!item.isEditing || item.editingColumn !== 'price'" class="bi bi-pencil"></i>
+                                      <i title="Save" *ngIf="item.isEditing && item.editingColumn === 'price'" class="bi bi-check"></i>
+                                    </button>
+                                </td>
                                 <td>{{ item.justification }}</td>
+                                <td>
+                                    <span *ngIf="!item.isEditing || item.editingColumn !== 'location'">{{ item.location }}</span>
+                                    <input *ngIf="item.isEditing && item.editingColumn === 'location'" [(ngModel)]="item.location" (blur)="updateItem(item); item.isEditing = false; item.editingColumn = null;" />
+                                    <button [disabled]="purchaseOrder.purchaseOrderStatus === 'Closed'" class="btn btn-light btn-sm" (click)="toggleEditMode(item, 'location')">
+                                      <i title="Edit" *ngIf="!item.isEditing || item.editingColumn !== 'location'" class="bi bi-pencil"></i>
+                                      <i title="Save" *ngIf="item.isEditing && item.editingColumn === 'location'" class="bi bi-check"></i>
+                                    </button>
+                                </td>
                                 <td>{{ item.itemStatus }}</td>
                                 <td>{{ item.subtotal | currency }}</td>
                                 <td>{{ item.tax | currency }}</td>
@@ -77,8 +100,8 @@
                                          allItemsProcessed(purchaseOrder)">❌</button>
                                 </th>
                                 <th><button class="btn btn-light" title="Set No Longer Required"
-                                     (click)="markItemAsNoLongerRequired(item.itemId)" type="button"
-                                    *ngIf="showBtn[purchaseOrder.poNumber.toString() + '-' + item.itemId]">🚫</button>
+                                        (click)="markItemAsNoLongerRequired(item.itemId)" type="button"
+                                        *ngIf="showBtn[purchaseOrder.poNumber.toString() + '-' + item.itemId]">🚫</button>
                                 </th>
                             </tr>
                         </tbody>

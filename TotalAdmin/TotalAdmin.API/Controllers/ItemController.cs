@@ -31,7 +31,7 @@ namespace TotalAdmin.API.Controllers
             return Ok(item);
         }
 
-        [HttpPatch("{itemId}/{newItemStatus}/{reason}")]
+        [HttpPatch("{itemId}/{newItemStatus}/{reason}/{quantity}/{price}/{description}/{location}/{modifiedReason}")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
