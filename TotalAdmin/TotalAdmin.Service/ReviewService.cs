@@ -35,6 +35,11 @@ namespace TotalAdmin.Service
             return await repo.GetReviewsForEmployee(employeeNumber);
         }
 
+        public void ReadReview(int reviewId)
+        {
+            repo.ReadReview(reviewId);
+        }
+
         private bool ValidateReview(Review review)
         {
             // Validate Entity

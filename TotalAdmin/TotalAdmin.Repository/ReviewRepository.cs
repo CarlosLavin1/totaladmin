@@ -69,6 +69,15 @@ namespace TotalAdmin.Repository
             return dt.AsEnumerable().Select(row => PopulateEmployee(row)).ToList();
         }
 
+        public void ReadReview(int reviewId)
+        {
+            List<Parm> parms = new()
+            {
+                new("@ReviewId", SqlDbType.Int, reviewId)
+            };
+            db.ExecuteNonQuery("spReadReview", parms);
+        }
+
         private Review PopulateReview(DataRow row)
         {
             return new Review()

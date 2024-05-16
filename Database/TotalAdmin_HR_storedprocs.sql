@@ -604,3 +604,22 @@ BEGIN
 	END CATCH
 END 
 GO
+
+-- read review
+CREATE OR ALTER PROC spReadReview
+	@ReviewId INT
+AS
+BEGIN
+	BEGIN TRY	
+		UPDATE 
+			Review
+		SET
+			IsRead = 1
+		WHERE
+			ReviewId = @ReviewId
+	END TRY
+	BEGIN CATCH
+		;THROW
+	END CATCH
+END 
+GO

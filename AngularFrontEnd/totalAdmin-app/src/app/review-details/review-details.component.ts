@@ -6,5 +6,5 @@ import { Component } from '@angular/core';
   styleUrls: ['./review-details.component.css']
 })
 export class ReviewDetailsComponent {
-
+  reviewId: number;
 }
