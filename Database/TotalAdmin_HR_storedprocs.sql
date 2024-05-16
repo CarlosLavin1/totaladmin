@@ -504,6 +504,7 @@ BEGIN
 		SELECT *
 		FROM Review
 		WHERE EmployeeNumber = @EmployeeNumber
+		ORDER BY ReviewDate DESC
 	END TRY
 	BEGIN CATCH
 		;THROW
@@ -597,6 +598,45 @@ BEGIN
 		ORDER BY
 			LastName,
 			FirstName
+	END TRY
+	BEGIN CATCH
+		;THROW
+	END CATCH
+END 
+GO
+
+-- read review
+CREATE OR ALTER PROC spReadReview
+	@ReviewId INT
+AS
+BEGIN
+	BEGIN TRY	
+		UPDATE 
+			Review
+		SET
+			IsRead = 1
+		WHERE
+			ReviewId = @ReviewId
+	END TRY
+	BEGIN CATCH
+		;THROW
+	END CATCH
+END 
+GO
+
+
+-- get review by id
+CREATE OR ALTER PROC spGetReviewById
+	@ReviewId INT
+AS
+BEGIN
+	BEGIN TRY	
+		SELECT
+			*
+		FROM
+			Review
+		WHERE
+			ReviewId = @ReviewId
 	END TRY
 	BEGIN CATCH
 		;THROW

@@ -27,6 +27,10 @@
                         routerLink="/update-personal-info/{{employeeNumber}}">Update My Info</a>
                 </li>
                 <li class="nav-item">
+                    <a *ngIf="userIsAuthenticated && role == 'Employee'" class="btn btn-info"
+                        routerLink="/reviews-for-employee">My Reviews</a>
+                </li>
+                <li class="nav-item">
                     <a *ngIf="userIsAuthenticated && role == 'Supervisor'" class="btn btn-info"
                         routerLink="/update-department">Update My Department</a>
                 </li>

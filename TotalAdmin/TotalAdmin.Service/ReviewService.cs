@@ -30,6 +30,21 @@ namespace TotalAdmin.Service
             return await repo.GetEmployeesDueForReviewForSupervisor(supervisorEmployeeNumber);
         }
 
+        public async Task<List<Review>> GetReviewsForEmployee(int employeeNumber)
+        {
+            return await repo.GetReviewsForEmployee(employeeNumber);
+        }
+
+        public void ReadReview(int reviewId)
+        {
+            repo.ReadReview(reviewId);
+        }
+
+        public async Task<Review?> GetReviewById(int reviewId)
+        {
+            return await repo.GetReviewById(reviewId);
+        }
+
         private bool ValidateReview(Review review)
         {
             // Validate Entity

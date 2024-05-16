@@ -55,5 +55,56 @@ namespace TotalAdmin.API.Controllers
                 return Problem(title: "An internal error has occurred. Please contact the system administrator.");
             }
         }
+
+        [Authorize(Roles = "Employee")]
+        [HttpGet("employee/{id}")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        public async Task<ActionResult<List<Review>>> GetReviewsForEmployee(int id)
+        {
+            try
+            {
+                List<Review> reviews = await reviewService.GetReviewsForEmployee(id);
+
+                return Ok(reviews);
+            }
+            catch (Exception e)
+            {
+                return Problem(title: "An internal error has occurred. Please contact the system administrator.");
+            }
+        }
+
+        [Authorize(Roles = "Employee")]
+        [HttpGet("{id}")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        public async Task<ActionResult<Review>> GetReview(int id)
+        {
+            try
+            {
+                Review? r = await reviewService.GetReviewById(id);
+
+                return r != null ? Ok(r) : BadRequest();
+            }
+            catch (Exception e)
+            {
+                return Problem(title: "An internal error has occurred. Please contact the system administrator.");
+            }
+        }
+
+        [Authorize(Roles = "Employee, Supervisor")]
+        [HttpGet("read/{id}")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        public ActionResult ReadReview(int id)
+        {
+            try
+            {
+                reviewService.ReadReview(id);
+
+                return Ok();
+            }
+            catch (Exception e)
+            {
+                return Problem(title: "An internal error has occurred. Please contact the system administrator.");
+            }
+        }
     }
 }

@@ -13,5 +13,7 @@ namespace TotalAdmin.Repository
         Review ChangeReviewRead(int reviewId);
         Task<List<Review>> GetReviewsForEmployee(int employeeNumber); 
         Task<List<Employee>> GetEmployeesDueForReviewForSupervisor(int supervisorEmployeeNumber);
+        void ReadReview(int reviewId);
+        Task<Review?> GetReviewById(int reviewId);
     }
 }

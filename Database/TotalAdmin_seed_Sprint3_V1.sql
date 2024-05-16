@@ -263,3 +263,8 @@ VALUES
 ('Graphic Design Software', 10, 'Professional-grade graphic design suite for creating marketing materials', 899.99, 'Enable in-house design capabilities and reduce outsourcing costs', 'Marketing Department', NULL, NULL, 11, 1),
 ('Social Media Management Tool', 1, 'All-in-one platform for managing social media campaigns and analytics', 3999.00, 'Streamline social media marketing efforts and track performance', 'Online Service', NULL, NULL, 12, 1),
 ('High-end Laptops', 5, 'Powerful laptops with dedicated GPUs for graphic design and video editing', 2499.99, 'Enable efficient creation and rendering of multimedia content', 'Marketing Department', NULL, NULL, 11, 1);
+
+-- insert reviews
+INSERT INTO Review(ReviewRatingId, Comment, ReviewDate, IsRead, EmployeeNumber, SupervisorEmployeeNumber)
+VALUES
+(2, 'good job', '2024-01-21', 0, 18, 3)
