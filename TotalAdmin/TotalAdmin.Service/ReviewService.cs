@@ -41,6 +41,10 @@ namespace TotalAdmin.Service
                 review.AddError(new(e.ErrorMessage, ErrorType.Model));
             }
 
+            // review cannot be in future
+            if (review.ReviewDate > DateTime.Now)
+                review.AddError(new ("Review date cannot be in the future", ErrorType.Model));
+
             return !review.Errors.Any();
         }
     }

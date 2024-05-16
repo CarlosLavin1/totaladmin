@@ -2,7 +2,7 @@ import { Component } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Subscription } from 'rxjs';
 import { ReviewService } from '../services/review.service';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { Review } from '../models/review';
 import { ValidationError } from '../models/validationError';
 import { SnackbarService } from '../services/snackbar.service';
@@ -23,7 +23,8 @@ export class ReviewCreateComponent {
     private fb: FormBuilder,
     private reviewService: ReviewService,
     private router: Router,
-    private snackBarService: SnackbarService
+    private snackBarService: SnackbarService,
+    private activatedRoute: ActivatedRoute
   ) {}
 
   ngOnInit(): void {
@@ -33,6 +34,16 @@ export class ReviewCreateComponent {
       reviewDate: ['', Validators.required],
       hasBeenRead: [false]
     });
+
+    this.supervisorEmployeeNumber = Number(localStorage.getItem('employeeNumber'));
+
+    const idParam = this.activatedRoute.snapshot.paramMap.get('id');
+    if (idParam != null) {
+      this.employeeNumber = +idParam;
+      if (isNaN(this.employeeNumber)) {
+        this.router.navigate(['']);
+      } 
+    }
   }
 
   onSubmit(): void {
@@ -40,8 +51,11 @@ export class ReviewCreateComponent {
       const review = {
         ...this.reviewForm.value,
         employeeNumber: this.employeeNumber,
-        supervisorEmployeeNumber: this.supervisorEmployeeNumber
+        supervisorEmployeeNumber: this.supervisorEmployeeNumber,
+        hasBeenRead: false
       }
+      console.log(review);
+      
       this.reviewService.createReview(review).subscribe({
         next: (res) => {
           console.log(res);
