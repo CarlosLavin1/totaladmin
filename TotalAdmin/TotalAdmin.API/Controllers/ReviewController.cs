@@ -139,15 +139,23 @@ namespace TotalAdmin.API.Controllers
                 {
                     reviewService.SendReminders();
                     // loop through all supervisors and get employees due for review and send that list
-                    EmailDTO email = new EmailDTO
+                    List<Employee> supervisors = reviewService.GetSupervisorEmails();
+                    EmailDTO email;
+                    foreach(Employee e in supervisors)
                     {
-                        To = "",
-                        From = "totalAdmin@mail.com",
-                        Subject = "Your PO request has been processed",
-                        Body = $"Your purchase order (PO Number:) has been closed and processed."
-                    };
-
-                    _emailService.Send(email);
+                        List<Employee> employees = await reviewService.GetEmployeesDueForReviewForSupervisor(e.EmployeeNumber);
+                        string employeeList = "The following employee reviews are due for the current quarter:\n\n";
+                        foreach (Employee employee in employees)
+                            employeeList += $"{employee.LastName}, {employee.FirstName}\n";
+                        email = new EmailDTO
+                        {
+                            To = e.Email ?? "supervisors@mail.com",
+                            From = "totalAdmin@mail.com",
+                            Subject = "Your employees reviews are due",
+                            Body = employeeList
+                        };
+                        _emailService.Send(email);
+                    }
                     return Ok();
                 }    
 

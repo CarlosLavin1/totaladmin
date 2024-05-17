@@ -17,5 +17,6 @@ namespace TotalAdmin.Service
         Task<Review?> GetReviewById(int reviewId);
         void SendReminders();
         Task<DateTime?> GetLastReminderDate();
+        List<Employee> GetSupervisorEmails();
     }
 }

@@ -65,7 +65,7 @@ namespace TotalAdmin.Repository
             {
                 new("@SupervisorEmployeeNumber", SqlDbType.Int, supervisorEmployeeNumber),
             };
-            DataTable dt = await db.ExecuteAsync("spGetEmployeesDueForReviewForSupervisor", parms);
+            DataTable dt = await db.ExecuteAsync("spGetEmployeeReviewsDueInCurrentQuarter", parms);
             return dt.AsEnumerable().Select(row => PopulateEmployee(row)).ToList();
         }
 
@@ -92,13 +92,19 @@ namespace TotalAdmin.Repository
         {
             db.ExecuteNonQuery("spSendReminders");
         }
-        //spGetMostRecentReviewReminderDate
+ 
         public async Task<DateTime?> GetLastReminderDate()
         {
             object? last = await db.ExecuteScalarAsync("spGetMostRecentReviewReminderDate");
             if (last != null)
                 return (DateTime)last;
             return null;
+        }
+
+        public List<Employee> GetSupervisorEmails()
+        {
+            DataTable dt = db.Execute("spGetSupervisorEmails");
+            return dt.AsEnumerable().Select(row => PopulateEmployee(row)).ToList();
         }
 
         public async Task<Review?> GetReviewById(int reviewId)
