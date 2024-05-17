@@ -1,6 +1,3 @@
-
-import 'dart:convert';
-
 class POSearchResultsApiDTO {
   final int poNumber;
   final DateTime creationDate;

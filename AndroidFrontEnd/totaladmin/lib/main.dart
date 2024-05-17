@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:totaladmin/employee_search.dart';
 import 'package:totaladmin/login.dart';
+import 'package:totaladmin/search_purchase_order.dart';
 import 'dart:io';
 
 import 'package:totaladmin/services/auth_service.dart';
+import 'package:totaladmin/view_po_details.dart';
 
 import 'browse_department_po.dart';
 
@@ -121,6 +123,18 @@ class _HomePageState extends State<HomePage> {
                   },
                 ),
               ],
+              ListTile(
+                leading: const Icon(Icons.receipt),
+                title: const Text('View Purchase Orders'),
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => SearchPo(),
+                    ),
+                  );
+                },
+              ),
               ListTile(
                 leading: const Icon(Icons.exit_to_app),
                 title: const Text('Logout'),

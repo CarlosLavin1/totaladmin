@@ -14,6 +14,14 @@ class PurchaseOrder {
   final bool hasMergeOccurred;
   final String formattedPoNumber;
 
+  // Derived properties
+  double get subtotal =>
+      items?.fold(0, (prev, item) => prev! + item.price * item.quantity) ?? 0;
+  double get tax => subtotal * 0.05;
+  double get grandTotal => subtotal + tax;
+
+  
+
   PurchaseOrder({
     required this.poNumber,
     required this.creationDate,
