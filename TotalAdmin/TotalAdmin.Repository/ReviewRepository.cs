@@ -88,6 +88,19 @@ namespace TotalAdmin.Repository
             db.ExecuteNonQuery("spReadReview", parms);
         }
 
+        public void SendReminders()
+        {
+            db.ExecuteNonQuery("spSendReminders");
+        }
+        //spGetMostRecentReviewReminderDate
+        public async Task<DateTime?> GetLastReminderDate()
+        {
+            object? last = await db.ExecuteScalarAsync("spGetMostRecentReviewReminderDate");
+            if (last != null)
+                return (DateTime)last;
+            return null;
+        }
+
         public async Task<Review?> GetReviewById(int reviewId)
         {
             List<Parm> parms = new()

@@ -15,5 +15,7 @@ namespace TotalAdmin.Service
         Task<List<MissingReviewDTO>> GetEmployeesDueForReviewForSupervisorWithQuarter(int supervisorEmployeeNumber);
         void ReadReview(int reviewId);
         Task<Review?> GetReviewById(int reviewId);
+        void SendReminders();
+        Task<DateTime?> GetLastReminderDate();
     }
 }

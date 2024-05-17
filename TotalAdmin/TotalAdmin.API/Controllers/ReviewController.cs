@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using TotalAdmin.Model;
+using TotalAdmin.Model.DTO;
 using TotalAdmin.Service;
 
 namespace TotalAdmin.API.Controllers
@@ -10,10 +11,12 @@ namespace TotalAdmin.API.Controllers
     public class ReviewController : Controller
     {
         private readonly IReviewService reviewService;
+        private readonly EmailService _emailService;
 
-        public ReviewController(IReviewService reviewService)
+        public ReviewController(IReviewService reviewService, EmailService emailService)
         {
             this.reviewService = reviewService;
+            _emailService = emailService;
         }
 
         [Authorize(Roles = "Supervisor")]
@@ -117,6 +120,37 @@ namespace TotalAdmin.API.Controllers
                 reviewService.ReadReview(id);
 
                 return Ok();
+            }
+            catch (Exception e)
+            {
+                return Problem(title: "An internal error has occurred. Please contact the system administrator.");
+            }
+        }
+
+        [HttpGet("reminders")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        public async Task<ActionResult> SendReminders()
+        {
+            try
+            {
+                DateTime? last = await reviewService.GetLastReminderDate();
+                if (last == null || last.Value.Date < DateTime.Today)
+                {
+                    reviewService.SendReminders();
+                    EmailDTO email = new EmailDTO
+                    {
+                        To = "",
+                        From = "totalAdmin@mail.com",
+                        Subject = "Your PO request has been processed",
+                        Body = $"Your purchase order (PO Number:) has been closed and processed."
+                    };
+
+                    _emailService.Send(email);
+                    return Ok();
+                }    
+
+                return BadRequest();
             }
             catch (Exception e)
             {
