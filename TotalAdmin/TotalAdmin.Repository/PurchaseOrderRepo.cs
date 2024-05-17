@@ -181,7 +181,11 @@ namespace TotalAdmin.Repository
             try
             {
                 // SQL query to get the purchase order number
-                string sql = "SELECT * FROM PurchaseOrder WHERE PoNumber = @PoNumber";
+                string sql = @"SELECT PurchaseOrder.*, 
+	                                PurchaseOrderStatus.[Name] AS PurchaseOrderStatus
+                                FROM PurchaseOrder 
+	                                INNER JOIN PurchaseOrderStatus ON PurchaseOrder.PurchaseOrderStatusId = PurchaseOrderStatus.PoStatusId
+                                WHERE PoNumber = @PoNumber";
 
                 // Execute the SQL query
                 DataTable dt = await db.ExecuteAsync(sql, new List<Parm> { new Parm("@PoNumber", SqlDbType.Int, poNumber) }, CommandType.Text);
@@ -198,7 +202,10 @@ namespace TotalAdmin.Repository
                 {
                     PoNumber = Convert.ToInt32(firstRow["PoNumber"]),
                     CreationDate = DateTime.Parse(firstRow["CreationDate"].ToString()),
-                    EmployeeSupervisorName = await GetSupervisorFullNameForEmployee(Convert.ToInt32(firstRow["EmployeeNumber"]))
+                    EmployeeSupervisorName = await GetSupervisorFullNameForEmployee(Convert.ToInt32(firstRow["EmployeeNumber"])),
+                    FormattedPoNumber = "00001" + firstRow["PoNumber"].ToString().PadLeft(2, '0'),
+                    StatusId = Convert.ToInt32(firstRow["PurchaseOrderStatusId"]),
+                    PurchaseOrderStatus = Convert.ToString(firstRow["PurchaseOrderStatus"]),
                 };
 
                 // SQL query to get the items for the purchase order

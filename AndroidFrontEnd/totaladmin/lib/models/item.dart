@@ -1,28 +1,26 @@
 class Item {
   final int itemId;
-  final String name;
+  final String? name;
   final int quantity;
-  final String description;
+  final String? description;
   final double price;
-  final String justification;
-  final String location;
+  final String? justification;
+  final String? location;
   final String? rejectedReason;
-  final String itemStatus;
+  final String? itemStatus;
   final int statusId;
-  final int rowVersion;
 
   Item({
     required this.itemId,
-    required this.name,
+    this.name,
     required this.quantity,
-    required this.description,
+    this.description,
     required this.price,
-    required this.justification,
-    required this.location,
+    this.justification,
+    this.location,
     this.rejectedReason,
-    required this.itemStatus,
+    this.itemStatus,
     required this.statusId,
-    required this.rowVersion,
   });
 
   factory Item.fromJson(Map<String, dynamic> json) {
@@ -37,7 +35,6 @@ class Item {
       rejectedReason: json['rejectedReason'],
       itemStatus: json['itemStatus'],
       statusId: json['statusId'],
-      rowVersion: json['rowVersion'],
     );
   }
 
@@ -53,11 +50,15 @@ class Item {
       'rejectedReason': rejectedReason,
       'itemStatus': itemStatus,
       'statusId': statusId,
-      'rowVersion': rowVersion,
     };
   }
 
   double get subtotal => price * quantity;
   double get tax => subtotal * 0.05;
   double get grandTotal => subtotal + tax;
+
+  @override
+  String toString() {
+    return 'Item{itemId: $itemId, name: $name, quantity: $quantity, price: $price}';
+  }
 }
