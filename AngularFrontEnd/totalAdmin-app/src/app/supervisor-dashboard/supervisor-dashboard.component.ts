@@ -29,7 +29,7 @@ export class SupervisorDashboardComponent implements OnInit {
   public userRole = localStorage.getItem('userRole');
   private authSubscription: Subscription;
   public employeeNumber = localStorage.getItem('employeeNumber');
-  
+
 
   constructor(
     public purchaseOrderService: PurchaseOrderService,
@@ -44,27 +44,36 @@ export class SupervisorDashboardComponent implements OnInit {
   ngOnInit(): void {
     if (this.checkRole()) {
       this.employeeNumber = localStorage.getItem('employeeNumber');
-      
       if (this.employeeNumber) {
         this.employeeService.getEmployeeById(Number(this.employeeNumber)).subscribe(employee => {
-          
+
           const supervisorEmployeeNumber = employee.supervisorEmployeeNumber;
-          console.log('The supervisor number is: ' + supervisorEmployeeNumber);
           
-
-          this.reviewService.getEmployeesDueForReviewForSupervisor(supervisorEmployeeNumber).subscribe(employees => {
-            this.pendingReviews = employees.length;
-          });
+          console.log('The supervisor number is: ' + supervisorEmployeeNumber);
+          this.fetchPendingAndUnreadReviews(supervisorEmployeeNumber);
         });
-
-
         this.departmentService.getDepartmentForEmployee(Number(this.employeeNumber)).subscribe(department => {
           this.loadPurchaseOrders(department.id);
         });
       }
-    
     }
   }
+
+  fetchPendingAndUnreadReviews(supervisorEmployeeNumber: number): void {
+    this.reviewService.getEmployeesDueForReviewForSupervisor(supervisorEmployeeNumber).subscribe(employees => {
+      this.pendingReviews = employees.length;
+      console.log(this.pendingReviews);
+      
+      employees.forEach(emp => {
+        this.reviewService.getReviewsForEmployee(emp.employeeNumber).subscribe(reviews => {
+          
+          this.unreadEmployeReviews += reviews.filter(review => !review.hasBeenRead).length;
+          console.log(this.unreadEmployeReviews);
+        });
+      });
+    });
+  }
+
 
   checkRole(): boolean {
     const userRole = this.authService.getRole();
@@ -98,9 +107,9 @@ export class SupervisorDashboardComponent implements OnInit {
         plugins: {
           tooltip: {
             callbacks: {
-              label: function(context: TooltipItem<'bar'>) {
+              label: function (context: TooltipItem<'bar'>) {
                 var label = context.dataset.label || '';
-  
+
                 if (label) {
                   label += ': ';
                 }
@@ -113,17 +122,17 @@ export class SupervisorDashboardComponent implements OnInit {
       }
     });
   }
-  
+
 
 
   loadPurchaseOrders(departmentId: number): Subscription {
     let validationErrors: ValidationError[] = [];
     this.errors = [];
-  
+
     // Initialize an array with 12 zeros
     let monthlyExpenses = Array(12).fill(0);
     let monthlyLabels = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-  
+
     return this.purchaseOrderService.ReviewDepartmentPO(departmentId)
       .subscribe({
         next: (purchaseOrders: PurchaseOrder[]) => {
@@ -133,13 +142,13 @@ export class SupervisorDashboardComponent implements OnInit {
             }
             return po;
           });
-  
+
           // Update the monthlyExpenses array with the actual expenses
           this.purchaseOrders.forEach(po => {
-            let month = new Date(po.creationDate).getMonth(); 
-            monthlyExpenses[month] += po.totalExpenseAmt; 
+            let month = new Date(po.creationDate).getMonth();
+            monthlyExpenses[month] += po.totalExpenseAmt;
           });
-  
+
           // Prepare the data for the chart
           const labels = monthlyLabels;
           const data = monthlyExpenses;
@@ -147,7 +156,7 @@ export class SupervisorDashboardComponent implements OnInit {
             const formatter = new Intl.NumberFormat('en-CA', { style: 'currency', currency: 'CAD', });
             return formatter.format(expense);
           });
-  
+
           // Render the chart with the data
           this.RenderChart(labels, data, formattedData);
         },
@@ -168,7 +177,7 @@ export class SupervisorDashboardComponent implements OnInit {
         }
       });
   }
-  
+
   showErrorMessage(message: string) {
     this.errors.push(message);
   }

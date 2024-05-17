@@ -473,6 +473,7 @@ namespace TotalAdmin.API.Controllers
 
                 PurchaseOrder po = await service.GetPurchaseOrderDetails(poNumber);
 
+                
                 if (po == null)
                 {
                     return NotFound($"Purchase order with number {poNumber} not found.");

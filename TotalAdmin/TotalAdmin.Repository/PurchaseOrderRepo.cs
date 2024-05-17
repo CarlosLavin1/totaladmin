@@ -176,47 +176,60 @@ namespace TotalAdmin.Repository
             }
         }
 
+        /// <summary>
+        /// Gets the detail of the purchase order based on the provided number
+        /// </summary>
+        /// <param name="poNumber"></param>
+        /// <returns>Results of th epurchase order detail</returns>
         public async Task<PurchaseOrder> GetPurchaseOrderDetails(int poNumber)
         {
             try
             {
-                // SQL query to get the purchase order number
-                string sql = "SELECT * FROM PurchaseOrder WHERE PoNumber = @PoNumber";
+                PurchaseOrder? po = null;
+                
+                string sql = @"SELECT PurchaseOrder.*, 
+	                                PurchaseOrderStatus.[Name] AS PurchaseOrderStatus
+                                FROM PurchaseOrder 
+	                                INNER JOIN
+                                    PurchaseOrderStatus ON PurchaseOrder.PurchaseOrderStatusId = PurchaseOrderStatus.PoStatusId
+                                WHERE PoNumber = @PoNumber";
 
-                // Execute the SQL query
                 DataTable dt = await db.ExecuteAsync(sql, new List<Parm> { new Parm("@PoNumber", SqlDbType.Int, poNumber) }, CommandType.Text);
 
-                // Check if any results were returned
+              
                 if (dt.Rows.Count == 0)
                 {
-                    throw new Exception("Purchase order not found");
+                    return po;
                 }
 
                 // Create a PurchaseOrder object from the result
                 DataRow firstRow = dt.Rows[0];
-                PurchaseOrder po = new PurchaseOrder
+                po = new PurchaseOrder
                 {
                     PoNumber = Convert.ToInt32(firstRow["PoNumber"]),
-                    CreationDate = DateTime.Parse(firstRow["CreationDate"].ToString()),
-                    EmployeeSupervisorName = await GetSupervisorFullNameForEmployee(Convert.ToInt32(firstRow["EmployeeNumber"]))
+                    CreationDate = Convert.ToDateTime(firstRow["CreationDate"]),
+                    EmployeeSupervisorName = await GetSupervisorFullNameForEmployee(Convert.ToInt32(firstRow["EmployeeNumber"])),
+                    FormattedPoNumber = "00001" + firstRow["PoNumber"].ToString().PadLeft(2, '0'),
+                    StatusId = Convert.ToInt32(firstRow["PurchaseOrderStatusId"]),
+                    PurchaseOrderStatus = Convert.ToString(firstRow["PurchaseOrderStatus"]),
                 };
 
-                // SQL query to get the items for the purchase order
+                
                 sql = "SELECT * FROM Item WHERE PoNumber = @PoNumber";
 
-                // Execute the SQL query
+               
                 dt = await db.ExecuteAsync(sql, new List<Parm> { new Parm("@PoNumber", SqlDbType.Int, poNumber) }, CommandType.Text);
 
                 // Add the items to the PurchaseOrder object
                 po.Items = dt.AsEnumerable().Select(row => new Item
                 {
                     ItemId = Convert.ToInt32(row["ItemId"]),
-                    Name = row["Name"].ToString(),
+                    Name = row["Name"].ToString() ?? "N/A",
                     Quantity = Convert.ToInt32(row["Quantity"]),
-                    Description = row["Description"].ToString(),
+                    Description = row["Description"].ToString() ?? "N/A",
                     Price = Convert.ToDecimal(row["Price"]),
-                    Justification = row["Justification"].ToString(),
-                    Location = row["ItemLocation"].ToString(),
+                    Justification = row["Justification"].ToString() ?? "N/A",
+                    Location = row["ItemLocation"].ToString() ?? "N/A",
                     StatusId = Convert.ToInt32(row["ItemStatusId"])
                 }).ToList();
 
@@ -230,7 +243,11 @@ namespace TotalAdmin.Repository
         }
 
 
-
+        /// <summary>
+        /// Used to close a purchase order based on the PONumber
+        /// </summary>
+        /// <param name="PONumber"></param>
+        /// <returns>Returns the updated po status</returns>
         public async Task<PurchaseOrder> ClosePO(int PONumber)
         {
             try
