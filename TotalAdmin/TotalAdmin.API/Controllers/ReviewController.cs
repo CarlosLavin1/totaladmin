@@ -138,6 +138,7 @@ namespace TotalAdmin.API.Controllers
                 if (last == null || last.Value.Date < DateTime.Today)
                 {
                     reviewService.SendReminders();
+                    // loop through all supervisors and get employees due for review and send that list
                     EmailDTO email = new EmailDTO
                     {
                         To = "",
