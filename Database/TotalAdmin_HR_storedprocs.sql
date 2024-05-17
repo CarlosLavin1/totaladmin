@@ -787,3 +787,28 @@ BEGIN
 	END CATCH
 END 
 GO
+
+
+-- update review reminder date
+CREATE OR ALTER PROC spSendReminders
+AS
+BEGIN
+	INSERT INTO 
+		ReviewReminder (DaySent)
+	VALUES
+		(GETDATE())
+END
+GO
+
+-- get hr employee emails
+CREATE OR ALTER PROC spGetHREmployeeEmails
+AS
+BEGIN
+	SELECT
+		*
+	FROM
+		Employee
+	WHERE 
+		RoleId = 4;
+END
+GO

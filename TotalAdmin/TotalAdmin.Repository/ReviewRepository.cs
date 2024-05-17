@@ -96,7 +96,7 @@ namespace TotalAdmin.Repository
         public async Task<DateTime?> GetLastReminderDate()
         {
             object? last = await db.ExecuteScalarAsync("spGetMostRecentReviewReminderDate");
-            if (last != null)
+            if (last != DBNull.Value && last != null)
                 return (DateTime)last;
             return null;
         }
@@ -117,6 +117,12 @@ namespace TotalAdmin.Repository
             if(dt.Rows.Count == 0)
                 return null;
             return PopulateReview(dt.Rows[0]);
+        }
+
+        public List<Employee> GetHREmployeeEmails()
+        {
+            DataTable dt = db.Execute("spGetHREmployeeEmails");
+            return dt.AsEnumerable().Select(row => PopulateEmployee(row)).ToList();
         }
 
         private Review PopulateReview(DataRow row)

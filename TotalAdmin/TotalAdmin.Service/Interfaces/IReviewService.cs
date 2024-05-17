@@ -18,5 +18,6 @@ namespace TotalAdmin.Service
         void SendReminders();
         Task<DateTime?> GetLastReminderDate();
         List<Employee> GetSupervisorEmails();
+        List<Employee> GetHREmployeeEmails();
     }
 }

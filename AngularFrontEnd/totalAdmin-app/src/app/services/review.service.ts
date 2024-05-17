@@ -37,4 +37,8 @@ export class ReviewService extends SharedService{
     getReviewById(reviewId: number): Observable<Review>{
         return this.http.get<Review>(`${API_URL7161}/review/${reviewId}`).pipe(catchError(super.handleError));
     }
+
+    sendReminders(): Observable<any>{
+        return this.http.get(`${API_URL7161}/review/reminders`).pipe(catchError(super.handleError));
+    }
 }

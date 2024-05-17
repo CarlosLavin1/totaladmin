@@ -60,6 +60,11 @@ namespace TotalAdmin.Service
             return repo.GetSupervisorEmails();
         }
 
+        public List<Employee> GetHREmployeeEmails()
+        {
+            return repo.GetHREmployeeEmails();
+        }
+
         public async Task<Review?> GetReviewById(int reviewId)
         {
             return await repo.GetReviewById(reviewId);
