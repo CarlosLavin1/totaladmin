@@ -65,7 +65,7 @@ namespace TotalAdmin.Repository
             {
                 new("@SupervisorEmployeeNumber", SqlDbType.Int, supervisorEmployeeNumber),
             };
-            DataTable dt = await db.ExecuteAsync("spGetEmployeesDueForReviewForSupervisor", parms);
+            DataTable dt = await db.ExecuteAsync("spGetEmployeeReviewsDueInCurrentQuarter", parms);
             return dt.AsEnumerable().Select(row => PopulateEmployee(row)).ToList();
         }
 
@@ -88,6 +88,25 @@ namespace TotalAdmin.Repository
             db.ExecuteNonQuery("spReadReview", parms);
         }
 
+        public void SendReminders()
+        {
+            db.ExecuteNonQuery("spSendReminders");
+        }
+ 
+        public async Task<DateTime?> GetLastReminderDate()
+        {
+            object? last = await db.ExecuteScalarAsync("spGetMostRecentReviewReminderDate");
+            if (last != DBNull.Value && last != null)
+                return (DateTime)last;
+            return null;
+        }
+
+        public List<Employee> GetSupervisorEmails()
+        {
+            DataTable dt = db.Execute("spGetSupervisorEmails");
+            return dt.AsEnumerable().Select(row => PopulateEmployee(row)).ToList();
+        }
+
         public async Task<Review?> GetReviewById(int reviewId)
         {
             List<Parm> parms = new()
@@ -98,6 +117,12 @@ namespace TotalAdmin.Repository
             if(dt.Rows.Count == 0)
                 return null;
             return PopulateReview(dt.Rows[0]);
+        }
+
+        public List<Employee> GetHREmployeeEmails()
+        {
+            DataTable dt = db.Execute("spGetHREmployeeEmails");
+            return dt.AsEnumerable().Select(row => PopulateEmployee(row)).ToList();
         }
 
         private Review PopulateReview(DataRow row)

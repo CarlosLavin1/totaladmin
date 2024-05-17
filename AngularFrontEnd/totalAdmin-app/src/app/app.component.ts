@@ -2,6 +2,7 @@ import { Component } from '@angular/core';
 import { Subscription } from 'rxjs';
 import { AuthenticationService } from './auth/services/authentication.service';
 import { AuthStatus } from './models/auth-status';
+import { ReviewService } from './services/review.service';
 
 @Component({
   selector: 'app-root',
@@ -16,7 +17,7 @@ export class AppComponent {
   role: string;
   employeeNumber: any;
 
-  constructor(private authService: AuthenticationService) {}
+  constructor(private authService: AuthenticationService, private reviewService: ReviewService) {}
 
   ngOnInit(): void {
     this.authService.autoAuthUser();
@@ -32,6 +33,13 @@ export class AppComponent {
         this.userIsAuthenticated = auth.authenticated;
         this.userName = auth.userName;
       },
+    });
+
+    // send reminders on startup
+    this.reviewService.sendReminders().subscribe({
+      error: err =>{
+        console.log(err);
+      } 
     });
   }
   ngOnDestroy(): void {

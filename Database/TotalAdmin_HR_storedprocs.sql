@@ -718,3 +718,97 @@ BEGIN
 	END CATCH
 END 
 GO
+
+-- get all supervisor emails
+CREATE OR ALTER PROC spGetSupervisorEmails
+AS
+BEGIN
+	BEGIN TRY	
+		SELECT
+			*
+		FROM
+			Employee
+		WHERE
+			RoleId = 3
+	END TRY
+	BEGIN CATCH
+		;THROW
+	END CATCH
+END 
+GO
+
+
+-- reviews due in current quarter
+CREATE OR ALTER PROC spGetEmployeeReviewsDueInCurrentQuarter
+	@SupervisorEmployeeNumber INT
+AS
+BEGIN
+	BEGIN TRY	
+		DECLARE @CurrentDate DATE = GETDATE();
+		DECLARE @StartOfQuarter DATE;
+		DECLARE @EndOfQuarter DATE;
+
+		-- Determine the start and end dates of the current quarter
+		SELECT 
+		@StartOfQuarter = CASE
+			WHEN MONTH(@CurrentDate) IN (1, 2, 3) THEN DATEFROMPARTS(YEAR(@CurrentDate), 1, 1)
+			WHEN MONTH(@CurrentDate) IN (4, 5, 6) THEN DATEFROMPARTS(YEAR(@CurrentDate), 4, 1)
+			WHEN MONTH(@CurrentDate) IN (7, 8, 9) THEN DATEFROMPARTS(YEAR(@CurrentDate), 7, 1)
+			WHEN MONTH(@CurrentDate) IN (10, 11, 12) THEN DATEFROMPARTS(YEAR(@CurrentDate), 10, 1)
+		END,
+		@EndOfQuarter = CASE
+			WHEN MONTH(@CurrentDate) IN (1, 2, 3) THEN DATEFROMPARTS(YEAR(@CurrentDate), 3, 31)
+			WHEN MONTH(@CurrentDate) IN (4, 5, 6) THEN DATEFROMPARTS(YEAR(@CurrentDate), 6, 30)
+			WHEN MONTH(@CurrentDate) IN (7, 8, 9) THEN DATEFROMPARTS(YEAR(@CurrentDate), 9, 30)
+			WHEN MONTH(@CurrentDate) IN (10, 11, 12) THEN DATEFROMPARTS(YEAR(@CurrentDate), 12, 31)
+		END;
+		-- get all employees that don't have a review in this quarter
+		SELECT 
+			*
+		FROM 
+			Employee
+		WHERE 
+			SupervisorEmpNumber = @SupervisorEmployeeNumber
+			AND SupervisorEmpNumber != 1
+			AND StatusId = 1
+			AND NOT EXISTS (
+				SELECT 1 
+				FROM Review 
+				WHERE EmployeeNumber = Employee.EmployeeNumber 
+				AND ReviewDate <= @EndOfQuarter
+				AND ReviewDate >= @StartOfQuarter
+			)
+		ORDER BY
+			LastName,
+			FirstName
+	END TRY
+	BEGIN CATCH
+		;THROW
+	END CATCH
+END 
+GO
+
+
+-- update review reminder date
+CREATE OR ALTER PROC spSendReminders
+AS
+BEGIN
+	INSERT INTO 
+		ReviewReminder (DaySent)
+	VALUES
+		(GETDATE())
+END
+GO
+
+-- get hr employee emails
+CREATE OR ALTER PROC spGetHREmployeeEmails
+AS
+BEGIN
+	SELECT
+		*
+	FROM
+		Employee
+	WHERE 
+		RoleId = 4;
+END
+GO

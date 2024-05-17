@@ -44,6 +44,26 @@ namespace TotalAdmin.Service
         {
             repo.ReadReview(reviewId);
         }
+        
+        public void SendReminders()
+        {
+            repo.SendReminders();
+        }
+
+        public async Task<DateTime?> GetLastReminderDate()
+        {
+            return await repo.GetLastReminderDate();
+        }
+
+        public List<Employee> GetSupervisorEmails()
+        {
+            return repo.GetSupervisorEmails();
+        }
+
+        public List<Employee> GetHREmployeeEmails()
+        {
+            return repo.GetHREmployeeEmails();
+        }
 
         public async Task<Review?> GetReviewById(int reviewId)
         {
