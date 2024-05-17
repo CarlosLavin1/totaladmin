@@ -176,6 +176,61 @@ namespace TotalAdmin.Repository
             }
         }
 
+        public async Task<PurchaseOrder> GetPurchaseOrderDetails(int poNumber)
+        {
+            try
+            {
+                // SQL query to get the purchase order number
+                string sql = "SELECT * FROM PurchaseOrder WHERE PoNumber = @PoNumber";
+
+                // Execute the SQL query
+                DataTable dt = await db.ExecuteAsync(sql, new List<Parm> { new Parm("@PoNumber", SqlDbType.Int, poNumber) }, CommandType.Text);
+
+                // Check if any results were returned
+                if (dt.Rows.Count == 0)
+                {
+                    throw new Exception("Purchase order not found");
+                }
+
+                // Create a PurchaseOrder object from the result
+                DataRow firstRow = dt.Rows[0];
+                PurchaseOrder po = new PurchaseOrder
+                {
+                    PoNumber = Convert.ToInt32(firstRow["PoNumber"]),
+                    CreationDate = DateTime.Parse(firstRow["CreationDate"].ToString()),
+                    EmployeeSupervisorName = await GetSupervisorFullNameForEmployee(Convert.ToInt32(firstRow["EmployeeNumber"]))
+                };
+
+                // SQL query to get the items for the purchase order
+                sql = "SELECT * FROM Item WHERE PoNumber = @PoNumber";
+
+                // Execute the SQL query
+                dt = await db.ExecuteAsync(sql, new List<Parm> { new Parm("@PoNumber", SqlDbType.Int, poNumber) }, CommandType.Text);
+
+                // Add the items to the PurchaseOrder object
+                po.Items = dt.AsEnumerable().Select(row => new Item
+                {
+                    ItemId = Convert.ToInt32(row["ItemId"]),
+                    Name = row["Name"].ToString(),
+                    Quantity = Convert.ToInt32(row["Quantity"]),
+                    Description = row["Description"].ToString(),
+                    Price = Convert.ToDecimal(row["Price"]),
+                    Justification = row["Justification"].ToString(),
+                    Location = row["ItemLocation"].ToString(),
+                    StatusId = Convert.ToInt32(row["ItemStatusId"])
+                }).ToList();
+
+                return po;
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine(ex.Message);
+                throw;
+            }
+        }
+
+
+
         public async Task<PurchaseOrder> ClosePO(int PONumber)
         {
             try

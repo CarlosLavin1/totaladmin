@@ -128,6 +128,11 @@ namespace TotalAdmin.Service
             return await repo.SearchPOForSupervisor(filters);
         }
 
+        public async Task<PurchaseOrder> GetPurchaseOrderDetails(int poNumber)
+        {
+            return await repo.GetPurchaseOrderDetails(poNumber);
+        }
+
         private bool ValidatePurchaseOrder(PurchaseOrder po)
         {
             // validate entity

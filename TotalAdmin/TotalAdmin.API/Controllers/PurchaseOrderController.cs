@@ -456,5 +456,46 @@ namespace TotalAdmin.API.Controllers
                 return Problem(title: "An internal error has occurred. Please contact the system administrator");
             }
         }
+
+        // GET: api/PurchaseOrder/Details/{poNumber}
+        [Authorize]
+        [HttpGet("Details/{poNumber}")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        public async Task<ActionResult<PurchaseOrder>> GetPurchaseOrderDetails(int poNumber)
+        {
+            try
+            {
+                if (poNumber <= 0)
+                {
+                    return BadRequest("Invalid PO number. PO number must be greater than 0.");
+                }
+
+                PurchaseOrder po = await service.GetPurchaseOrderDetails(poNumber);
+
+                if (po == null)
+                {
+                    return NotFound($"Purchase order with number {poNumber} not found.");
+                }
+
+                // Format the PO number
+                string formattedNumber = po.PoNumber.ToString("D2");
+                string formattedPoNumber = "00001" + formattedNumber;
+
+                // Create a new object to include the formatted PO number
+                var response = new
+                {
+                    PurchaseOrder = po,
+                    FormattedPoNumber = formattedPoNumber
+                };
+
+                return Ok(response);
+            }
+            catch (Exception)
+            {
+                return Problem(title: "An internal error has occurred. Please contact the system administrator");
+            }
+        }
+
     }
 }

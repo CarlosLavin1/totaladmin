@@ -21,5 +21,6 @@ namespace TotalAdmin.Service.Interfaces
         Task<List<PurchaseOrder>> SearchPurchaseOrdersForSupervisor(POSupervisorFiltersDTO filter);
         Task<PurchaseOrder> UpdatePurchaseOrder(int id, PurchaseOrder purchaseOrder);
         Task<PurchaseOrder> GetExistingPurchaseOrder(int poNumber);
+        Task<PurchaseOrder> GetPurchaseOrderDetails(int poNumber);
     }
 }
