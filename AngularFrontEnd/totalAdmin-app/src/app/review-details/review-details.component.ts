@@ -33,13 +33,12 @@ export class ReviewDetailsComponent implements OnInit{
     this.reviewService.readReview(this.reviewId).subscribe({});
     this.reviewService.getReviewById(this.reviewId).subscribe(r => {
       this.review = r;
+      this.employeeService.getEmployeeById(this.review.supervisorEmployeeNumber).subscribe({
+        next: data => {
+          this.supervisorName = data.firstName + ' ' + data.lastName;
+        }
+      });
     });
-
-    this.employeeService.getEmployeeById(this.review.supervisorEmployeeNumber).subscribe({
-      next: data => {
-        this.supervisorName = data.firstName + ' ' + data.lastName;
-      }
-    })
   }
 
   getRating(rating: number): string{
