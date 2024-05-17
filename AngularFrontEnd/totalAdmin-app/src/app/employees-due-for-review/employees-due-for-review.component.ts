@@ -1,6 +1,7 @@
 import { Component } from '@angular/core';
 import { Employee } from '../models/employee';
 import { ReviewService } from '../services/review.service';
+import { ReviewDTO } from '../models/review-dto';
 
 @Component({
   selector: 'app-employees-due-for-review',
@@ -8,7 +9,7 @@ import { ReviewService } from '../services/review.service';
   styleUrls: ['./employees-due-for-review.component.css']
 })
 export class EmployeesDueForReviewComponent {
-  employees: Employee[];
+  employees: ReviewDTO[];
   supervisorEmpNumber: number;
 
   constructor(
@@ -22,7 +23,7 @@ export class EmployeesDueForReviewComponent {
   }
 
   loadEmployees(): void{
-    this.reviewService.getEmployeesDueForReviewForSupervisor(this.supervisorEmpNumber).subscribe({
+    this.reviewService.getEmployeesDueForReviewForSupervisorWithQuarter(this.supervisorEmpNumber).subscribe({
       next: (data) => {
         this.employees = data;
         console.log(data);

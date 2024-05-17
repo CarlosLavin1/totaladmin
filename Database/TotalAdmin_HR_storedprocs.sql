@@ -565,54 +565,120 @@ GO
 
 -- get employees due for review for a supervisor
 CREATE OR ALTER PROC spGetEmployeesDueForReviewForSupervisor
-	@SupervisorEmployeeNumber INT
+    @SupervisorEmployeeNumber INT
 AS
 BEGIN
-	BEGIN TRY	
-		DECLARE @CurrentDate DATE = GETDATE();
-		DECLARE @StartOfQuarter DATE;
-		DECLARE @EndOfQuarter DATE;
+    BEGIN TRY
+        DECLARE @CurrentDate DATE = GETDATE();
+        DECLARE @StartOfCurrentQuarter DATE;
+        DECLARE @EndOfCurrentQuarter DATE;
 
-		-- Determine the start and end dates of the current quarter
-		SELECT 
-		@StartOfQuarter = CASE
-			WHEN MONTH(@CurrentDate) IN (1, 2, 3) THEN DATEFROMPARTS(YEAR(@CurrentDate), 1, 1)
-			WHEN MONTH(@CurrentDate) IN (4, 5, 6) THEN DATEFROMPARTS(YEAR(@CurrentDate), 4, 1)
-			WHEN MONTH(@CurrentDate) IN (7, 8, 9) THEN DATEFROMPARTS(YEAR(@CurrentDate), 7, 1)
-			WHEN MONTH(@CurrentDate) IN (10, 11, 12) THEN DATEFROMPARTS(YEAR(@CurrentDate), 10, 1)
-		END,
-		@EndOfQuarter = CASE
-			WHEN MONTH(@CurrentDate) IN (1, 2, 3) THEN DATEFROMPARTS(YEAR(@CurrentDate), 3, 31)
-			WHEN MONTH(@CurrentDate) IN (4, 5, 6) THEN DATEFROMPARTS(YEAR(@CurrentDate), 6, 30)
-			WHEN MONTH(@CurrentDate) IN (7, 8, 9) THEN DATEFROMPARTS(YEAR(@CurrentDate), 9, 30)
-			WHEN MONTH(@CurrentDate) IN (10, 11, 12) THEN DATEFROMPARTS(YEAR(@CurrentDate), 12, 31)
-		END;
-		-- get all employees that don't have a review in this quarter
-		SELECT 
-			*
-		FROM 
-			Employee
-		WHERE 
-			SupervisorEmpNumber = @SupervisorEmployeeNumber
-			AND SupervisorEmpNumber != 1
-			AND StatusId = 1
-			AND NOT EXISTS (
-				SELECT 1 
-				FROM Review 
-				WHERE EmployeeNumber = Employee.EmployeeNumber 
-				AND ReviewDate <= @EndOfQuarter
-				AND ReviewDate >= @StartOfQuarter
-			)
-			--AND (SELECT COUNT(*) FROM Review WHERE EmployeeNumber = Employee.EmployeeNumber AND (ReviewDate BETWEEN @StartOfQuarter AND @EndOfQuarter)) = 0
-		ORDER BY
-			LastName,
-			FirstName
-	END TRY
-	BEGIN CATCH
-		;THROW
-	END CATCH
+        -- Determine the start and end dates of the current quarter
+        SELECT 
+        @StartOfCurrentQuarter = CASE
+            WHEN MONTH(@CurrentDate) IN (1, 2, 3) THEN DATEFROMPARTS(YEAR(@CurrentDate), 1, 1)
+            WHEN MONTH(@CurrentDate) IN (4, 5, 6) THEN DATEFROMPARTS(YEAR(@CurrentDate), 4, 1)
+            WHEN MONTH(@CurrentDate) IN (7, 8, 9) THEN DATEFROMPARTS(YEAR(@CurrentDate), 7, 1)
+            WHEN MONTH(@CurrentDate) IN (10, 11, 12) THEN DATEFROMPARTS(YEAR(@CurrentDate), 10, 1)
+        END,
+        @EndOfCurrentQuarter = CASE
+            WHEN MONTH(@CurrentDate) IN (1, 2, 3) THEN DATEFROMPARTS(YEAR(@CurrentDate), 3, 31)
+            WHEN MONTH(@CurrentDate) IN (4, 5, 6) THEN DATEFROMPARTS(YEAR(@CurrentDate), 6, 30)
+            WHEN MONTH(@CurrentDate) IN (7, 8, 9) THEN DATEFROMPARTS(YEAR(@CurrentDate), 9, 30)
+            WHEN MONTH(@CurrentDate) IN (10, 11, 12) THEN DATEFROMPARTS(YEAR(@CurrentDate), 12, 31)
+        END;
+
+        -- Get employees missing reviews in any quarter from their CompanyStartDate to the current quarter
+        SELECT 
+            E.EmployeeNumber,
+            E.LastName,
+            E.FirstName,
+            E.CompanyStartDate,
+            MISSING_QUARTER.Year,
+            MISSING_QUARTER.Quarter
+        FROM 
+            Employee E
+        CROSS APPLY (
+            SELECT 
+                YEAR(Q.QuarterStart) AS Year, 
+                DATEPART(QUARTER, Q.QuarterStart) AS Quarter
+            FROM (
+                SELECT DISTINCT DATEADD(QUARTER, NUMBER, DATEFROMPARTS(YEAR(E.CompanyStartDate), 1 + 3 * (DATEPART(QUARTER, E.CompanyStartDate) - 1), 1)) AS QuarterStart
+                FROM master..spt_values
+                WHERE TYPE = 'P'
+                AND DATEADD(QUARTER, NUMBER, DATEFROMPARTS(YEAR(E.CompanyStartDate), 1 + 3 * (DATEPART(QUARTER, E.CompanyStartDate) - 1), 1)) <= @EndOfCurrentQuarter
+            ) Q
+            WHERE NOT EXISTS (
+                SELECT 1
+                FROM Review R
+                WHERE R.EmployeeNumber = E.EmployeeNumber
+                AND R.ReviewDate >= Q.QuarterStart
+                AND R.ReviewDate < DATEADD(DAY, 1, DATEADD(MONTH, 3, Q.QuarterStart))
+            )
+        ) AS MISSING_QUARTER
+        WHERE 
+            E.SupervisorEmpNumber = @SupervisorEmployeeNumber
+            AND E.SupervisorEmpNumber != 1
+            AND E.StatusId = 1
+        ORDER BY
+			MISSING_QUARTER.Year,
+            MISSING_QUARTER.Quarter,
+            E.LastName,
+            E.FirstName 
+    END TRY
+    BEGIN CATCH
+        ;THROW
+    END CATCH
 END 
 GO
+--CREATE OR ALTER PROC spGetEmployeesDueForReviewForSupervisor
+--	@SupervisorEmployeeNumber INT
+--AS
+--BEGIN
+--	BEGIN TRY	
+--		DECLARE @CurrentDate DATE = GETDATE();
+--		DECLARE @StartOfQuarter DATE;
+--		DECLARE @EndOfQuarter DATE;
+
+--		-- Determine the start and end dates of the current quarter
+--		SELECT 
+--		@StartOfQuarter = CASE
+--			WHEN MONTH(@CurrentDate) IN (1, 2, 3) THEN DATEFROMPARTS(YEAR(@CurrentDate), 1, 1)
+--			WHEN MONTH(@CurrentDate) IN (4, 5, 6) THEN DATEFROMPARTS(YEAR(@CurrentDate), 4, 1)
+--			WHEN MONTH(@CurrentDate) IN (7, 8, 9) THEN DATEFROMPARTS(YEAR(@CurrentDate), 7, 1)
+--			WHEN MONTH(@CurrentDate) IN (10, 11, 12) THEN DATEFROMPARTS(YEAR(@CurrentDate), 10, 1)
+--		END,
+--		@EndOfQuarter = CASE
+--			WHEN MONTH(@CurrentDate) IN (1, 2, 3) THEN DATEFROMPARTS(YEAR(@CurrentDate), 3, 31)
+--			WHEN MONTH(@CurrentDate) IN (4, 5, 6) THEN DATEFROMPARTS(YEAR(@CurrentDate), 6, 30)
+--			WHEN MONTH(@CurrentDate) IN (7, 8, 9) THEN DATEFROMPARTS(YEAR(@CurrentDate), 9, 30)
+--			WHEN MONTH(@CurrentDate) IN (10, 11, 12) THEN DATEFROMPARTS(YEAR(@CurrentDate), 12, 31)
+--		END;
+--		-- get all employees that don't have a review in this quarter
+--		SELECT 
+--			*
+--		FROM 
+--			Employee
+--		WHERE 
+--			SupervisorEmpNumber = @SupervisorEmployeeNumber
+--			AND SupervisorEmpNumber != 1
+--			AND StatusId = 1
+--			AND NOT EXISTS (
+--				SELECT 1 
+--				FROM Review 
+--				WHERE EmployeeNumber = Employee.EmployeeNumber 
+--				AND ReviewDate <= @EndOfQuarter
+--				AND ReviewDate >= @StartOfQuarter
+--			)
+--		ORDER BY
+--			LastName,
+--			FirstName
+--	END TRY
+--	BEGIN CATCH
+--		;THROW
+--	END CATCH
+--END 
+--GO
 
 -- read review
 CREATE OR ALTER PROC spReadReview
