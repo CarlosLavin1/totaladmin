@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using TotalAdmin.Model;
+using TotalAdmin.Model.DTO;
 using TotalAdmin.Service;
 
 namespace TotalAdmin.API.Controllers
@@ -10,10 +11,12 @@ namespace TotalAdmin.API.Controllers
     public class ReviewController : Controller
     {
         private readonly IReviewService reviewService;
+        private readonly EmailService _emailService;
 
-        public ReviewController(IReviewService reviewService)
+        public ReviewController(IReviewService reviewService, EmailService emailService)
         {
             this.reviewService = reviewService;
+            _emailService = emailService;
         }
 
         [Authorize(Roles = "Supervisor")]
@@ -122,6 +125,86 @@ namespace TotalAdmin.API.Controllers
             {
                 return Problem(title: "An internal error has occurred. Please contact the system administrator.");
             }
+        }
+
+        [HttpGet("reminders")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        public async Task<ActionResult> SendReminders()
+        {
+            try
+            {
+                DateTime? last = await reviewService.GetLastReminderDate();
+                if (last == null || last.Value.Date < DateTime.Today)
+                {
+                    reviewService.SendReminders();
+                    // loop through all supervisors and get employees due for review and send that list
+                    List<Employee> supervisors = reviewService.GetSupervisorEmails();
+                    EmailDTO email;
+                    foreach(Employee e in supervisors)
+                    {
+                        string to = e.Email ?? "supervisors@mail.com";
+                        List <Employee> employees = await reviewService.GetEmployeesDueForReviewForSupervisor(e.EmployeeNumber);
+                        string employeeList = "The following employee reviews are due for the current quarter:\n\n";
+                        foreach (Employee employee in employees)
+                            employeeList += $"{employee.LastName}, {employee.FirstName}\n";
+                        // add hr employee emails if after 30 since start of quarter
+                        if (isAfter30DaysInQuarter())
+                        {
+                            List<Employee> hrEmployees = reviewService.GetHREmployeeEmails();
+                            foreach(Employee hrEmployee in hrEmployees)
+                                to += $", {hrEmployee.Email}";
+                        }
+
+                        email = new EmailDTO
+                        {
+                            To = to,
+                            From = "totalAdmin@mail.com",
+                            Subject = "Your employee reviews are due",
+                            Body = employeeList
+                        };
+                        if(employees.Count > 0)
+                            _emailService.Send(email);
+                    }
+                    return Ok();
+                }    
+
+                return BadRequest();
+            }
+            catch (Exception e)
+            {
+                return Problem(title: "An internal error has occurred. Please contact the system administrator.");
+            }
+        }
+
+        private bool isAfter30DaysInQuarter()
+        {
+            DateTime today = DateTime.Today;
+            DateTime startOfQuarter;
+
+            // Determine the start date of the current quarter
+            if (today.Month >= 1 && today.Month <= 3)
+            {
+                    startOfQuarter = new DateTime(today.Year, 1, 1); // Q1
+            }
+            else if (today.Month >= 4 && today.Month <= 6)
+            {
+                    startOfQuarter = new DateTime(today.Year, 4, 1); // Q2
+                }
+            else if (today.Month >= 7 && today.Month <= 9)
+            {
+                    startOfQuarter = new DateTime(today.Year, 7, 1); // Q3
+            }
+            else
+            {
+                startOfQuarter = new DateTime(today.Year, 10, 1); // Q4
+            }
+
+            // Add 30 days to the start date of the current quarter
+            DateTime thirtyDaysAfterStartOfQuarter = startOfQuarter.AddDays(30);
+
+            // Check if today is 30 days after the start of the current quarter
+            return today >= thirtyDaysAfterStartOfQuarter;
         }
     }
 }

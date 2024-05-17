@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { ReviewService } from '../services/review.service';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Review } from '../models/review';
+import { EmployeeService } from '../services/employee.service';
 
 @Component({
   selector: 'app-review-details',
@@ -11,11 +12,13 @@ import { Review } from '../models/review';
 export class ReviewDetailsComponent implements OnInit{
   reviewId: number;
   review: Review;
+  supervisorName: string;
 
   constructor(
     private reviewService: ReviewService,
     private activatedRoute: ActivatedRoute,
-    private router: Router
+    private router: Router,
+    private employeeService: EmployeeService
   ){}
 
   ngOnInit(){
@@ -31,6 +34,12 @@ export class ReviewDetailsComponent implements OnInit{
     this.reviewService.getReviewById(this.reviewId).subscribe(r => {
       this.review = r;
     });
+
+    this.employeeService.getEmployeeById(this.review.supervisorEmployeeNumber).subscribe({
+      next: data => {
+        this.supervisorName = data.firstName + ' ' + data.lastName;
+      }
+    })
   }
 
   getRating(rating: number): string{
