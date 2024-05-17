@@ -51,6 +51,12 @@ export class EmployeeDashboardComponent {
 
       }
 
+      this.reviewService.getReviewsForEmployee(Number(this.employeeNumber)).subscribe(reviews => {
+        this.unreadEmployeReviews = reviews.filter(review => !review.hasBeenRead).length;
+        console.log(this.unreadEmployeReviews);
+        
+      });
+
     }
   }
 
