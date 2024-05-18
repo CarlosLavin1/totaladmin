@@ -1,4 +1,5 @@
 ﻿using DAL;
+using Microsoft.Data.SqlClient;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -417,10 +418,8 @@ namespace TotalAdmin.Repository
 
                 // Check if a merge has occurred
                 if (hasMergeOccurred)
-                {
-                    // If a merge has occurred, set the flag
-                    po.HasMergeOccurred = true;
-                }
+                    po.HasMergeOccurred = true; // set the flag
+
 
                 // Filter out the existing items from the mergedItems list
                 var updatedItems = mergedItems
@@ -430,10 +429,8 @@ namespace TotalAdmin.Repository
 
                 // Check if updatedItems list is empty
                 if (!updatedItems.Any())
-                {
-                    // return the PurchaseOrder object as is
-                    return po;
-                }
+                    return po; // return the PurchaseOrder object as is
+              
 
                 // Create a DataTable for the PO items
                 var poItemsTable = await CreatePoItemsDataTableAsync(updatedItems);
@@ -442,24 +439,19 @@ namespace TotalAdmin.Repository
                 List<Parm> parms = new()
                 {
                     new("@PoNumber", SqlDbType.Int, po.PoNumber),
-                    new("@RowVersion", SqlDbType.Timestamp, po.RowVersion, 0, ParameterDirection.Output),
+                    new("@RowVersion", SqlDbType.Timestamp, po.RowVersion, 0, ParameterDirection.InputOutput),
                     new("@CreationDate", SqlDbType.DateTime2, po.CreationDate, 7),
                     new("@PurchaseOrderStatusId", SqlDbType.Int, po.StatusId),
                     new("@EmployeeNumber", SqlDbType.Int, po.EmployeeNumber),
                     new("@POItems", SqlDbType.Structured, poItemsTable)
                 };
 
-                Debug.WriteLine(parms);
+               
                 if (await db.ExecuteNonQueryAsync("spUpdatePurchaseOrder", parms) > 0)
-                {
-                    // Get the PO number as an integer
-                    int poNumberInt = po.PoNumber = (int?)parms.FirstOrDefault(p => p.Name == "@PoNumber")!.Value ?? 0;
-                    //po.RowVersion = (byte[]?)parms.FirstOrDefault(p => p.Name == "@RowVersion")!.Value;
-                }
+                    po.RowVersion = (byte[]?)parms.FirstOrDefault(p => p.Name == "@RowVersion")!.Value;
                 else
-                {
                     throw new DataException("There was an issue updating the record in the database.");
-                }
+               
 
                 return po;
             }
@@ -669,6 +661,7 @@ namespace TotalAdmin.Repository
                             CreationDate = Convert.ToDateTime(row["CreationDate"]),
                             StatusId = Convert.ToInt32(row["PurchaseOrderStatusId"]),
                             EmployeeNumber = Convert.ToInt32(row["EmployeeNumber"]),
+                            RowVersion = (byte[])row["RowVersion"],
                             Items = new List<Item>()
                         };
                     }

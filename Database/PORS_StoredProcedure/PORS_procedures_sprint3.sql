@@ -75,8 +75,10 @@ CREATE OR ALTER PROC [dbo].[spUpdatePurchaseOrder]
 AS
 BEGIN
 	BEGIN TRY
+		IF @RowVersion <> (SELECT [RowVersion] FROM PurchaseOrder WHERE PoNumber = @PoNumber)
+			THROW 50100, 'The record has been modified by another user since it was last fetched. Please refresh the page', 1;	
+
 		BEGIN TRAN
-		
 			-- Update the PurchaseOrder
 			UPDATE PurchaseOrder
 			SET 
@@ -106,11 +108,7 @@ BEGIN
 				Item.PoNumber = @PoNumber AND Item.ItemId = POItems.ItemId
 
 
-			IF @@ROWCOUNT = 0
-			BEGIN
-				-- No rows updated, possible RowVersion mismatch
-				;THROW 50100, 'The record has been modified by another user since it was last fetched. Please refresh the page', 1;
-			END
+			SET @RowVersion = (SELECT [RowVersion] FROM PurchaseOrder WHERE PoNumber = @PoNumber)	
 
 		COMMIT TRAN
 	END TRY
