@@ -18,6 +18,6 @@ Content-Type: application/json
 
 ###
 // Purchase Order Detail REST API
-GET {{uri}}/PurchaseOrder/Details/14
+GET {{uri}}/PurchaseOrder/Details/3
 Content-Type: application/json
 Authorization: Bearer eyJhbGciOiJIUzUxMiIsInR5cCI6IkpXVCJ9.eyJ1bmlxdWVfbmFtZSI6ImFjaGVzc29uMEB5YWhvby5jYSIsInJvbGUiOiJDRU8iLCJuYmYiOjE3MTU5NDA3MDIsImV4cCI6MTcxNjU0NTUwMiwiaWF0IjoxNzE1OTQwNzAyfQ.nCd40h0_EhNTKPQSQWpnaGUO1QPXO8X2QVHgn_-UJ5y4uafP-PcrP3g3HQe4eokmbqbFyW6LngPEgik6qJIv8A
