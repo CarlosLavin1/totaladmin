@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.Data.SqlClient;
 using TotalAdmin.Model.DTO;
 using TotalAdmin.Model.Entities;
 using TotalAdmin.Service;
@@ -50,11 +51,32 @@ namespace TotalAdmin.API.Controllers
 
                 return Ok(item);
             }
+            catch (SqlException e)
+            {
+                return e.Number == 50110 ? BadRequest(e.Message) : BadRequest();
+            }
             catch (Exception)
             {
                 return Problem(title: "An internal error has occurred. Please contact the system administrator");
             }
         }
+
+        // GET: api/Item/{id}
+        [HttpGet("{id}")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<ActionResult<Item>> GetById(int id)
+        {
+            Item item = await service.GetById(id);
+
+            if (item == null)
+            {
+                return NotFound();
+            }
+
+            return Ok(item);
+        }
+
 
     }
 

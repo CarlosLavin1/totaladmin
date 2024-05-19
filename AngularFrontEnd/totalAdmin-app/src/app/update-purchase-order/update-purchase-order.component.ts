@@ -3,7 +3,7 @@ import { PurchaseOrder } from '../models/purchase-order';
 import { FormArray, FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
 import { PurchaseOrderService } from '../services/purchase-order.service';
 import { SnackbarService } from '../services/snackbar.service';
-import { ActivatedRoute, Router } from '@angular/router';
+import { ActivatedRoute, NavigationStart, Router } from '@angular/router';
 import { SharedDataService } from '../services/shared-data.service';
 
 @Component({
@@ -137,6 +137,7 @@ export class UpdatePurchaseOrderComponent implements OnInit {
               this.validationErrors = err.error.errors;
               this.validationErrors.forEach((error: any) => {
                 this.showErrorMessage(error);
+                // this.router.navigate(['/purchase-order-search']);
               });
             } else {
               const errorMessage = err.error || err.message;
