@@ -14,6 +14,7 @@ class ViewPo extends StatefulWidget {
 class _ViewPoState extends State<ViewPo> {
   final PoService _purchaseOrderService = PoService();
   PurchaseOrder? _purchaseOrder;
+  bool _isLoading = true; // Add this line
 
   @override
   void initState() {
@@ -27,9 +28,12 @@ class _ViewPoState extends State<ViewPo> {
           await _purchaseOrderService.getPurchaseOrderDetails(widget.poNumber);
       setState(() {
         _purchaseOrder = purchaseOrder;
+        _isLoading = false;
       });
     } catch (e) {
-      print('Error fetching purchase order details: $e');
+      setState(() {
+        _isLoading = false;
+      });
     }
   }
 
@@ -39,30 +43,38 @@ class _ViewPoState extends State<ViewPo> {
       appBar: AppBar(
         title: const Text('Purchase Order Details'),
       ),
-      body: _purchaseOrder == null
+      body: _isLoading
           ? const Center(child: CircularProgressIndicator())
-          : Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    'Purchase Order Number: ${_purchaseOrder!.formattedPoNumber}',
+          : _purchaseOrder == null
+              ? const Center(child: Text('Purchase order not found.', style: TextStyle(fontSize: 20, color: Colors.black54)))
+              : Center(
+                  child: Padding(
+                    padding: const EdgeInsets.all(2.0),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text(
+                            'Purchase Order Number: ${_purchaseOrder?.formattedPoNumber ?? _purchaseOrder!.poNumber}',
+                            style: const TextStyle(fontSize: 20)),
+                        const SizedBox(height: 20),
+                        Text(
+                            'Supervisor: ${_purchaseOrder?.employeeSupervisorName ?? 'N/A'}',
+                            style: const TextStyle(fontSize: 20)),
+                        const SizedBox(height: 20),
+                        Text(
+                            'Status: ${_purchaseOrder?.purchaseOrderStatus ?? 'N/A'}',
+                            style: const TextStyle(fontSize: 20)),
+                        const SizedBox(height: 20),
+                        Text('Has ${_purchaseOrder?.items?.length ?? 0} Items',
+                            style: const TextStyle(fontSize: 20)),
+                        const SizedBox(height: 20),
+                        Text(
+                            'Total: \$${_purchaseOrder?.grandTotal?.toStringAsFixed(2) ?? 0}',
+                            style: const TextStyle(fontSize: 20)),
+                      ],
+                    ),
                   ),
-                  const SizedBox(height: 8.0),
-                  Text(
-                    'Supervisor Name: ${_purchaseOrder!.employeeSupervisorName}',
-                  ),
-                  const SizedBox(height: 8.0),
-                  Text('Purchase Order Status: ${_purchaseOrder!.statusId}'),
-                  const SizedBox(height: 8.0),
-                  Text(
-                    'Number of Purchase Order Items: ${_purchaseOrder!.items?.length}',
-                  ),
-                ],
-              ),
-            ),
+                ),
     );
   }
 }
-// po always null

@@ -3,12 +3,15 @@ import 'package:flutter/material.dart';
 import 'package:totaladmin/view_po_details.dart';
 
 class SearchPo extends StatefulWidget {
+  const SearchPo({super.key});
+
   @override
   _SearchPoState createState() => _SearchPoState();
 }
 
 class _SearchPoState extends State<SearchPo> {
   final TextEditingController _controller = TextEditingController();
+  String? _errorMessage;
 
   @override
   Widget build(BuildContext context) {
@@ -22,8 +25,9 @@ class _SearchPoState extends State<SearchPo> {
           children: [
             TextField(
               controller: _controller,
-              decoration: const InputDecoration(
-                labelText: 'Enter Purchase Order Number',
+              decoration: InputDecoration(
+                labelText: 'Enter PO Number ex. 0000101',
+                errorText: _errorMessage,
               ),
               keyboardType: TextInputType.number,
             ),
@@ -31,13 +35,34 @@ class _SearchPoState extends State<SearchPo> {
             ElevatedButton(
               child: const Text('Search'),
               onPressed: () {
-                if (_controller.text.isNotEmpty) {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => ViewPo(poNumber: int.parse(_controller.text)),
-                    ),
-                  );
+                if (_controller.text.isEmpty) {
+                  setState(() {
+                    _errorMessage = 'Please enter a Purchase Order Number.';
+                  });
+                } else if (_controller.text.startsWith('00001')) {
+                  final poNumber =
+                      int.tryParse(_controller.text.replaceAll('00001', ''));
+                  if (poNumber != null) {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => ViewPo(poNumber: poNumber),
+                      ),
+                    );
+                    setState(() {
+                      _errorMessage = null;
+                    });
+                  } else {
+                    setState(() {
+                      _errorMessage =
+                          'Please enter a valid Purchase Order Number';
+                    });
+                  }
+                } else {
+                  setState(() {
+                    _errorMessage =
+                        'Please enter a valid Purchase Order Number.';
+                  });
                 }
               },
             ),

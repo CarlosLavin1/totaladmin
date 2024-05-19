@@ -63,7 +63,7 @@
                                 <td>
                                     <span *ngIf="!item.isEditing || item.editingColumn !== 'quantity'">{{ item.quantity }}</span>
                                     <input *ngIf="item.isEditing && item.editingColumn === 'quantity'" [(ngModel)]="item.quantity" (blur)="updateItem(item); item.isEditing = false; item.editingColumn = null;" />
-                                    <button [disabled]="purchaseOrder.purchaseOrderStatus === 'Closed'" class="btn btn-light btn-sm" (click)="toggleEditMode(item, 'quantity')">
+                                    <button [disabled]="purchaseOrder.purchaseOrderStatus === 'Closed' || item.itemStatus != 'Pending'" class="btn btn-light btn-sm" (click)="toggleEditMode(item, 'quantity')">
                                     <i title="Edit" *ngIf="!item.isEditing || item.editingColumn !== 'quantity'" class="bi bi-pencil"></i>
                                     <i title="Save" *ngIf="item.isEditing && item.editingColumn === 'quantity'" class="bi bi-check"></i>
                                 </button>
@@ -72,7 +72,7 @@
                                 <td>
                                     <span *ngIf="!item.isEditing || item.editingColumn !== 'price'">{{ item.price | currency }}</span>
                                     <input *ngIf="item.isEditing && item.editingColumn === 'price'" [(ngModel)]="item.price" (blur)="updateItem(item); item.isEditing = false; item.editingColumn = null;" />
-                                    <button [disabled]="purchaseOrder.purchaseOrderStatus === 'Closed'" class="btn btn-light btn-sm" (click)="toggleEditMode(item, 'price')">
+                                    <button [disabled]="purchaseOrder.purchaseOrderStatus === 'Closed' || item.itemStatus != 'Pending'" class="btn btn-light btn-sm" (click)="toggleEditMode(item, 'price')">
                                       <i title="Edit" *ngIf="!item.isEditing || item.editingColumn !== 'price'" class="bi bi-pencil"></i>
                                       <i title="Save" *ngIf="item.isEditing && item.editingColumn === 'price'" class="bi bi-check"></i>
                                     </button>
@@ -81,7 +81,7 @@
                                 <td>
                                     <span *ngIf="!item.isEditing || item.editingColumn !== 'location'">{{ item.location }}</span>
                                     <input *ngIf="item.isEditing && item.editingColumn === 'location'" [(ngModel)]="item.location" (blur)="updateItem(item); item.isEditing = false; item.editingColumn = null;" />
-                                    <button [disabled]="purchaseOrder.purchaseOrderStatus === 'Closed'" class="btn btn-light btn-sm" (click)="toggleEditMode(item, 'location')">
+                                    <button [disabled]="purchaseOrder.purchaseOrderStatus === 'Closed' || item.itemStatus != 'Pending'" class="btn btn-light btn-sm" (click)="toggleEditMode(item, 'location')">
                                       <i title="Edit" *ngIf="!item.isEditing || item.editingColumn !== 'location'" class="bi bi-pencil"></i>
                                       <i title="Save" *ngIf="item.isEditing && item.editingColumn === 'location'" class="bi bi-check"></i>
                                     </button>
@@ -93,11 +93,11 @@
                                 <th><button class="btn btn-light" title="Aprrove"
                                         (click)="approveItem(item.itemId, purchaseOrder.poNumber)" type="button"
                                         [disabled]="purchaseOrder.purchaseOrderStatus === 'Closed' ||
-                                         allItemsProcessed(purchaseOrder)">✔️</button></th>
+                                         allItemsProcessed(purchaseOrder) || item.itemStatus != 'Pending'">✔️</button></th>
                                 <th><button class="btn btn-light" title="Deny"
                                         (click)="denyItem(item.itemId, purchaseOrder.poNumber)" type="button"
                                         [disabled]="purchaseOrder.purchaseOrderStatus === 'Closed' ||
-                                         allItemsProcessed(purchaseOrder)">❌</button>
+                                         allItemsProcessed(purchaseOrder) || item.itemStatus != 'Pending'">❌</button>
                                 </th>
                                 <th><button class="btn btn-light" title="Set No Longer Required"
                                         (click)="markItemAsNoLongerRequired(item.itemId)" type="button"

@@ -24,4 +24,10 @@ export class ItemService extends SharedService {
       .patch(`${API_URL}/item/${item.itemId}/${item.statusId}/${item.rejectedReason}/${item.quantity}/${item.price}/${item.description}/${item.location}/${item.modifiedReason}`, item)
       .pipe(catchError(super.handleError));
   }
+
+  public getItemById(id: number): Observable<Item> {
+    return this.http
+      .get<Item>(`${API_URL}/item/${id}`)
+      .pipe(catchError(super.handleError));
+  }
 }

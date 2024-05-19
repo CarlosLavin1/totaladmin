@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Data.SqlClient;
 using TotalAdmin.Model.DTO;
 using TotalAdmin.Model.Entities;
 using TotalAdmin.Service;
@@ -250,6 +251,10 @@ namespace TotalAdmin.API.Controllers
 
                 return Ok(response);
             }
+            catch (SqlException e)
+            {
+                return e.Number == 50100 ? BadRequest(e.Message) : BadRequest();
+            }
             catch (Exception)
             {
                 return Problem(title: "An internal error has occurred. Please contact the system administrator");
@@ -473,6 +478,7 @@ namespace TotalAdmin.API.Controllers
 
                 PurchaseOrder po = await service.GetPurchaseOrderDetails(poNumber);
 
+                
                 if (po == null)
                 {
                     return NotFound($"Purchase order with number {poNumber} not found.");

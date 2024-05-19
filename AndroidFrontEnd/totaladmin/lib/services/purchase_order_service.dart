@@ -32,27 +32,34 @@ class PoService {
     }
   }
 
+  Future<PurchaseOrder> getPurchaseOrderDetails(int poNumber) async {
+    try {
+      String token = await _storage.read(key: 'token') ?? "";
+      Uri url = Uri.parse('https://10.0.2.2:7161/api/PurchaseOrder/Details/$poNumber');
 
- Future<PurchaseOrder> getPurchaseOrderDetails(int poNumber) async {
-    String token = await _storage.read(key: 'token') ?? "";
-    Uri url =
-        Uri.parse('https://10.0.2.2:7161/api/PurchaseOrder/Details/$poNumber');
+      var headers = {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer $token',
+      };
 
-    var headers = { 
-      'Content-Type': 'application/json',
-      'Authorization': 'Bearer $token',
-    };
+      var response = await http.get(url, headers: headers);
 
-    var response = await http.get(url, headers: headers);
+      if (response.statusCode == 200) {
+        Map<String, dynamic> jsonResponse = json.decode(response.body);
 
-    if (response.statusCode == 200) {
-      Map<String, dynamic> jsonResponse = json.decode(response.body);
-      PurchaseOrder po = PurchaseOrder.fromJson(jsonResponse['purchaseOrder']);
-      return po;
-    } else if (response.statusCode == 404) {
-      throw 'Purchase order not found';
-    } else {
-      throw Exception(response.body);
+        if (jsonResponse.containsKey('purchaseOrder')) {
+          PurchaseOrder po = PurchaseOrder.fromJson(jsonResponse['purchaseOrder']);
+          return po;
+        } else {
+          throw Exception('Invalid JSON response');
+        }
+      } else if (response.statusCode == 404) {
+        throw Exception('Purchase order not found');
+      } else {
+        throw Exception('Failed to load purchase order: ${response.body}');
+      }
+    } catch (e) {
+      throw Exception('Error fetching purchase order: $e');
     }
   }
 }

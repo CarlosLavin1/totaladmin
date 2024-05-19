@@ -1,4 +1,5 @@
 ﻿using DAL;
+using Microsoft.Data.SqlClient;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -149,6 +150,7 @@ namespace TotalAdmin.Repository
                             EmployeeSupervisorName = supervisorName,
                             EmployeeName = employeeName,
                             EmployeeNumber = employeeNumber,
+                            RowVersion = (byte[]?)firstRow["RowVersion"],
 
                             Items = g.Select(row => new Item
                             {
@@ -160,7 +162,8 @@ namespace TotalAdmin.Repository
                                 Justification = row["Justification"].ToString() ?? "UnKnown",
                                 Location = row["ItemLocation"].ToString() ?? "UnKnown",
                                 ItemStatus = row["ItemStatus"].ToString() ?? "UnKnown",
-                                StatusId = Convert.ToInt32(row["ItemStatusId"])
+                                StatusId = Convert.ToInt32(row["ItemStatusId"]),
+                                RowVersion = (byte[])row["RowVersion"],
                             }).ToList()
                         };
 
@@ -176,47 +179,60 @@ namespace TotalAdmin.Repository
             }
         }
 
+        /// <summary>
+        /// Gets the detail of the purchase order based on the provided number
+        /// </summary>
+        /// <param name="poNumber"></param>
+        /// <returns>Results of th epurchase order detail</returns>
         public async Task<PurchaseOrder> GetPurchaseOrderDetails(int poNumber)
         {
             try
             {
-                // SQL query to get the purchase order number
-                string sql = "SELECT * FROM PurchaseOrder WHERE PoNumber = @PoNumber";
+                PurchaseOrder? po = null;
+                
+                string sql = @"SELECT PurchaseOrder.*, 
+	                                PurchaseOrderStatus.[Name] AS PurchaseOrderStatus
+                                FROM PurchaseOrder 
+	                                INNER JOIN
+                                    PurchaseOrderStatus ON PurchaseOrder.PurchaseOrderStatusId = PurchaseOrderStatus.PoStatusId
+                                WHERE PoNumber = @PoNumber";
 
-                // Execute the SQL query
                 DataTable dt = await db.ExecuteAsync(sql, new List<Parm> { new Parm("@PoNumber", SqlDbType.Int, poNumber) }, CommandType.Text);
 
-                // Check if any results were returned
+              
                 if (dt.Rows.Count == 0)
                 {
-                    throw new Exception("Purchase order not found");
+                    return po;
                 }
 
                 // Create a PurchaseOrder object from the result
                 DataRow firstRow = dt.Rows[0];
-                PurchaseOrder po = new PurchaseOrder
+                po = new PurchaseOrder
                 {
                     PoNumber = Convert.ToInt32(firstRow["PoNumber"]),
-                    CreationDate = DateTime.Parse(firstRow["CreationDate"].ToString()),
-                    EmployeeSupervisorName = await GetSupervisorFullNameForEmployee(Convert.ToInt32(firstRow["EmployeeNumber"]))
+                    CreationDate = Convert.ToDateTime(firstRow["CreationDate"]),
+                    EmployeeSupervisorName = await GetSupervisorFullNameForEmployee(Convert.ToInt32(firstRow["EmployeeNumber"])),
+                    FormattedPoNumber = "00001" + firstRow["PoNumber"].ToString().PadLeft(2, '0'),
+                    StatusId = Convert.ToInt32(firstRow["PurchaseOrderStatusId"]),
+                    PurchaseOrderStatus = Convert.ToString(firstRow["PurchaseOrderStatus"]),
                 };
 
-                // SQL query to get the items for the purchase order
+                
                 sql = "SELECT * FROM Item WHERE PoNumber = @PoNumber";
 
-                // Execute the SQL query
+               
                 dt = await db.ExecuteAsync(sql, new List<Parm> { new Parm("@PoNumber", SqlDbType.Int, poNumber) }, CommandType.Text);
 
                 // Add the items to the PurchaseOrder object
                 po.Items = dt.AsEnumerable().Select(row => new Item
                 {
                     ItemId = Convert.ToInt32(row["ItemId"]),
-                    Name = row["Name"].ToString(),
+                    Name = row["Name"].ToString() ?? "N/A",
                     Quantity = Convert.ToInt32(row["Quantity"]),
-                    Description = row["Description"].ToString(),
+                    Description = row["Description"].ToString() ?? "N/A",
                     Price = Convert.ToDecimal(row["Price"]),
-                    Justification = row["Justification"].ToString(),
-                    Location = row["ItemLocation"].ToString(),
+                    Justification = row["Justification"].ToString() ?? "N/A",
+                    Location = row["ItemLocation"].ToString() ?? "N/A",
                     StatusId = Convert.ToInt32(row["ItemStatusId"])
                 }).ToList();
 
@@ -230,7 +246,11 @@ namespace TotalAdmin.Repository
         }
 
 
-
+        /// <summary>
+        /// Used to close a purchase order based on the PONumber
+        /// </summary>
+        /// <param name="PONumber"></param>
+        /// <returns>Returns the updated po status</returns>
         public async Task<PurchaseOrder> ClosePO(int PONumber)
         {
             try
@@ -400,10 +420,8 @@ namespace TotalAdmin.Repository
 
                 // Check if a merge has occurred
                 if (hasMergeOccurred)
-                {
-                    // If a merge has occurred, set the flag
-                    po.HasMergeOccurred = true;
-                }
+                    po.HasMergeOccurred = true; // set the flag
+
 
                 // Filter out the existing items from the mergedItems list
                 var updatedItems = mergedItems
@@ -413,10 +431,8 @@ namespace TotalAdmin.Repository
 
                 // Check if updatedItems list is empty
                 if (!updatedItems.Any())
-                {
-                    // return the PurchaseOrder object as is
-                    return po;
-                }
+                    return po; // return the PurchaseOrder object as is
+              
 
                 // Create a DataTable for the PO items
                 var poItemsTable = await CreatePoItemsDataTableAsync(updatedItems);
@@ -425,24 +441,19 @@ namespace TotalAdmin.Repository
                 List<Parm> parms = new()
                 {
                     new("@PoNumber", SqlDbType.Int, po.PoNumber),
-                    new("@RowVersion", SqlDbType.Timestamp, po.RowVersion, 0, ParameterDirection.Output),
+                    new("@RowVersion", SqlDbType.Timestamp, po.RowVersion, 0, ParameterDirection.InputOutput),
                     new("@CreationDate", SqlDbType.DateTime2, po.CreationDate, 7),
                     new("@PurchaseOrderStatusId", SqlDbType.Int, po.StatusId),
                     new("@EmployeeNumber", SqlDbType.Int, po.EmployeeNumber),
                     new("@POItems", SqlDbType.Structured, poItemsTable)
                 };
 
-                Debug.WriteLine(parms);
+               
                 if (await db.ExecuteNonQueryAsync("spUpdatePurchaseOrder", parms) > 0)
-                {
-                    // Get the PO number as an integer
-                    int poNumberInt = po.PoNumber = (int?)parms.FirstOrDefault(p => p.Name == "@PoNumber")!.Value ?? 0;
-                    //po.RowVersion = (byte[]?)parms.FirstOrDefault(p => p.Name == "@RowVersion")!.Value;
-                }
+                    po.RowVersion = (byte[]?)parms.FirstOrDefault(p => p.Name == "@RowVersion")!.Value;
                 else
-                {
                     throw new DataException("There was an issue updating the record in the database.");
-                }
+               
 
                 return po;
             }
@@ -652,6 +663,7 @@ namespace TotalAdmin.Repository
                             CreationDate = Convert.ToDateTime(row["CreationDate"]),
                             StatusId = Convert.ToInt32(row["PurchaseOrderStatusId"]),
                             EmployeeNumber = Convert.ToInt32(row["EmployeeNumber"]),
+                            RowVersion = (byte[])row["RowVersion"],
                             Items = new List<Item>()
                         };
                     }

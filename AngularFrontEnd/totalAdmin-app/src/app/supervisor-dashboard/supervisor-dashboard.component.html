@@ -4,12 +4,12 @@
         <canvas id="chart" class="w-100"></canvas>
     </div>
     <div class="d-flex flex-column">
-        <button  *ngIf="pendingReviews > 0" type="button" class="btn btn-warning text-white h-10">
-            <span class="badge badge-light"> {{ pendingReviews }} </span> Pending Reviews
+        <button *ngIf="pendingReviews > 0" type="button" class="btn btn-warning text-white h-10">
+            <span class="badge badge-light">{{ pendingReviews }}</span> Pending Reviews
         </button>
         <br>
-        <button *ngIf="" type="button" class="btn btn-info text-white h-10">
-            <span class="badge badge-light"> {{ unreadEmployeReviews }} </span> Unread Reviews
+        <button *ngIf="unreadEmployeReviews > 0" type="button" class="btn btn-info text-white h-10">
+            <span class="badge badge-light">{{ unreadEmployeReviews }}</span> Unread Reviews
         </button>
     </div>
 </div>
