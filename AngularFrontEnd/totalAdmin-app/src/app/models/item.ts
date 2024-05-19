@@ -16,4 +16,5 @@ export class Item {
     modifiedReason?: string | null
     isEditing?: boolean
     editingColumn?: string | null
+    rowVersion?: any
 }

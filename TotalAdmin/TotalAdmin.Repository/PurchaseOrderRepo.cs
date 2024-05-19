@@ -150,6 +150,7 @@ namespace TotalAdmin.Repository
                             EmployeeSupervisorName = supervisorName,
                             EmployeeName = employeeName,
                             EmployeeNumber = employeeNumber,
+                            RowVersion = (byte[]?)firstRow["RowVersion"],
 
                             Items = g.Select(row => new Item
                             {
@@ -161,7 +162,8 @@ namespace TotalAdmin.Repository
                                 Justification = row["Justification"].ToString() ?? "UnKnown",
                                 Location = row["ItemLocation"].ToString() ?? "UnKnown",
                                 ItemStatus = row["ItemStatus"].ToString() ?? "UnKnown",
-                                StatusId = Convert.ToInt32(row["ItemStatusId"])
+                                StatusId = Convert.ToInt32(row["ItemStatusId"]),
+                                RowVersion = (byte[])row["RowVersion"],
                             }).ToList()
                         };
 

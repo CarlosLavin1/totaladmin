@@ -233,6 +233,7 @@ BEGIN
 			PO.PoNumber, 
 			PO.CreationDate, 
 			PO.PurchaseOrderStatusId,
+			PO.[RowVersion],
 			I.ItemId,
 			I.[Name],
 			I.Quantity,
@@ -241,6 +242,7 @@ BEGIN
 			I.Justification,
 			I.ItemLocation,
 			I.ItemStatusId,
+			I.[RowVersion],
 			S.[Name] AS ItemStatus,
 			PS.[Name] AS PurchaseOrderStatus,
 			E.EmployeeNumber
@@ -355,9 +357,10 @@ AS
 BEGIN
 	BEGIN TRY
 
-     SELECT @RowVersion = RowVersion FROM Item WHERE ItemId = @ItemId;
+     IF @RowVersion <> (SELECT [RowVersion] FROM Item WHERE ItemId = @ItemId)
+		THROW 50110, 'The record has been modified by another user since it was last fetched. Please refresh the page', 1;
 
-	   -- WAITFOR DELAY '00:00:04'; -- Delay the execution for to 4 seconds
+	 BEGIN TRAN
 		UPDATE Item SET 
 			ItemStatusId  = @NewStatusId,
 			RejectedReason = @Reason,
@@ -370,15 +373,9 @@ BEGIN
 			ItemId = @ItemId AND
 			[RowVersion] = @RowVersion;
 
-		IF @@ROWCOUNT = 0
-			BEGIN
-				;THROW 50110, 'The record has been modified by another user since it was last fetched. Please refresh the page', 1;
-			END
-		ELSE
-            BEGIN
-                SELECT * FROM Item WHERE ItemId = @ItemId;
-         END
+		SET @RowVersion = (SELECT [RowVersion] FROM Item WHERE ItemId = @ItemId)
 
+		COMMIT TRAN
 	END TRY
 	BEGIN CATCH
         IF @@TRANCOUNT > 0
