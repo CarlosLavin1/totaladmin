@@ -2,6 +2,8 @@
     <form [formGroup]="itemForm" (ngSubmit)="onSubmit()">
         <h2 class="m-5 fw-bold text-center">Add Item</h2>
 
+        <h3 class="mb-5">PO Number: <span class="text-bg-light text-light-emphasis">{{ ('0000001' + poNumber).slice(-8)  }}</span></h3>
+
         <div *ngIf="errors.length > 0" class="alert alert-danger">
             <ul>
                 <li *ngFor="let error of errors">{{ error }}</li>
@@ -13,10 +15,10 @@
                 <div class="mb-3">
                     <label for="itemName" class="form-label">Name</label>
                     <input type="text" class="form-control" id="itemName" name="name" formControlName="name" (ngModelChange)="resetSubmitted()">
-                    <div 
-                    *ngIf="itemForm.get('name')?.invalid &&
-                     itemForm.get('name')?.touched || submitted">
-                        <span class="text-danger">Name is required</span>
+                    <div *ngIf="itemForm.get('name')?.invalid && itemForm.get('name')?.touched || submitted">
+                        <span class="text-danger" *ngIf="itemForm.get('name')?.errors?.['required']">Name is required</span>
+                        <span class="text-danger" *ngIf="itemForm.get('name')?.errors?.['minlength']">Name must be at least 3 characters</span>
+                        <span class="text-danger" *ngIf="itemForm.get('name')?.errors?.['maxlength']">Name must not exceed 45 characters</span>
                     </div>
                 </div>
                 <div class="mb-3">
@@ -25,7 +27,8 @@
                     <div 
                     *ngIf="itemForm.get('quantity')?.invalid &&
                      itemForm.get('quantity')?.touched || submitted">
-                        <span class="text-danger">Quantity is required</span>
+                        <span class="text-danger" *ngIf="itemForm.get('name')?.errors?.['required']">Quantity is required</span>
+                        <span class="text-danger" *ngIf="itemForm.get('quantity')?.errors?.['min']">Item quantity must be greater than zero.</span>
                     </div>
                 </div>
             </div>
@@ -37,7 +40,8 @@
                     <div 
                     *ngIf="itemForm.get('price')?.invalid &&
                      itemForm.get('price')?.touched || submitted">
-                        <span class="text-danger">Price is required</span>
+                        <span class="text-danger" *ngIf="itemForm.get('name')?.errors?.['required']">Price is required</span>
+                        <span class="text-danger" *ngIf="itemForm.get('price')?.errors?.['min']">Item price must be greater than zero.</span>
                     </div>
                 </div>
                 <div class="mb-3">
@@ -46,20 +50,22 @@
                     <div 
                     *ngIf="itemForm.get('location')?.invalid &&
                      itemForm.get('location')?.touched || submitted">
-                        <span class="text-danger">Location is required</span>
+                        <span class="text-danger" *ngIf="itemForm.get('name')?.errors?.['required']">Location is required</span>
+                        <span class="text-danger" *ngIf="itemForm.get('location')?.errors?.['minlength']">Item purchase location minimum length is 5.</span>
                     </div>
                 </div>
             </div>
 
             <div class="col-md-12">
                 <div class="mb-3">
-                    <label for="just" class="form-label">Justification</label>
+                    <label for="just" class="form-label" *ngIf="itemForm.get('name')?.errors?.['required']">Justification</label>
                     <textarea class="form-control" id="just" rows="3" name="justification"
                         formControlName="justification"></textarea>
                     <div 
                     *ngIf="itemForm.get('justification')?.invalid &&
                      itemForm.get('justification')?.touched || submitted">
-                        <span class="text-danger">Justification is required</span>
+                        <span class="text-danger" *ngIf="itemForm.get('name')?.errors?.['required']">Justification is required</span>
+                        <span class="text-danger" *ngIf="itemForm.get('justification')?.errors?.['minlength']">Item justification minimum length is 4.</span>
                     </div>
                 </div>
 
@@ -69,7 +75,8 @@
                         formControlName="description"></textarea>
                     <div *ngIf="itemForm.get('description')?.invalid && 
                     itemForm.get('description')?.touched || submitted">
-                        <span class="text-danger">Description is required</span>
+                        <span class="text-danger" *ngIf="itemForm.get('name')?.errors?.['required']">Description is required</span>
+                        <span class="text-danger" *ngIf="itemForm.get('description')?.errors?.['minlength']">Item description minimum length is 5.</span>
                     </div>
                 </div>
             </div>

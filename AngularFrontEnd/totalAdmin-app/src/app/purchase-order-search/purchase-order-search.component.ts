@@ -8,7 +8,7 @@ import { POSearchFiltersDTO } from '../models/posearch-filters-dto';
 import { PODisplayDTO } from '../models/podisplay-dto';
 import { SharedDataService } from '../services/shared-data.service';
 import { AuthenticationService } from '../auth/services/authentication.service';
-import { ItemDialogFormComponent } from '../item-dialog-form/item-dialog-form.component';
+import { ItemDialogFormComponent } from '../create-item/item-dialog-form.component';
 
 
 @Component({

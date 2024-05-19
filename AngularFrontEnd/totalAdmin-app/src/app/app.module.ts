@@ -24,7 +24,7 @@ import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { CreatePurchaseOrderComponent } from './create-purchase-order/create-purchase-order.component';
 import { ReviewPurchaseOrderComponent } from './review-purchase-order/review-purchase-order.component';
 import { DepartmentUpdateComponent } from './department-update/department-update.component';
-import { ItemDialogFormComponent } from './item-dialog-form/item-dialog-form.component';
+import { ItemDialogFormComponent } from './create-item/item-dialog-form.component';
 import { ListDepartmentsComponent } from './list-departments/list-departments.component';
 import { ModifyDepartmentComponent } from './modify-department/modify-department.component';
 import { EmployeeSearchComponent } from './employee-search/employee-search.component';

@@ -10,6 +10,8 @@ import { ValidationError } from '../models/validationError';
 import { DepartmentService } from '../services/department.service';
 import { ItemService } from '../services/item.service';
 import { Item } from '../models/item';
+import { SharedDataService } from '../services/shared-data.service';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-review-department-po',
@@ -38,7 +40,9 @@ export class ReviewDepartmentPOComponent implements OnInit {
     private snackbarService: SnackbarService,
     private authService: AuthenticationService,
     private departmentService: DepartmentService,
-    private itemService: ItemService
+    private itemService: ItemService,
+    private sharedDataService: SharedDataService,
+    private router: Router,
   ) {
     this.departmentForm = this.formBuilder.group({
       DepartmentId: ['', Validators.required],
@@ -544,5 +548,11 @@ export class ReviewDepartmentPOComponent implements OnInit {
 
   cancelEdit(item: Item) {
     item.isEditing = false;
+  }
+
+  navigateToAddItem(poNumber: number) {
+    this.sharedDataService.setPONumber(poNumber.toString(), false);
+
+    this.router.navigate(['/items', { poNumber: poNumber }]);
   }
 }
