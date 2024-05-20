@@ -59,6 +59,16 @@ namespace TotalAdmin.Repository
             throw new NotImplementedException();
         }
 
+        public async Task<List<Employee>> GetEmployeesDueForReviewForSupervisorForPrevQuarter(int supervisorEmployeeNumber)
+        {
+            List<Parm> parms = new()
+            {
+                new("@SupervisorEmployeeNumber", SqlDbType.Int, supervisorEmployeeNumber),
+            };
+            DataTable dt = await db.ExecuteAsync("spGetEmployeeReviewsPendingFromPreviousQuarter", parms);
+            return dt.AsEnumerable().Select(row => PopulateEmployee(row)).ToList();
+        }
+
         public async Task<List<Employee>> GetEmployeesDueForReviewForSupervisor(int supervisorEmployeeNumber)
         {
             List<Parm> parms = new()
