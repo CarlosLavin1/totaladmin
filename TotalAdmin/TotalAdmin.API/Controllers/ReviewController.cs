@@ -144,12 +144,12 @@ namespace TotalAdmin.API.Controllers
                     foreach(Employee e in supervisors)
                     {
                         string to = e.Email ?? "supervisors@mail.com";
-                        List <Employee> employees = await reviewService.GetEmployeesDueForReviewForSupervisor(e.EmployeeNumber);
+                        List <Employee> employees = await reviewService.GetEmployeesDueForReviewForSupervisorForPrevQuarter(e.EmployeeNumber);
                         string employeeList = "The following employee reviews are due for the current quarter:\n\n";
                         foreach (Employee employee in employees)
                             employeeList += $"{employee.LastName}, {employee.FirstName}\n";
                         // add hr employee emails if after 30 since start of quarter
-                        if (isAfter30DaysInQuarter())
+                        if (isAfter30DaysSinceEndOfPreviousQuarter())
                         {
                             List<Employee> hrEmployees = reviewService.GetHREmployeeEmails();
                             foreach(Employee hrEmployee in hrEmployees)
@@ -177,34 +177,32 @@ namespace TotalAdmin.API.Controllers
             }
         }
 
-        private bool isAfter30DaysInQuarter()
+        private bool isAfter30DaysSinceEndOfPreviousQuarter()
         {
             DateTime today = DateTime.Today;
-            DateTime startOfQuarter;
+            DateTime endOfPreviousQuarter;
 
-            // Determine the start date of the current quarter
+            // get the end date of the previous quarter
             if (today.Month >= 1 && today.Month <= 3)
             {
-                    startOfQuarter = new DateTime(today.Year, 1, 1); // Q1
+                endOfPreviousQuarter = new DateTime(today.Year - 1, 12, 31); 
             }
             else if (today.Month >= 4 && today.Month <= 6)
             {
-                    startOfQuarter = new DateTime(today.Year, 4, 1); // Q2
-                }
+                endOfPreviousQuarter = new DateTime(today.Year, 3, 31); 
+            }
             else if (today.Month >= 7 && today.Month <= 9)
             {
-                    startOfQuarter = new DateTime(today.Year, 7, 1); // Q3
+                endOfPreviousQuarter = new DateTime(today.Year, 6, 30); 
             }
             else
             {
-                startOfQuarter = new DateTime(today.Year, 10, 1); // Q4
+                endOfPreviousQuarter = new DateTime(today.Year, 9, 30); 
             }
 
-            // Add 30 days to the start date of the current quarter
-            DateTime thirtyDaysAfterStartOfQuarter = startOfQuarter.AddDays(30);
+            DateTime thirtyDaysAfterEndOfPreviousQuarter = endOfPreviousQuarter.AddDays(30);
 
-            // Check if today is 30 days after the start of the current quarter
-            return today >= thirtyDaysAfterStartOfQuarter;
+            return today >= thirtyDaysAfterEndOfPreviousQuarter;
         }
     }
 }

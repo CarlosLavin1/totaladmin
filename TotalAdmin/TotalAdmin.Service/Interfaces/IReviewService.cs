@@ -11,6 +11,7 @@ namespace TotalAdmin.Service
     {
         Review CreateReview(Review review);
         Task<List<Review>> GetReviewsForEmployee(int employeeNumber);
+        Task<List<Employee>> GetEmployeesDueForReviewForSupervisorForPrevQuarter(int supervisorEmployeeNumber);
         Task<List<Employee>> GetEmployeesDueForReviewForSupervisor(int supervisorEmployeeNumber);
         Task<List<MissingReviewDTO>> GetEmployeesDueForReviewForSupervisorWithQuarter(int supervisorEmployeeNumber);
         void ReadReview(int reviewId);
