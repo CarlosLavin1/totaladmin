@@ -109,7 +109,7 @@ namespace TotalAdmin.Service
                 employee.AddError(new("Employee must be at least 16 years of age", ErrorType.Model));
 
             // validate job start date is after seniority date
-            if (employee.JobStartDate != null && employee.SeniorityDate != null && employee.JobStartDate <= employee.SeniorityDate)
+            if (employee.JobStartDate != null && employee.SeniorityDate != null && employee.JobStartDate < employee.SeniorityDate)
                 employee.AddError(new("Job start date cannot be before seniority date", ErrorType.Business));
 
             // validate supervisor does not already have 10 employees

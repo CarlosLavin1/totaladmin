@@ -812,3 +812,16 @@ BEGIN
 		RoleId = 4;
 END
 GO
+
+CREATE OR ALTER PROC spGetUnreadReviewsForSupervisorCount
+	@SupervisorEmployeeNumber INT
+AS
+BEGIN
+	SELECT
+		COUNT(*)
+	FROM Review
+	WHERE 
+		SupervisorEmployeeNumber = @SupervisorEmployeeNumber
+		AND IsRead = 0;
+END
+GO
