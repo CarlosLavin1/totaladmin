@@ -73,7 +73,7 @@ export class EmployeeDashboardComponent {
         labels: labels,
         datasets: [{
           label: '# Total PO Exepenses',
-          data: data,
+          data: data ?? 0,
           backgroundColor: [
             'rgba(255, 159, 64, 0.2)'
           ],
@@ -151,7 +151,7 @@ export class EmployeeDashboardComponent {
           this.purchaseOrders = [];
           this.errors = [];
           if (error.status === 404) {
-            this.showErrorMessage('No purchase orders found for the provided Employee number');
+            this.RenderChart(monthlyLabels, monthlyExpenses, monthlyExpenses.map(expense => expense.toString()));
           } else if (error.error.errors) {
             validationErrors = error.error.errors;
             validationErrors.forEach((error) => {

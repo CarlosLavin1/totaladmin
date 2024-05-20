@@ -46,12 +46,8 @@ export class SearchDepartmentPOComponent implements OnInit, OnDestroy {
   constructor(
     private formBuilder: FormBuilder,
     private poService: PurchaseOrderService,
-    private activatedRoute: ActivatedRoute,
-    private router: Router,
-    private sharedDataService: SharedDataService,
     private authService: AuthenticationService,
     private departmentService: DepartmentService,
-    private snackbarService: SnackbarService
   ) { }
 
 

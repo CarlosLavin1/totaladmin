@@ -1,6 +1,6 @@
 <nav class="navbar navbar-expand-lg navbar-light bg-light">
     <div class="container-fluid">
-        <a class="navbar-brand" href="/">Home</a>
+        <a class="navbar-brand" *ngIf="userIsAuthenticated" href="/">Home</a>
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
             aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
             <span class="navbar-toggler-icon"></span>
@@ -43,11 +43,11 @@
                         routerLink="/list-departments">Modify Departments</a>
                 </li>
                 <li class="nav-item">
-                    <a *ngIf="userIsAuthenticated" class="btn btn-info" routerLink="/purchase-order">Create Purchase
+                    <a *ngIf="userIsAuthenticated && role != 'HR Employee'" class="btn btn-info" routerLink="/purchase-order">Create Purchase
                         Order</a>
                 </li>
                 <li class="nav-item">
-                    <a *ngIf="userIsAuthenticated" class="btn btn-info" routerLink="/purchase-order-search">Search
+                    <a *ngIf="userIsAuthenticated && role != 'HR Employee'" class="btn btn-info" routerLink="/purchase-order-search">Search
                         Purchase Orders</a>
                 </li>
                 <li class="nav-item">

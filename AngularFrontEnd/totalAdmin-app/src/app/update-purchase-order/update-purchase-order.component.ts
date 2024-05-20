@@ -74,6 +74,9 @@ export class UpdatePurchaseOrderComponent implements OnInit {
           }
         });
       }
+      else {
+        this.router.navigateByUrl('/purchase-order-search');
+      }
     });
   }
 

@@ -184,7 +184,7 @@ export class SupervisorDashboardComponent implements OnInit {
           this.purchaseOrders = [];
           this.errors = [];
           if (error.status === 404) {
-            this.showErrorMessage('No purchase orders found for the provided department ID.');
+            this.RenderChart(monthlyLabels, monthlyExpenses, monthlyExpenses.map(expense => expense.toString()));
           } else if (error.error.errors) {
             validationErrors = error.error.errors;
             validationErrors.forEach((error) => {
