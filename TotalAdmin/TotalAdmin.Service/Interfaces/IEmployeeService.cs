@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using TotalAdmin.Model;
+using TotalAdmin.Model.DTO;
 
 namespace TotalAdmin.Service
 {
@@ -22,5 +23,7 @@ namespace TotalAdmin.Service
         Task<EmployeeDetailDTO?> GetEmployeeDetailById(int? id);
         Employee UpdateEmployee(Employee employee);
         Employee UpdatePersonalInfo(Employee employee);
+        Task<int> CountEmployeesBySupervisorAsync(int supervisorEmpNumber);
+        Task<List<EmployeeDetailsWithUnreadReviewsDTO>> GetUnreadEmployeeReviewsByDepartment(int id);
     }
 }
