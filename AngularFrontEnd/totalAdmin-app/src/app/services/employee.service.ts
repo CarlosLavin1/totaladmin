@@ -4,6 +4,7 @@ import { Observable, catchError } from 'rxjs';
 import { API_URL7161, SharedService } from './shared.service';
 import { Employee } from '../models/employee';
 import { EmployeeDetailDTO } from '../models/employee-detail-dto';
+import { EmployeeDetailsWithUnreadReviewsDTO } from '../models/EmployeeDetailsWithUnreadReviewsDTO';
 
 @Injectable({
   providedIn: 'root'
@@ -38,5 +39,15 @@ export class EmployeeService extends SharedService{
   //update employee
   employeeUpdate(employeeNumber: number, employee: Employee): Observable<Employee>{
     return this.http.put<Employee>(`${API_URL7161}/employee/${employeeNumber}`, employee).pipe(catchError(super.handleError));
+  }
+
+  countEmployeesBySupervisor(supervisorEmpNumber: number): Observable<number> {
+    return this.http.get<number>(`${API_URL7161}/employee/count/${supervisorEmpNumber}`)
+    .pipe(catchError(super.handleError));
+  }
+
+  getUnreadEmployeeReviewsByDepartment(departmentId: number): Observable<EmployeeDetailsWithUnreadReviewsDTO[]> {
+    return this.http.get<EmployeeDetailsWithUnreadReviewsDTO[]>(`${API_URL7161}/employee/unread-reviews-by-department/${departmentId}`)
+    .pipe(catchError(super.handleError));
   }
 }

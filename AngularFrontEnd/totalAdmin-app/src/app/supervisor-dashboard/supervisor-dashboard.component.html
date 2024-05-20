@@ -11,5 +11,12 @@
         <button *ngIf="unreadEmployeReviews > 0" type="button" class="btn btn-info text-white h-10">
             <span class="badge badge-light">{{ unreadEmployeReviews }}</span> Unread Reviews
         </button>
+        <br>
+        <button type="button" class="btn btn-info text-white h-10">
+            <span class="badge badge-light">{{ numOfpendingPurchaseOrders }}</span> Pending POs
+        </button><br>
+        <button type="button" class="btn btn-primary text-white h-10">
+            <span class="badge badge-light">{{ numOfEmployeesSupervising }}</span> Employees Supervising
+        </button>
     </div>
 </div>

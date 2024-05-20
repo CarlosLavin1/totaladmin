@@ -5,10 +5,8 @@ import { Subscription } from 'rxjs';
 import { PurchaseOrderService } from '../services/purchase-order.service';
 import { SnackbarService } from '../services/snackbar.service';
 import { AuthenticationService } from '../auth/services/authentication.service';
-import { ItemService } from '../services/item.service';
 import { DepartmentService } from '../services/department.service';
 import { ValidationError } from '../models/validationError';
-import { DatePipe } from '@angular/common';
 import { ReviewService } from '../services/review.service';
 import { EmployeeService } from '../services/employee.service';
 Chart.register(...registerables)
@@ -23,11 +21,12 @@ export class SupervisorDashboardComponent implements OnInit {
   errors: string[] = [];
   pendingReviews: number = 0;
   unreadEmployeReviews: number = 0;
+  numOfpendingPurchaseOrders: number = 0;
+  numOfEmployeesSupervising: number = 0;
 
 
   role: string;
   public userRole = localStorage.getItem('userRole');
-  private authSubscription: Subscription;
   public employeeNumber = localStorage.getItem('employeeNumber');
 
 
@@ -37,7 +36,6 @@ export class SupervisorDashboardComponent implements OnInit {
     private authService: AuthenticationService,
     private departmentService: DepartmentService,
     private employeeService: EmployeeService,
-    private datePipe: DatePipe,
     private reviewService: ReviewService
   ) { }
 
@@ -48,9 +46,24 @@ export class SupervisorDashboardComponent implements OnInit {
         this.employeeService.getEmployeeById(Number(this.employeeNumber)).subscribe(employee => {
 
           const supervisorEmployeeNumber = employee.supervisorEmployeeNumber;
+          const supervisorDepartmentId = employee.departmentId;
+          console.log('Department is: ' + supervisorDepartmentId);
+          
           
           console.log('The supervisor number is: ' + supervisorEmployeeNumber);
           this.fetchPendingAndUnreadReviews(supervisorEmployeeNumber);
+
+          
+          this.employeeService.getUnreadEmployeeReviewsByDepartment(supervisorDepartmentId).subscribe(details => {
+            console.log(details);
+            // the total number of unread reviews by summing up the unreadReviewsCount
+            this.unreadEmployeReviews = details.reduce((sum, detail) => sum + detail.unreadReviewsCount, 0); 
+            console.log('Number of unread employee reviews is: ' + this.unreadEmployeReviews);
+          });
+          this.employeeService.countEmployeesBySupervisor(supervisorEmployeeNumber).subscribe(count => {
+            this.numOfEmployeesSupervising = count;
+            console.log('Number of employees supervising is: ' + this.numOfEmployeesSupervising);
+          });
         });
         this.departmentService.getDepartmentForEmployee(Number(this.employeeNumber)).subscribe(department => {
           this.loadPurchaseOrders(department.id);
@@ -63,6 +76,7 @@ export class SupervisorDashboardComponent implements OnInit {
     this.reviewService.getEmployeesDueForReviewForSupervisor(supervisorEmployeeNumber).subscribe(employees => {
       this.pendingReviews = employees.length;
       console.log(this.pendingReviews);
+
       
       employees.forEach(emp => {
         this.reviewService.getReviewsForEmployee(emp.employeeNumber).subscribe(reviews => {
@@ -148,6 +162,11 @@ export class SupervisorDashboardComponent implements OnInit {
             let month = new Date(po.creationDate).getMonth();
             monthlyExpenses[month] += po.totalExpenseAmt;
           });
+
+          // Count the number of pending purchase orders
+          this.numOfpendingPurchaseOrders = this.purchaseOrders.filter(po => po.purchaseOrderStatus === 'Pending').length;
+          console.log('Number of pending po is: ' + this.numOfpendingPurchaseOrders);
+          
 
           // Prepare the data for the chart
           const labels = monthlyLabels;
