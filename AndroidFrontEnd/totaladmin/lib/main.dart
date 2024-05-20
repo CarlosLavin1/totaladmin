@@ -6,7 +6,6 @@ import 'dart:io';
 
 import 'package:totaladmin/services/auth_service.dart';
 
-
 import 'browse_department_po.dart';
 
 void main() {
@@ -159,6 +158,14 @@ class _HomePageState extends State<HomePage> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: <Widget>[
+                Image.asset(
+                  'assets/logo.png',
+                  height: 150,
+                  width: 150,
+                ),
+                const SizedBox(
+                  height: 10,
+                ),
                 const Center(
                   child: Text(
                     "Home",
