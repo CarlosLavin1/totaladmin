@@ -96,6 +96,8 @@ namespace TotalAdmin.Repository
                                 Justification = row["Justification"].ToString() ?? "UnKnown",
                                 Location = row["ItemLocation"].ToString() ?? "UnKnown",
                                 ItemStatus = row["ItemStatus"].ToString() ?? "UnKnown",
+                                ModifiedReason = row["ModifiedReason"].ToString() ?? "UnKnown",
+                                RejectedReason = row["RejectedReason"].ToString() ?? "UnKnown",
                                 StatusId = Convert.ToInt32(row["ItemStatusId"])
                             }).ToList()
                         };

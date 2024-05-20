@@ -36,7 +36,7 @@ const routes: Routes = [
   { path: 'update-purchase-order', component: UpdatePurchaseOrderComponent, canActivate: [AuthGuard] },
   { path: 'items', component: ItemDialogFormComponent, canActivate: [ AuthGuard] },
   { path: 'review-department-po', component: ReviewDepartmentPOComponent, canActivate: [AuthGuard] },
-  { path: 'search-department-po', component: SearchDepartmentPOComponent, canActivate: [AuthGuard], data: { roles: ['CEO', 'Supervisor']} },
+  { path: 'search-department-po', component: SearchDepartmentPOComponent, canActivate: [AuthGuard], data: { roles: ['CEO', 'Supervisor', 'HR Supervisor']} },
   { path: 'supervisor-dashboard', component: SupervisorDashboardComponent, canActivate: [AuthGuard], data: { roles: ['CEO', 'Supervisor']} },
   { path: 'employee-dashboard', component: EmployeeDashboardComponent, canActivate: [AuthGuard], data: { roles: ['Employee']} },
   { path: 'login', component: LoginComponent },

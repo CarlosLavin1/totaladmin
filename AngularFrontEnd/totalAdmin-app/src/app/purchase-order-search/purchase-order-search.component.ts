@@ -150,7 +150,7 @@ export class PurchaseOrderSearchComponent implements OnInit, OnDestroy, AfterVie
 
   checkRole(): boolean {
     const userRole = this.authService.getRole();
-    return userRole === 'Supervisor' || userRole === 'HR Employee' || userRole === 'HR Supervisor';
+    return userRole === 'Supervisor' || userRole === 'HR Supervisor';
   }
   
   showErrorMessage(message: string) {

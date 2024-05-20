@@ -18,6 +18,11 @@
         </ul>
     </div>
 
+    <div *ngIf="noPOFound" class="d-flex justify-content-center align-items-center alert alert-light fw-medium position-fixed top-50 start-50 translate-middle">
+        <p class="noPo">No purchase orders found. Would you like to <a class="text-decoration-none" routerLink="/purchase-order">create a new purchase order</a>?</p>
+    </div>
+    
+
     <div class="m-5" *ngIf="purchaseOrders.length > 0">
         <h2 class="text-start ">{{ purchaseOrders.length }} Purchase Orders found</h2>
 
@@ -34,13 +39,13 @@
                     <h5 class="mb-0 po-text-link"> {{arrowState[purchaseOrder.formattedPoNumber || ''] || '▶ '}}
                         Purchase Order Number: #{{purchaseOrder.formattedPoNumber}}
                         <small class="text-muted">Creation Date: {{purchaseOrder.creationDate |
-                            date:'shortDate'}}</small>
+                            date:'shortDate'}}</small>  /
+                        <p class="text-end d-inline justify-content-end text-info">
+                            {{purchaseOrder.purchaseOrderStatus}}...</p>
                     </h5>
                 </div>
 
                 <div class="card-body" *ngIf="showCardBody[purchaseOrder.formattedPoNumber || '']">
-
-                    <p><strong>Status:</strong> {{purchaseOrder.purchaseOrderStatus}}</p>
                     <div class="card-footer bg-light">
                         <p><strong>Subtotal:</strong> {{purchaseOrder.subtotal | currency}}</p>
                         <p><strong>Tax:</strong> {{purchaseOrder.tax | currency}}</p>
@@ -48,34 +53,39 @@
                     </div>
 
                     <h6>Items:</h6>
-
-                    <table class="table">
-                        <thead>
-                            <tr>
-                                <th>QTY</th>
-                                <th>Description</th>
-                                <th>Price</th>
-                                <th>Justification</th>
-                                <th>Item Status</th>
-                                <th>Subtotal</th>
-                                <th>Tax</th>
-                                <th>Grand Total</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr *ngFor="let item of purchaseOrder.items">
-                                <td>{{ item.quantity }}</td>
-                                <td>{{ item.description }}</td>
-                                <td>{{ item.price | currency }}</td>
-                                <td>{{ item.justification }}</td>
-                                <td *ngIf="purchaseOrder.purchaseOrderStatus === 'Closed'">{{ item.itemStatus }}</td>
-                                <td *ngIf="purchaseOrder.purchaseOrderStatus !== 'Closed'">Pending</td>
-                                <td>{{ item.subtotal | currency }}</td>
-                                <td>{{ item.tax | currency }}</td>
-                                <td>{{ item.grandTotal | currency }}</td>
-                            </tr>
-                        </tbody>
-                    </table>
+                    <div class="table-responsive">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>QTY</th>
+                                    <th>Description</th>
+                                    <th>Price</th>
+                                    <th>Justification</th>
+                                    <th>Item Status</th>
+                                    <th>Subtotal</th>
+                                    <th>Tax</th>
+                                    <th>Grand Total</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr *ngFor="let item of purchaseOrder.items">
+                                    <td>{{ item.quantity }}</td>
+                                    <td>{{ item.description }}</td>
+                                    <td>{{ item.price | currency }}</td>
+                                    <td>{{ item.justification }}</td>
+                                    <td *ngIf="purchaseOrder.purchaseOrderStatus === 'Closed'">{{ item.itemStatus }}</td>
+                                    <td *ngIf="purchaseOrder.purchaseOrderStatus !== 'Closed'">Pending</td>
+                                    <td>{{ item.subtotal | currency }}</td>
+                                    <td>{{ item.tax | currency }}</td>
+                                    <td>{{ item.grandTotal | currency }}</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <button class="btn btn-success" type="button" title="Add More Items to PO" *ngIf="purchaseOrder.purchaseOrderStatus != 'Closed'"
+                        (click)="navigateToAddItem(purchaseOrder.poNumber)"
+                        [disabled]="purchaseOrder.purchaseOrderStatus === 'Closed'"><span class="bi bi-plus"> Add more</span>
+                    </button>
                 </div>
             </div>
         </div>

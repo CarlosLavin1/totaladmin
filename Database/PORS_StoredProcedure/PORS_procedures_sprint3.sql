@@ -202,6 +202,8 @@ BEGIN
 			I.Justification,
 			I.ItemLocation,
 			I.ItemStatusId,
+			I.RejectedReason,
+			I.ModifiedReason,
 			S.[Name] AS ItemStatus,
 			PS.[Name] AS PurchaseOrderStatus
 		FROM 
