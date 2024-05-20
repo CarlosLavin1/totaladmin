@@ -65,7 +65,7 @@ export class CreatePurchaseOrderComponent implements OnInit {
       name: ['', [Validators.required, Validators.minLength(3), Validators.maxLength(45)]],
       quantity: ['', [Validators.required, Validators.min(1)]],
       description: ['', [Validators.required, Validators.minLength(5)]],
-      price: ['', [Validators.required, Validators.min(0.01)]],
+      price: ['', [Validators.required, Validators.min(1)]],
       justification: ['', [Validators.required, Validators.minLength(4)]],
       location: ['', [Validators.required, Validators.minLength(5)]],
       statusId: [1]

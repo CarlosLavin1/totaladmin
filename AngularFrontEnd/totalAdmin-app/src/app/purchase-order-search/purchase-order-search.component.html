@@ -69,7 +69,6 @@
           <td>{{ result.subtotal| currency }}</td>
           <td>{{ result.tax | currency }}</td>
           <td>{{ result.grandTotal | currency }}</td>
-          <td><a *ngIf="result.status !== 'Closed'; else closedTemplate"  class="btn btn-danger" (click)="navigateToAddItem(result.poNumber)">Add More</a></td>
           <td><a *ngIf="result.status !== 'Closed'; else closedTemplate"  class="btn btn-warning" (click)="navigateToUpdatePo(result.poNumber)">Update</a></td>
         </tr>
       </tbody>
@@ -78,5 +77,5 @@
 </div>
 
 <ng-template #closedTemplate>
-  <span class="bg-light fw-bolder text-danger" style="cursor: pointer;" title="This purchaseOrder is closed. Can't add more items">PO Closed</span>
+  <span class="bg-light fw-bolder text-danger" style="cursor: pointer;" title="This purchaseOrder is closed. Can't update purchase Order">PO Closed</span>
 </ng-template>

@@ -863,3 +863,75 @@ BEGIN
     END CATCH
 END 
 GO
+--  Counts number of employees supervised
+CREATE OR ALTER PROC spCountEmployeesBySupervisor
+    @SupervisorEmpNumber INT
+AS
+BEGIN
+    SELECT 
+        COUNT(EmployeeNumber) AS NumberOfEmployees
+    FROM 
+        Employee
+    WHERE
+        SupervisorEmpNumber = @SupervisorEmpNumber;
+END
+GO
+
+CREATE OR ALTER PROC spGetUnreadEmployeeReviewsBySupervisor
+    @SupervisorEmpNumber INT
+AS
+BEGIN
+    SELECT 
+        E.EmployeeNumber,
+        E.FirstName,
+        E.LastName,
+        COUNT(R.IsRead) AS UnreadReviews
+    FROM 
+        Employee E
+    LEFT JOIN
+        Review R ON E.EmployeeNumber = R.EmployeeNumber AND R.IsRead = 0
+    WHERE
+        E.SupervisorEmpNumber = @SupervisorEmpNumber
+    GROUP BY
+        E.EmployeeNumber,
+        E.FirstName,
+        E.LastName;
+END
+GO
+
+-- Stored Procedure to get the count of employees a supervisor is supervising
+CREATE OR ALTER PROC spCountEmployeesBySupervisor
+    @SupervisorEmpNumber INT
+AS
+BEGIN
+    SELECT 
+        COUNT(EmployeeNumber) AS NumberOfEmployees
+    FROM 
+        Employee
+    WHERE
+        SupervisorEmpNumber = @SupervisorEmpNumber;
+END
+GO
+
+-- Stored Procedure to get the count of unread reviews for employees in the supervisor's department
+CREATE OR ALTER PROC spGetUnreadEmployeeReviewsByDepartment
+    @DepartmentId INT
+AS
+BEGIN
+    SELECT 
+        E.EmployeeNumber,
+        E.FirstName,
+        E.LastName,
+        COUNT(R.IsRead) AS UnreadReviews
+    FROM 
+        Employee E
+    LEFT JOIN
+        Review R ON E.EmployeeNumber = R.EmployeeNumber AND R.IsRead = 0
+    WHERE
+        E.DepartmentId = @DepartmentId
+    GROUP BY
+        E.EmployeeNumber,
+        E.FirstName,
+        E.LastName;
+END
+GO

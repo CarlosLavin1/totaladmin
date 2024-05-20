@@ -32,12 +32,12 @@ export class ItemDialogFormComponent implements OnInit {
     private snackBarService: SnackbarService
   ) {
     this.itemForm = this.formBuilder.group({
-      name: ['', Validators.required],
-      quantity: ['', Validators.required],
-      description: ['', Validators.required],
-      price: ['', Validators.required],
-      justification: ['', Validators.required],
-      location: ['', Validators.required],
+      name: ['', [Validators.required, Validators.minLength(3), Validators.maxLength(45)]],
+      quantity: ['', [Validators.required, Validators.min(1)]],
+      description: ['', [Validators.required, Validators.minLength(5)]],
+      price: ['', [Validators.required, Validators.min(1)]],
+      justification: ['', [Validators.required, Validators.minLength(4)]],
+      location: ['', [Validators.required, Validators.minLength(5)]],
       statusId: [1]
     });
   }
@@ -48,6 +48,9 @@ export class ItemDialogFormComponent implements OnInit {
         this.poNumber = data.PONumber;
         console.log('Retrieved PO Number:', this.poNumber);
       }
+      else {
+        this.router.navigateByUrl('/');
+      }
     });
     
   }
@@ -55,19 +58,18 @@ export class ItemDialogFormComponent implements OnInit {
 
   onSubmit(): void {
     this.errors = []; 
-    this.submitted = true
+    this.submitted = true;
     
     if (this.itemForm.valid) {
       const item: Item = this.itemForm.value;
       this.purchaseOrderService.AddItemsToPurchaseOrder(Number(this.poNumber), item)
 
-
         .subscribe({
           next: (res: Item) => {
             this.itemForm.reset();
-            this.submitted = false;
             this.router.navigateByUrl('/')
-
+            this.submitted = false;
+            
             this.snackBarService.showSnackBar("Purchase order updated successfully", 0);
             setTimeout(() => {
               console.log('Succesfully uupdated po');

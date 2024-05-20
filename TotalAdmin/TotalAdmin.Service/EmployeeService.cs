@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using TotalAdmin.Model;
+using TotalAdmin.Model.DTO;
 using TotalAdmin.Repository;
 using TotalAdmin.Types;
 
@@ -82,6 +83,15 @@ namespace TotalAdmin.Service
         public async Task<List<EmployeeDetailDTO>> SearchEmployeeDirectory(int employeeNumber, string? lastName)
         {
             return await repo.SearchEmployeeDirectory(employeeNumber, lastName);
+        }
+
+        public async Task<int> CountEmployeesBySupervisorAsync(int supervisorEmpNumber)
+        {
+            return await repo.CountEmployeesBySupervisorAsync(supervisorEmpNumber);
+        }
+        public async Task<List<EmployeeDetailsWithUnreadReviewsDTO>> GetUnreadEmployeeReviewsByDepartment(int id)
+        {
+            return await repo.GetUnreadEmployeeReviewsByDepartment(id);
         }
 
         private bool ValidateUpdateEmployee(Employee employee)
