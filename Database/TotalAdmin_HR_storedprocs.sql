@@ -813,6 +813,56 @@ BEGIN
 END
 GO
 
+-- get employees with unread reviews for previous quarter
+CREATE OR ALTER PROC spGetEmployeeReviewsPendingFromPreviousQuarter
+    @SupervisorEmployeeNumber INT
+AS
+BEGIN
+    BEGIN TRY    
+        DECLARE @CurrentDate DATE = GETDATE();
+        DECLARE @StartOfPreviousQuarter DATE;
+        DECLARE @EndOfPreviousQuarter DATE;
+
+        -- Determine the start and end dates of the previous quarter
+        SELECT 
+        @StartOfPreviousQuarter = CASE
+            WHEN MONTH(@CurrentDate) IN (1, 2, 3) THEN DATEFROMPARTS(YEAR(@CurrentDate) - 1, 10, 1)
+            WHEN MONTH(@CurrentDate) IN (4, 5, 6) THEN DATEFROMPARTS(YEAR(@CurrentDate), 1, 1)
+            WHEN MONTH(@CurrentDate) IN (7, 8, 9) THEN DATEFROMPARTS(YEAR(@CurrentDate), 4, 1)
+            WHEN MONTH(@CurrentDate) IN (10, 11, 12) THEN DATEFROMPARTS(YEAR(@CurrentDate), 7, 1)
+        END,
+        @EndOfPreviousQuarter = CASE
+            WHEN MONTH(@CurrentDate) IN (1, 2, 3) THEN DATEFROMPARTS(YEAR(@CurrentDate) - 1, 12, 31)
+            WHEN MONTH(@CurrentDate) IN (4, 5, 6) THEN DATEFROMPARTS(YEAR(@CurrentDate), 3, 31)
+            WHEN MONTH(@CurrentDate) IN (7, 8, 9) THEN DATEFROMPARTS(YEAR(@CurrentDate), 6, 30)
+            WHEN MONTH(@CurrentDate) IN (10, 11, 12) THEN DATEFROMPARTS(YEAR(@CurrentDate), 9, 30)
+        END;
+        
+        -- get all employees that don't have a review in the previous quarter
+        SELECT 
+            *
+        FROM 
+            Employee
+        WHERE 
+            SupervisorEmpNumber = @SupervisorEmployeeNumber
+            AND SupervisorEmpNumber != 1
+            AND StatusId = 1
+            AND NOT EXISTS (
+                SELECT 1 
+                FROM Review 
+                WHERE EmployeeNumber = Employee.EmployeeNumber 
+                AND ReviewDate <= @EndOfPreviousQuarter
+                AND ReviewDate >= @StartOfPreviousQuarter
+            )
+        ORDER BY
+            LastName,
+            FirstName
+    END TRY
+    BEGIN CATCH
+        ;THROW
+    END CATCH
+END 
+GO
 --  Counts number of employees supervised
 CREATE OR ALTER PROC spCountEmployeesBySupervisor
     @SupervisorEmpNumber INT

@@ -35,6 +35,12 @@ class _LoginPageState extends State<LoginPage> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: <Widget>[
+                Image.asset(
+                  'assets/logo.png',
+                  height: 150,
+                  width: 150,
+                ),
+                const SizedBox(height: 10),
                 TextFormField(
                   controller: _employeeNumberController,
                   decoration: const InputDecoration(

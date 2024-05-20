@@ -25,6 +25,11 @@ namespace TotalAdmin.Service
             return review;
         }
 
+        public async Task<List<Employee>> GetEmployeesDueForReviewForSupervisorForPrevQuarter(int supervisorEmployeeNumber)
+        {
+            return await repo.GetEmployeesDueForReviewForSupervisorForPrevQuarter(supervisorEmployeeNumber);
+        }
+
         public async Task<List<Employee>> GetEmployeesDueForReviewForSupervisor(int supervisorEmployeeNumber)
         {
             return await repo.GetEmployeesDueForReviewForSupervisor(supervisorEmployeeNumber);
