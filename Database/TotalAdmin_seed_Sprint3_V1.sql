@@ -234,10 +234,15 @@ VALUES
 ('2024-04-20', 1, 17),
 ('2024-05-10', 1, 9),
 ('2024-05-13', 1, 9),
-('2024-01-13', 1, 18),
+('2024-01-13', 3, 18),
 ('2023-08-03', 1, 11),
 ('2023-12-07', 1, 11),
-('2023-05-11', 2, 11);
+('2023-05-11', 2, 11),
+('2024-03-05', 2, 17),
+('2023-01-20', 3, 12),
+('2023-02-12', 3, 12),
+('2023-05-29', 2, 12),
+('2023-03-01', 3, 12);
 
 GO
 -- item
@@ -276,10 +281,18 @@ VALUES
 ('Document Scanners', 3, 'High-speed duplex document scanners for digitizing employee records', 799.99, 'Transition to paperless employee file management', 'HR File Room', NULL, NULL, 8, 1),
 ('Payroll Software', 1, 'Integrated payroll and HR management software', 14999.99, 'Streamline payroll processes and ensure compliance', 'HR Department', NULL, NULL, 9, 1),
 ('Virtual Machines', 1, 'Annual subscription for virtual machine hosting and management', 6999.99, 'Enable isolated dev environments and rapid provisioning', 'Online Service', NULL, NULL, 7, 1),
-('Programmable Keyboards', 15, 'Customizable mechanical keyboards for developers', 149.99, 'Enhance coding experience and productivity', 'Development Lab', NULL, NULL, 10, 1),
-('Virtual Event Platform', 1, 'Subscription for hosting virtual events, webinars, and live streams', 4999.00, 'Facilitate online marketing events and customer engagement', 'Online Service', NULL, NULL, 13, 1),
+('Programmable Keyboards', 15, 'Customizable mechanical keyboards for developers', 149.99, 'Enhance coding experience and productivity', 'Development Lab', NULL, NULL, 10, 2),
+('Virtual Event Platform', 1, 'Subscription for hosting virtual events, webinars, and live streams', 4999.00, 'Facilitate online marketing events and customer engagement', 'Online Service', NULL, NULL, 13, 2),
+('API Access Subscription', 1, 'Annual subscription to a third-party API service', 1999.99, 'Integrate and utilize third-party services in development', 'Development Department', NULL, NULL, 13, 1),
 ('Graphic Design Software', 10, 'Professional-grade graphic design suite for creating marketing materials', 899.99, 'Enable in-house design capabilities and reduce outsourcing costs', 'Marketing Department', NULL, NULL, 11, 1),
 ('Social Media Management Tool', 1, 'All-in-one platform for managing social media campaigns and analytics', 3999.00, 'Streamline social media marketing efforts and track performance', 'Online Service', NULL, NULL, 12, 1),
+('SSD Upgrades', 30, '1TB SSDs for faster storage and better performance', 199.99, 'Upgrade storage for improved speed and efficiency', 'Development Department', NULL, NULL, 14, 1),
+('Training Programs', 5, 'Online training programs for new technologies and tools', 999.99, 'Enhance skills and knowledge of development team', 'Development Department', 'Not needed at this momment', NULL, 14, 3),
+('Graphic Design Tablets', 5, 'Pen tablets for graphic design and illustration', 599.99, 'Improve precision and efficiency in graphic design tasks', 'Marketing Department', NULL, NULL, 15, 2),
+('Lighting Kits', 4, 'Professional lighting kits for video shoots and photography', 399.99, 'Ensure high-quality lighting for marketing content', 'Marketing Department', NULL, NULL, 15, 2),
+('Email Marketing Software', 1, 'Subscription to an email marketing automation platform', 799.99, 'Automate and optimize email marketing campaigns', 'Marketing Department', 'Was not approved by the CEO', NULL, 16, 3),
+('SEO Tools', 1, 'Annual subscription to an SEO optimization platform', 899.99, 'Improve website visibility and search engine rankings', 'Marketing Department', NULL, NULL, 17, 2),
+('Lighting Kits', 4, 'Professional lighting kits for video shoots and photography', 399.99, 'Ensure high-quality lighting for marketing content', 'Marketing Department', NULL, NULL, 18, 2),
 ('High-end Laptops', 5, 'Powerful laptops with dedicated GPUs for graphic design and video editing', 2499.99, 'Enable efficient creation and rendering of multimedia content', 'Marketing Department', NULL, NULL, 11, 1);
 GO
 
