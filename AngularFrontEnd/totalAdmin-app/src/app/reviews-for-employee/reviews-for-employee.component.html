@@ -2,8 +2,8 @@
     <h2 class="text-center">Reviews</h2>
     <ul class="list-group">
         <li *ngFor="let review of reviews" class="list-group-item">
-            <a [routerLink]="['/review-details', review.id]"
-                [ngClass]="{'btn btn-secondary': review.hasBeenRead, 'btn btn-success': !review.hasBeenRead}"> {{
+            <a [routerLink]="['/review-details', review.id]" class="btn"
+                [ngClass]="{'btn-secondary': review.hasBeenRead, 'btn-success': !review.hasBeenRead}"> {{
                 getFormattedDate(review.reviewDate) }}</a>
         </li>
     </ul>
