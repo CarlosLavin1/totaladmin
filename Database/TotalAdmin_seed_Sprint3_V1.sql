@@ -102,7 +102,25 @@ INSERT INTO Department
 VALUES
 	('Marketing', 'Marketing department', '12/04/1999'),
 	('HR', 'Human resources', '12/04/1999'),
-	('Dev', 'Software Development', '12/04/1999')
+	('Dev', 'Software Development', '12/04/1999'),
+	('Sales', 'Sales department', '12/04/1999'),
+    ('Finance', 'Finance department', '12/04/1999'),
+    ('Customer Support', 'Customer support services', '12/04/1999'),
+    ('IT', 'Information Technology', '12/04/1999'),
+	('Operations', 'Operations department', '12/04/1999'),
+    ('R&D', 'Research and Development', '12/04/1999'),
+    ('Procurement', 'Procurement department', '12/04/1999'),
+    ('Logistics', 'Logistics department', '12/04/1999'),
+    ('Legal', 'Legal department', '12/04/1999'),
+    ('Public Relations', 'Public Relations department', '12/04/2025'),
+    ('Quality Assurance', 'Quality Assurance department', '12/04/1999'),
+    ('Strategy', 'Strategy department', '12/04/2025'),
+    ('Administration', 'Administration department', '12/04/1999'),
+    ('Training', 'Training and Development', '12/04/1999'),
+    ('Compliance', 'Compliance department', '12/04/1999'),
+    ('Facilities', 'Facilities Management', '12/04/1999'),
+    ('Security', 'Security department', '12/04/1999'),
+	('AI', 'Artificial Intelligence', '12/04/2025')
 GO
 
 -- employee
