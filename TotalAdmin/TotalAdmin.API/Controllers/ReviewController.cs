@@ -145,7 +145,7 @@ namespace TotalAdmin.API.Controllers
                     {
                         string to = e.Email ?? "supervisors@mail.com";
                         List <Employee> employees = await reviewService.GetEmployeesDueForReviewForSupervisorForPrevQuarter(e.EmployeeNumber);
-                        string employeeList = "The following employee reviews are due for the current quarter:\n\n";
+                        string employeeList = "The following employee reviews are overdue:\n\n";
                         foreach (Employee employee in employees)
                             employeeList += $"{employee.LastName}, {employee.FirstName}\n";
                         // add hr employee emails if after 30 since start of quarter
@@ -160,7 +160,7 @@ namespace TotalAdmin.API.Controllers
                         {
                             To = to,
                             From = "totalAdmin@mail.com",
-                            Subject = "Your employee reviews are due",
+                            Subject = "Your employee reviews are overdue",
                             Body = employeeList
                         };
                         if(employees.Count > 0)
