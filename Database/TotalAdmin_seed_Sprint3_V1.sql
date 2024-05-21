@@ -227,7 +227,7 @@ INSERT INTO PurchaseOrder (CreationDate, PurchaseOrderStatusId, EmployeeNumber)
 VALUES
 ('2024-04-01', 1, 5),
 ('2024-03-15', 1, 5),
-('2024-02-28', 1, 3),
+('2024-02-28', 2, 3),
 ('2024-05-2', 1, 3),
 ('2024-04-10', 1, 9),
 ('2024-03-20', 1, 2),
@@ -242,7 +242,10 @@ VALUES
 ('2023-01-20', 3, 12),
 ('2023-02-12', 3, 12),
 ('2023-05-29', 2, 12),
-('2023-03-01', 3, 12);
+('2023-03-01', 3, 12),
+('2023-04-15', 3, 13),
+('2023-06-15', 3, 13),
+('2023-10-15', 3, 13);
 
 GO
 -- item
@@ -269,7 +272,7 @@ VALUES
 ('Laptop Computers', 10, 'High-performance laptops for IT department', 1512.45, 'Upgrade outdated equipment', 'Main Office IT Room', NULL, NULL, 3, 1),
 ('Office Chairs', 25, 'Ergonomic chairs for new employees', 258.00, 'Improve workplace comfort', 'Executive Conference Room', NULL, NULL, 2, 1),
 ('Whiteboard/flipchart', 3, 'Facilitate brainstorming sessions and presentations', 58.08, 'Support collaborative work and visual communication in HR department', 'Warehouse - Office Supplies Section', NULL, NULL, 4, 1),
-('Projectors', 3, 'Multimedia projectors for conference rooms', 799.00, 'Enhance presentation capabilities', 'Training Room', NULL, NULL, 3, 1),
+('Projectors', 0, 'No longer needed.', 0, 'Enhance presentation capabilities', 'Training Room', NULL, NULL, 3, 3),
 ('Printers', 8, 'High-volume printers for office use', 504.99, 'Replace old printers', 'Print Room', NULL, NULL, 4, 1),
 ('Headsets', 20, 'Noise-cancelling headsets for customer support', 158.85, 'Improve communication quality', 'Customer Service Desk', NULL, NULL, 5, 1),
 ('External Hard Drives', 15, '4TB portable hard drives for data backup', 89.99, 'Improve data security and storage', 'Data Center', NULL, NULL, 6, 1),
@@ -293,6 +296,11 @@ VALUES
 ('Email Marketing Software', 1, 'Subscription to an email marketing automation platform', 799.99, 'Automate and optimize email marketing campaigns', 'Marketing Department', 'Was not approved by the CEO', NULL, 16, 3),
 ('SEO Tools', 1, 'Annual subscription to an SEO optimization platform', 899.99, 'Improve website visibility and search engine rankings', 'Marketing Department', NULL, NULL, 17, 2),
 ('Lighting Kits', 4, 'Professional lighting kits for video shoots and photography', 399.99, 'Ensure high-quality lighting for marketing content', 'Marketing Department', NULL, NULL, 18, 2),
+('Influencer Marketing Platform', 1, 'Annual subscription to an influencer marketing platform', 999.99, 'Connect with influencers for marketing campaigns', 'Marketing Department', NULL, NULL, 19, 2),
+('Design Templates', 100, 'Premium design templates for marketing materials', 9.99, 'Create visually appealing marketing materials quickly', 'Marketing Department', NULL, NULL, 20, 1),
+('Survey Tools Subscription', 1, 'Annual subscription to online survey tools', 499.99, 'Gather customer feedback and data', 'Marketing Department', NULL, NULL, 20, 1),
+('Branded Apparel', 200, 'Branded t-shirts and hats for promotional events', 19.99, 'Increase brand visibility and create a unified team look', 'Marketing Department', NULL, NULL, 19, 3),
+('Custom Merchandise', 500, 'Branded merchandise for promotional giveaways', 4.99, 'Increase brand visibility and engagement', 'Marketing Department', NULL, NULL, 21, 3),
 ('High-end Laptops', 5, 'Powerful laptops with dedicated GPUs for graphic design and video editing', 2499.99, 'Enable efficient creation and rendering of multimedia content', 'Marketing Department', NULL, NULL, 11, 1);
 GO
 
