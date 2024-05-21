@@ -46,12 +46,13 @@ export class SupervisorDashboardComponent implements OnInit {
         this.employeeService.getEmployeeById(Number(this.employeeNumber)).subscribe(employee => {
 
           const supervisorEmployeeNumber = employee.supervisorEmployeeNumber;
+          const loggedInSupervisorNumber = this.employeeNumber;
           const supervisorDepartmentId = employee.departmentId;
           console.log('Department is: ' + supervisorDepartmentId);
           
           
           console.log('The supervisor number is: ' + supervisorEmployeeNumber);
-          this.fetchPendingAndUnreadReviews(supervisorEmployeeNumber);
+          this.fetchPendingAndUnreadReviews(Number(loggedInSupervisorNumber));
 
           
           this.employeeService.getUnreadEmployeeReviewsByDepartment(supervisorDepartmentId).subscribe(details => {
