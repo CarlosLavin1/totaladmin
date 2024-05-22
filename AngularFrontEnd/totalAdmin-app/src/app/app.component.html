@@ -1,6 +1,6 @@
 <nav class="navbar navbar-expand-lg navbar-light bg-light">
     <div class="container-fluid">
-        <a class="navbar-brand" href="/">Home</a>
+        <a class="navbar-brand" *ngIf="userIsAuthenticated" href="/">Home</a>
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
             aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
             <span class="navbar-toggler-icon"></span>
@@ -27,24 +27,40 @@
                         routerLink="/update-personal-info/{{employeeNumber}}">Update My Info</a>
                 </li>
                 <li class="nav-item">
+                    <a *ngIf="userIsAuthenticated && role == 'Employee'" class="btn btn-info"
+                        routerLink="/reviews-for-employee">My Reviews</a>
+                </li>
+                <li class="nav-item">
                     <a *ngIf="userIsAuthenticated && role == 'Supervisor'" class="btn btn-info"
                         routerLink="/update-department">Update My Department</a>
+                </li>
+                <li class="nav-item">
+                    <a *ngIf="userIsAuthenticated && role == 'Supervisor'" class="btn btn-info"
+                        routerLink="/employees-due-for-review">Create Employee Reviews</a>
                 </li>
                 <li class="nav-item">
                     <a *ngIf="userIsAuthenticated && role == 'HR Employee'" class="btn btn-info"
                         routerLink="/list-departments">Modify Departments</a>
                 </li>
                 <li class="nav-item">
-                    <a *ngIf="userIsAuthenticated" class="btn btn-info" routerLink="/purchase-order">Create Purchase
+                    <a *ngIf="userIsAuthenticated && role != 'HR Employee'" class="btn btn-info" routerLink="/purchase-order">Create Purchase
                         Order</a>
                 </li>
                 <li class="nav-item">
-                    <a *ngIf="userIsAuthenticated" class="btn btn-info" routerLink="/purchase-order-search">Search
+                    <a *ngIf="userIsAuthenticated && role != 'HR Employee'" class="btn btn-info" routerLink="/purchase-order-search">Search
                         Purchase Orders</a>
                 </li>
                 <li class="nav-item">
                     <a *ngIf="userIsAuthenticated && role == 'Supervisor'" class="btn btn-info"
                         routerLink="/search-department-po">Search Department POs</a>
+                </li>
+                <li class="nav-item">
+                    <a *ngIf="userIsAuthenticated && role == 'Supervisor'" class="btn btn-info"
+                        routerLink="/supervisor-dashboard">Dashboard</a>
+                </li>
+                <li class="nav-item">
+                    <a *ngIf="userIsAuthenticated && role == 'Employee'" class="btn btn-info"
+                        routerLink="/employee-dashboard">Dashboard</a>
                 </li>
                 <li class="nav-item">
                     <button class="btn btn-warning" *ngIf="userIsAuthenticated" (click)="logOut()">Logout</button>

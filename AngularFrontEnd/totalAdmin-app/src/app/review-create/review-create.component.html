@@ -1,0 +1,23 @@
+<div class="container">
+    <h2>Create Review</h2>
+    <app-errors [messages]="errors"></app-errors>
+    <form [formGroup]="reviewForm" (ngSubmit)="onSubmit()">
+        <div class="mb-3">
+            <label for="ratingId" class="form-label">Rating</label>
+            <select type="number" id="ratingId" class="form-control" formControlName="ratingId">
+                <option value="1">Below Expectations</option>
+                <option value="2">Meets Expectations</option>
+                <option value="3">Exceeds Expectations</option>
+            </select>
+        </div>
+        <div class="mb-3">
+            <label for="comment" class="form-label">Comment</label>
+            <textarea id="comment" rows="15" class="form-control" formControlName="comment"></textarea>
+        </div>
+        <div class="mb-3">
+            <label for="reviewDate" class="form-label">Review Date</label>
+            <input type="date" id="reviewDate" class="form-control" formControlName="reviewDate">
+        </div>
+        <button [disabled]="!reviewForm.valid" type="submit" class="btn btn-primary">Submit</button>
+    </form>
+</div>

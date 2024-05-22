@@ -1,24 +1,33 @@
 <div class="container">
-    <form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
-        <div>
-            <label for="username">Employee Number:</label>
-            <input class="form-control" type="text" id="username" name="username" formControlName="username" required>
-            <div *ngIf="loginForm.get('username')?.invalid && loginForm.get('username')?.touched">
-                <span class="text-danger">Employee Number is required</span>
+    <div class="d-flex justify-content-center mb-5">
+        <img class="img-fluid" src="/assets/ta-logo.svg" alt="logo">
+    </div>
+    <div class="d-flex justify-content-center align-items-center p-2 alert alert-light fw-medium position-fixed top-50 start-50 translate-middle">
+        <form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
+           <h3 class="fw-bolder pb-2 text-center text-dark">TotalAdmin</h3>
+           
+           <div class="row">
+            <div>
+                <label class="text-dark" for="username">Employee Number:</label>
+                <input class="form-control" type="text" id="username" name="username" formControlName="username" required>
+                <div *ngIf="loginForm.get('username')?.invalid && loginForm.get('username')?.touched">
+                    <span class="text-danger">Employee Number is required</span>
+                </div>
+            </div>
+            <div>
+                <label class="text-dark" for="password">Password:</label>
+                <input class="form-control" type="password" id="password" name="password" formControlName="password" required>
+                <div *ngIf="loginForm.get('password')?.invalid && loginForm.get('password')?.touched">
+                    <span class="text-danger">Password is required</span>
+                </div>
+            </div>
+            <div class="d-flex justify-content-center">
+                <div class="col-6 mt-3">
+                    <button class="btn btn-dark mt-3 mb-3" type="submit" [disabled]="!loginForm.valid">Login</button>
+                </div>
             </div>
         </div>
-        <div>
-            <label for="password">Password:</label>
-            <input class="form-control" type="text" id="password" name="password" formControlName="password" required>
-            <div *ngIf="loginForm.get('password')?.invalid && loginForm.get('password')?.touched">
-                <span class="text-danger">Password is required</span>
-            </div>
-        </div>
-        <div class="d-flex justify-content-center">
-            <div class="col-6 mt-3">
-                <button class="btn btn-primary mt-3 mb-3" type="submit" [disabled]="!loginForm.valid">Login</button>
-            </div>
-        </div>
-    </form>
-    <div><app-errors [messages]="errors"></app-errors></div>
+            <div class=""><app-errors [messages]="errors"></app-errors></div>
+        </form>
+    </div>
 </div>

@@ -26,6 +26,8 @@ export class EmployeeUpdateComponent {
   loadingData: boolean = true;
   oldJobTitle: string = '';
   oldJobStartDate: string = '';
+  oldSeniorityDate: string;
+  oldStatusId: number;
 
   employeeForm: FormGroup; 
 
@@ -101,17 +103,42 @@ export class EmployeeUpdateComponent {
       }
     });
 
+    // this.employeeForm.get('statusId')?.valueChanges.subscribe(() => {
+    //   if(this.oldStatusId == 2 && this.employeeForm.get('statusId')?.value == 1){
+    //     // employee has been re-instated, reset seniority date and job start date
+    //     const today = formatDate(new Date(), 'yyyy-MM-dd', 'en-US');
+    //     this.employeeForm.get('seniorityDate')?.setValue(today);
+    //     this.employeeForm.get('jobStartDate')?.setValue(today);
+    //   }
+    // });
+
     this.onStatusChange();
   }
 
   private onStatusChange() {
     const sub = this.employeeForm.get('statusId')?.valueChanges.subscribe(status => {
+      if(this.oldStatusId == 3 && status == 1){
+        // employee has been re-instated, reset seniority date and job start date
+        const today = formatDate(new Date(), 'yyyy-MM-dd', 'en-US');
+        this.employeeForm.get('seniorityDate')?.setValue(today);
+        this.employeeForm.get('jobStartDate')?.setValue(today);
+        return;
+      }
+      if(this.oldStatusId == 3 && status == 3){
+        // employee has been re-instated, reset seniority date and job start date
+        this.employeeForm.get('seniorityDate')?.setValue(this.oldSeniorityDate);
+        this.employeeForm.get('jobStartDate')?.setValue(this.oldJobStartDate);
+        return;
+      }
+
       if (status == '2') { // Retired
         this.employeeForm.get('retiredDate')?.setValidators([Validators.required]);
         this.employeeForm.get('terminatedDate')?.clearValidators();
       } else if (status == '3') { // Terminated
         this.employeeForm.get('terminatedDate')?.setValidators([Validators.required]);
         this.employeeForm.get('retiredDate')?.clearValidators();
+        const today = formatDate(new Date(), 'yyyy-MM-dd', 'en-US');
+        this.employeeForm.get('terminatedDate')?.setValue(today);
       } else {
         this.employeeForm.get('retiredDate')?.clearValidators();
         this.employeeForm.get('terminatedDate')?.clearValidators();
@@ -165,6 +192,8 @@ export class EmployeeUpdateComponent {
       // set old job title and job start date
       this.oldJobStartDate = formattedJobStartDate;
       this.oldJobTitle = e.jobTitle;
+      this.oldStatusId = e.statusId;
+      this.oldSeniorityDate = formattedSeniorityDate;
 
       this.employeeForm.patchValue(e);
     });

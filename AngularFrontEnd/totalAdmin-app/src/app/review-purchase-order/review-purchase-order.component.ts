@@ -8,6 +8,9 @@ import { MatDialogModule } from '@angular/material/dialog';
 import { AuthenticationService } from '../auth/services/authentication.service';
 import { Subscription } from 'rxjs';
 import { AuthStatus } from '../models/auth-status';
+import { Router } from '@angular/router';
+import { ItemService } from '../services/item.service';
+import { SharedDataService } from '../services/shared-data.service';
 
 @Component({
   selector: 'app-review-purchase-order',
@@ -20,12 +23,13 @@ export class ReviewPurchaseOrderComponent implements OnInit {
   errors: string[] = [];
   showCardBody: { [key: string]: boolean } = {};
   arrowState: { [key: string]: string } = {};
+  noPOFound: boolean = false;
 
   role: string;
-  public userRole = localStorage.getItem('userRole');
-  public employeeNumber = localStorage.getItem('employeeNumber');
+  userRole = localStorage.getItem('userRole');
+  employeeNumber = localStorage.getItem('employeeNumber');
   
-  private formToShow: boolean;
+  formToShow: boolean;
   authSubscription: Subscription;
   
   
@@ -34,7 +38,10 @@ export class ReviewPurchaseOrderComponent implements OnInit {
     private formBuilder: FormBuilder,
     private purchaseOrderService: PurchaseOrderService,
     private snackbarService: SnackbarService,
-    private authService: AuthenticationService
+    private authService: AuthenticationService,
+    private router: Router,
+    private itemService: ItemService,
+    private sharedDataService: SharedDataService
   ) {
     this.employeeForm = this.formBuilder.group({
       EmployeeNumber: ['', [Validators.required, Validators.pattern(/^\d{8}$/)]]
@@ -92,20 +99,19 @@ export class ReviewPurchaseOrderComponent implements OnInit {
 
           this.purchaseOrders = purchaseOrders;
 
-          console.log('The purchase orders:');
+          console.log('The purchase orders: ');
 
           this.purchaseOrders.forEach((purchaseOrder) => {
             console.log(purchaseOrder);
           });
         },
         error: (error) => {
-          console.error('Error retrieving purchase orders:', error);
           this.purchaseOrders = [];
           this.errors = [];
 
 
           if (error.status === 404) {
-            this.showErrorMessage('No purchase orders found for the provided employee number.');
+            this.noPOFound = true;
           }
           else if (error.error.errors) {
             validationErrors = error.error.errors;
@@ -123,6 +129,7 @@ export class ReviewPurchaseOrderComponent implements OnInit {
   
   showErrorMessage(message: string) {
     this.errors.push(message);
+    this.noPOFound = true;
   }
 
   toggleCardBody(poNumber: string, cardElement: HTMLElement) {
@@ -135,6 +142,12 @@ export class ReviewPurchaseOrderComponent implements OnInit {
         cardElement.scrollIntoView({ behavior: 'smooth' });
       }, 80); 
     }
+  }
+
+  navigateToAddItem(poNumber: number) {
+    this.sharedDataService.setPONumber(poNumber.toString(), false);
+
+    this.router.navigate(['/items', { poNumber: poNumber }]);
   }
 }
 

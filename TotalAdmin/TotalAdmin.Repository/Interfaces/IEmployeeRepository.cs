@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using TotalAdmin.Model;
+using TotalAdmin.Model.DTO;
 
 namespace TotalAdmin.Repository
 {
@@ -23,5 +24,7 @@ namespace TotalAdmin.Repository
         Task<List<EmployeeDetailDTO>> SearchEmployeeDirectory(int employeeNumber, string? lastName);
         Task<EmployeeDetailDTO?> GetEmployeeDetailById(int? id);
         Employee UpdateEmployee(Employee employee);
+        Task<int> CountEmployeesBySupervisorAsync(int supervisorEmpNumber);
+        Task<List<EmployeeDetailsWithUnreadReviewsDTO>> GetUnreadEmployeeReviewsByDepartment(int id);
     }
 }

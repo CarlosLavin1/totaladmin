@@ -25,13 +25,13 @@
                         {{arrowState[purchaseOrder.formattedPoNumber || ''] || '▶ '}} Purchase Order Number:
                         #{{purchaseOrder.formattedPoNumber}}
                         <small class="text-muted">Creation Date: {{purchaseOrder.creationDate |
-                            date:'shortDate'}}</small>
+                            date:'shortDate'}}</small> /
+                        <p class="text-end d-inline justify-content-end text-primary">
+                            {{purchaseOrder.purchaseOrderStatus}}...</p>
                     </h5>
                 </div>
 
                 <div class="card-body" *ngIf="showCardBody[purchaseOrder.formattedPoNumber || '']">
-
-                    <p><strong>Status:</strong> {{purchaseOrder.purchaseOrderStatus}}</p>
 
                     <div class="card-footer bg-light">
                         <p><strong>Subtotal:</strong> {{purchaseOrder.subtotal | currency}}</p>
@@ -39,42 +39,83 @@
                         <p><strong>Total:</strong> {{purchaseOrder.grandTotal | currency}}</p>
                     </div>
 
-                    <h6>Items:</h6>
+                    <h6>{{ purchaseOrder.items.length + (purchaseOrder.items.length > 1 ? ' Items:' : ' Item:') }}</h6>
 
-                    <table class="table">
-                        <thead>
-                            <tr>
-                                <th>QTY</th>
-                                <th>Description</th>
-                                <th>Price</th>
-                                <th>Justification</th>
-                                <th>Item Status</th>
-                                <th>Subtotal</th>
-                                <th>Tax</th>
-                                <th>Grand Total</th>
-                                <th>Manage</th>
-                                <th></th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr *ngFor="let item of purchaseOrder.items">
-                                <td>{{ item.quantity }}</td>
-                                <td>{{ item.description }}</td>
-                                <td>{{ item.price | currency }}</td>
-                                <td>{{ item.justification }}</td>
-                                <td>{{ item.itemStatus }}</td>
-                                <td>{{ item.subtotal | currency }}</td>
-                                <td>{{ item.tax | currency }}</td>
-                                <td>{{ item.grandTotal | currency }}</td>
-                                <th><button class="btn btn-light" title="Aprrove"
-                                        (click)="approveItem(item.itemId, purchaseOrder.poNumber)"
-                                        type="button">✔️</button></th>
-                                <th><button class="btn btn-light" title="Deny"
-                                        (click)="denyItem(item.itemId, purchaseOrder.poNumber)" type="button">❌</button>
-                                </th>
-                            </tr>
-                        </tbody>
-                    </table>
+                    <div class="table-responsive">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>QTY</th>
+                                    <th>Description</th>
+                                    <th>Price</th>
+                                    <th>Justification</th>
+                                    <th>Location</th>
+                                    <th>Item Status</th>
+                                    <th>Subtotal</th>
+                                    <th>Tax</th>
+                                    <th>Grand Total</th>
+                                    <th>Manage</th>
+                                    <th></th>
+                                    <th></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr *ngFor="let item of purchaseOrder.items">
+                                    <td>
+                                        <span *ngIf="!item.isEditing || item.editingColumn !== 'quantity'">{{ item.quantity }}</span>
+                                        <input *ngIf="item.isEditing && item.editingColumn === 'quantity'" [(ngModel)]="item.quantity" (blur)="updateItem(item); item.isEditing = false; item.editingColumn = null;" />
+                                        <button [disabled]="purchaseOrder.purchaseOrderStatus === 'Closed' || item.itemStatus != 'Pending'" class="btn btn-light btn-sm" (click)="toggleEditMode(item, 'quantity')">
+                                        <i title="Edit" *ngIf="!item.isEditing || item.editingColumn !== 'quantity'" class="bi bi-pencil"></i>
+                                        <i title="Save" *ngIf="item.isEditing && item.editingColumn === 'quantity'" class="bi bi-check"></i>
+                                    </button>
+                                    </td>
+                                    <td>{{ item.description }}</td>
+                                    <td>
+                                        <span *ngIf="!item.isEditing || item.editingColumn !== 'price'">{{ item.price | currency }}</span>
+                                        <input *ngIf="item.isEditing && item.editingColumn === 'price'" [(ngModel)]="item.price" (blur)="updateItem(item); item.isEditing = false; item.editingColumn = null;" />
+                                        <button [disabled]="purchaseOrder.purchaseOrderStatus === 'Closed' || item.itemStatus != 'Pending'" class="btn btn-light btn-sm" (click)="toggleEditMode(item, 'price')">
+                                        <i title="Edit" *ngIf="!item.isEditing || item.editingColumn !== 'price'" class="bi bi-pencil"></i>
+                                        <i title="Save" *ngIf="item.isEditing && item.editingColumn === 'price'" class="bi bi-check"></i>
+                                        </button>
+                                    </td>
+                                    <td>{{ item.justification }}</td>
+                                    <td>
+                                        <span *ngIf="!item.isEditing || item.editingColumn !== 'location'">{{ item.location }}</span>
+                                        <input *ngIf="item.isEditing && item.editingColumn === 'location'" [(ngModel)]="item.location" (blur)="updateItem(item); item.isEditing = false; item.editingColumn = null;" />
+                                        <button [disabled]="purchaseOrder.purchaseOrderStatus === 'Closed' || item.itemStatus != 'Pending'" class="btn btn-light btn-sm" (click)="toggleEditMode(item, 'location')">
+                                        <i title="Edit" *ngIf="!item.isEditing || item.editingColumn !== 'location'" class="bi bi-pencil"></i>
+                                        <i title="Save" *ngIf="item.isEditing && item.editingColumn === 'location'" class="bi bi-check"></i>
+                                        </button>
+                                    </td>
+                                    <td>{{ item.itemStatus }}</td>
+                                    <td>{{ item.subtotal | currency }}</td>
+                                    <td>{{ item.tax | currency }}</td>
+                                    <td>{{ item.grandTotal | currency }}</td>
+                                    <th><button class="btn btn-light" title="Aprrove"
+                                            (click)="approveItem(item.itemId, purchaseOrder.poNumber)" type="button"
+                                            [disabled]="purchaseOrder.purchaseOrderStatus === 'Closed' ||
+                                            allItemsProcessed(purchaseOrder) || item.itemStatus != 'Pending'">✔️</button></th>
+                                    <th><button class="btn btn-light" title="Deny"
+                                            (click)="denyItem(item.itemId, purchaseOrder.poNumber)" type="button"
+                                            [disabled]="purchaseOrder.purchaseOrderStatus === 'Closed' ||
+                                            allItemsProcessed(purchaseOrder) || item.itemStatus != 'Pending'">❌</button>
+                                    </th>
+                                    <th><button class="btn btn-light" title="Set No Longer Required"
+                                            (click)="markItemAsNoLongerRequired(item.itemId)" type="button"
+                                            *ngIf="showBtn[purchaseOrder.poNumber.toString() + '-' + item.itemId]">🚫</button>
+                                    </th>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <button class="btn btn-danger" type="button" *ngIf="showCloseButton[purchaseOrder.poNumber || '']"
+                        (click)="closePO(purchaseOrder.poNumber)"
+                        [disabled]="purchaseOrder.purchaseOrderStatus === 'Closed'">Close PO
+                    </button>
+                    <button class="btn btn-success" type="button" title="Add More Items to PO" *ngIf="purchaseOrder.purchaseOrderStatus != 'Closed'"
+                        (click)="navigateToAddItem(purchaseOrder.poNumber)"
+                        [disabled]="purchaseOrder.purchaseOrderStatus === 'Closed'"><span class="bi bi-plus"> Add more</span>
+                    </button>
                 </div>
             </div>
         </div>

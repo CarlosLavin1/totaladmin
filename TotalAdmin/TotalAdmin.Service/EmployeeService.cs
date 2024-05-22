@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using TotalAdmin.Model;
+using TotalAdmin.Model.DTO;
 using TotalAdmin.Repository;
 using TotalAdmin.Types;
 
@@ -84,6 +85,15 @@ namespace TotalAdmin.Service
             return await repo.SearchEmployeeDirectory(employeeNumber, lastName);
         }
 
+        public async Task<int> CountEmployeesBySupervisorAsync(int supervisorEmpNumber)
+        {
+            return await repo.CountEmployeesBySupervisorAsync(supervisorEmpNumber);
+        }
+        public async Task<List<EmployeeDetailsWithUnreadReviewsDTO>> GetUnreadEmployeeReviewsByDepartment(int id)
+        {
+            return await repo.GetUnreadEmployeeReviewsByDepartment(id);
+        }
+
         private bool ValidateUpdateEmployee(Employee employee)
         {
             bool containsSpecialChar = employee.HashedPassword.Any(ch => !char.IsLetterOrDigit(ch));
@@ -109,7 +119,7 @@ namespace TotalAdmin.Service
                 employee.AddError(new("Employee must be at least 16 years of age", ErrorType.Model));
 
             // validate job start date is after seniority date
-            if (employee.JobStartDate != null && employee.SeniorityDate != null && employee.JobStartDate <= employee.SeniorityDate)
+            if (employee.JobStartDate != null && employee.SeniorityDate != null && employee.JobStartDate < employee.SeniorityDate)
                 employee.AddError(new("Job start date cannot be before seniority date", ErrorType.Business));
 
             // validate supervisor does not already have 10 employees

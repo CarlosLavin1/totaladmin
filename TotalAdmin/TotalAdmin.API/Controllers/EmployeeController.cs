@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Data.SqlClient;
 using TotalAdmin.Model;
+using TotalAdmin.Model.DTO;
 using TotalAdmin.Service;
 using TotalAdmin.Types;
 using static System.Runtime.InteropServices.JavaScript.JSType;
@@ -203,6 +204,38 @@ namespace TotalAdmin.API.Controllers
                 if (employee == null)
                     return NotFound();
                 return employee;
+            }
+            catch (Exception)
+            {
+                return Problem(title: "An internal error has occurred. Please contact the system administrator.");
+            }
+        }
+
+        [Authorize(Roles = "Supervisor, HR Employee")]
+        [HttpGet("count/{supervisorEmpNumber}")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        public async Task<ActionResult<int>> CountEmployeesBySupervisorAsync(int supervisorEmpNumber)
+        {
+            try
+            {
+                int count = await employeeService.CountEmployeesBySupervisorAsync(supervisorEmpNumber);
+                return Ok(count);
+            }
+            catch (Exception)
+            {
+                return Problem(title: "An internal error has occurred. Please contact the system administrator.");
+            }
+        }
+
+        [Authorize(Roles = "Supervisor, HR Employee")]
+        [HttpGet("unread-reviews-by-department/{departmentId}")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        public async Task<ActionResult<List<EmployeeDetailsWithUnreadReviewsDTO>>> GetUnreadEmployeeReviewsByDepartmentAsync(int departmentId)
+        {
+            try
+            {
+                List<EmployeeDetailsWithUnreadReviewsDTO> details = await employeeService.GetUnreadEmployeeReviewsByDepartment(departmentId);
+                return Ok(details);
             }
             catch (Exception)
             {

@@ -2,10 +2,12 @@
 using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using TotalAdmin.Model;
+using TotalAdmin.Model.DTO;
 using TotalAdmin.Types;
 
 namespace TotalAdmin.Repository
@@ -270,6 +272,50 @@ namespace TotalAdmin.Repository
             db.ExecuteNonQuery("spUpdateEmployee", parms);
             return employee;
         }
+
+        // Counts number of employees supervised based on the supervisorEmpNumber
+        public async Task<int> CountEmployeesBySupervisorAsync(int supervisorEmpNumber)
+        {
+            List<Parm> parms = new()
+            {
+                new("@SupervisorEmpNumber", SqlDbType.Int, supervisorEmpNumber)
+            };
+
+            object? count = await db.ExecuteScalarAsync("spCountEmployeesBySupervisor", parms);
+            if (count == null)
+                return 0;
+
+            return (int)count;
+        }
+
+        // Counts number of unread employees review based on the department
+        public async Task<List<EmployeeDetailsWithUnreadReviewsDTO>> GetUnreadEmployeeReviewsByDepartment(int id)
+        {
+            try
+            {
+                List<Parm> parms = new()
+                {
+                    new("@DepartmentId", SqlDbType.Int, id)
+                };
+
+                DataTable dt = await db.ExecuteAsync("spGetUnreadEmployeeReviewsByDepartment", parms);
+
+                List<EmployeeDetailsWithUnreadReviewsDTO> result = dt.AsEnumerable()
+                    .Select(row => new EmployeeDetailsWithUnreadReviewsDTO
+                    {
+                        UnreadReviewsCount = Convert.ToInt32(row["UnreadReviews"]),
+                    })
+                    .ToList();
+
+                return result;
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine(ex);
+                throw;
+            }
+        }
+
 
         //private methods
         // add all employee props

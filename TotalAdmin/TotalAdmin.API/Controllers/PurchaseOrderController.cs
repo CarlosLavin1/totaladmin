@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Data.SqlClient;
 using TotalAdmin.Model.DTO;
 using TotalAdmin.Model.Entities;
 using TotalAdmin.Service;
@@ -213,6 +214,83 @@ namespace TotalAdmin.API.Controllers
             }
         }
 
+        // PUT: api/purchaseOrder/update/{id}
+        [Authorize]
+        [HttpPut("update/{id}")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        public async Task<ActionResult<PurchaseOrder>> Update(int id, [FromBody] PurchaseOrder po)
+        {
+            try
+            {
+                if (id <= 0)
+                    return BadRequest("Invalid ID. ID must be greater than 0.");
+
+                if (po == null)
+                    return BadRequest("Purchase order cannot be null.");
+
+                // Ensure the ID in the URL matches the ID in the body
+                if (id != po.PoNumber)
+                    return BadRequest("Mismatch between URL and body data.");
+
+                po = await service.UpdatePurchaseOrder(id, po);
+
+                if (po.Errors.Count != 0)
+                    return BadRequest(po);
+
+                string formattedNumber = po.PoNumber.ToString("D2");
+
+                // Create the formatted PO number
+                string formattedPoNumber = "00001" + formattedNumber;
+
+                var response = new
+                {
+                    PurchaseOrder = po,
+                    FormattedPoNumber = formattedPoNumber
+                };
+
+                return Ok(response);
+            }
+            catch (SqlException e)
+            {
+                return e.Number == 50100 ? BadRequest(e.Message) : BadRequest();
+            }
+            catch (Exception)
+            {
+                return Problem(title: "An internal error has occurred. Please contact the system administrator");
+            }
+        }
+
+
+        // GET: api/PurchaseOrder/{poNumber}
+        [Authorize]
+        [HttpGet("get-existing-po/{poNumber}")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        public async Task<ActionResult<PurchaseOrder>> GetExistingPurchaseOrder(int poNumber)
+        {
+            try
+            {
+                if (poNumber <= 0)
+                    return BadRequest("Invalid PO number. PO number must be greater than 0.");
+
+                PurchaseOrder po = await service.GetExistingPurchaseOrder(poNumber);
+
+                if (po == null)
+                    return NotFound($"Purchase order with number {poNumber} not found.");
+
+
+                return Ok(po);
+            }
+            catch (Exception)
+            {
+                return Problem(title: "An internal error has occurred. Please contact the system administrator");
+            }
+        }
+
+
+
+
         [Authorize]
         [HttpPost("AddItems")]
         [ProducesResponseType(StatusCodes.Status200OK)]
@@ -354,9 +432,9 @@ namespace TotalAdmin.API.Controllers
 
                 return Ok(po);
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                return Problem(title: "An internal error has occurred. Please contact the system administrator");
+                return Problem(ex.Message);
             }
         }
 
@@ -383,5 +461,47 @@ namespace TotalAdmin.API.Controllers
                 return Problem(title: "An internal error has occurred. Please contact the system administrator");
             }
         }
+
+        // GET: api/PurchaseOrder/Details/{poNumber}
+        [Authorize]
+        [HttpGet("Details/{poNumber}")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        public async Task<ActionResult<PurchaseOrder>> GetPurchaseOrderDetails(int poNumber)
+        {
+            try
+            {
+                if (poNumber <= 0)
+                {
+                    return BadRequest("Invalid PO number. PO number must be greater than 0.");
+                }
+
+                PurchaseOrder po = await service.GetPurchaseOrderDetails(poNumber);
+
+                
+                if (po == null)
+                {
+                    return NotFound($"Purchase order with number {poNumber} not found.");
+                }
+
+                // Format the PO number
+                string formattedNumber = po.PoNumber.ToString("D2");
+                string formattedPoNumber = "00001" + formattedNumber;
+
+                // Create a new object to include the formatted PO number
+                var response = new
+                {
+                    PurchaseOrder = po,
+                    FormattedPoNumber = formattedPoNumber
+                };
+
+                return Ok(response);
+            }
+            catch (Exception)
+            {
+                return Problem(title: "An internal error has occurred. Please contact the system administrator");
+            }
+        }
+
     }
 }

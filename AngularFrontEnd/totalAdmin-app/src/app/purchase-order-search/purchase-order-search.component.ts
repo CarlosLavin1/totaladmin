@@ -8,7 +8,7 @@ import { POSearchFiltersDTO } from '../models/posearch-filters-dto';
 import { PODisplayDTO } from '../models/podisplay-dto';
 import { SharedDataService } from '../services/shared-data.service';
 import { AuthenticationService } from '../auth/services/authentication.service';
-import { ItemDialogFormComponent } from '../item-dialog-form/item-dialog-form.component';
+import { ItemDialogFormComponent } from '../create-item/item-dialog-form.component';
 
 
 @Component({
@@ -109,7 +109,7 @@ export class PurchaseOrderSearchComponent implements OnInit, OnDestroy, AfterVie
           console.log('the search results:');
           this.searchResults.forEach((result) => {
             if (results) {
-              console.log(results.toString);
+              console.log(results);
             }
           });
         },
@@ -142,10 +142,15 @@ export class PurchaseOrderSearchComponent implements OnInit, OnDestroy, AfterVie
     this.router.navigate(['/items', { poNumber: poNumber }]);
   }
   
+  navigateToUpdatePo(poNumber: number) {
+    this.sharedDataService.setPONumber(poNumber.toString(), false);
+    this.router.navigate(['/update-purchase-order', { poNumber: poNumber }]);
+  }
+  
 
   checkRole(): boolean {
     const userRole = this.authService.getRole();
-    return userRole === 'Supervisor' || userRole === 'HR Employee' || userRole === 'HR Supervisor';
+    return userRole === 'Supervisor' || userRole === 'HR Supervisor';
   }
   
   showErrorMessage(message: string) {

@@ -61,7 +61,7 @@ export class HomeComponent implements OnInit, OnDestroy, OnChanges {
 
   checkShowReviewDepartmentComponent() {
     const isAuthenticated = this.authService.getIsAuthenticated();
-    const isSupervisor = this.userRole === 'Supervisor';
+    const isSupervisor = this.userRole === 'Supervisor' || this.userRole === 'HR Supervisor';
 
     this.showReviewDepartmentComponent = isAuthenticated && isSupervisor;
   }

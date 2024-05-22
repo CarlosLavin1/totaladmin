@@ -37,12 +37,14 @@ namespace TotalAdmin.Model.Entities
         [MinLength(5, ErrorMessage = "Item purchase location must be at least 5 characters.")]
         public string Location { get; set; }
 
-        public string RejectedReason { get; set; }
+        public string? RejectedReason { get; set; }
+        public string? ModifiedReason { get; set; }
         public string ItemStatus { get; set; }
 
         [Required(ErrorMessage = "Status is required.")]
         public int StatusId { get; set; }
-        public int RowVersion { get; set; }
+        public byte[]? RowVersion { get; set; }
+        public int poNumber { get; set; }
 
         // Derived properties
         public decimal Subtotal => Price * Quantity;

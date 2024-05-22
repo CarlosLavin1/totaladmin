@@ -39,6 +39,28 @@ namespace TotalAdmin.Service
             return purchaseOrder;
         }
 
+        public async Task<PurchaseOrder> GetExistingPurchaseOrder(int poNumber)
+        {
+            return await repo.GetExistingPurchaseOrder(poNumber);
+        }
+        public async Task<PurchaseOrder> UpdatePurchaseOrder(int id, PurchaseOrder purchaseOrder)
+        {
+            if (!ValidatePurchaseOrder(purchaseOrder))
+            {
+                // Add the purchase order using the repo method
+                var addedPurchaseOrder = await repo.UpdatePurchaseOrder(id, purchaseOrder);
+
+                if (addedPurchaseOrder.HasMergeOccurred)
+                    // Update the quantities in the addedPurchaseOrder
+                    addedPurchaseOrder = await UpdateQuantitiesInPurchaseOrder(addedPurchaseOrder);
+
+                return addedPurchaseOrder;
+            }
+
+            return purchaseOrder;
+        }
+
+
         /// <summary>
         /// Adds item to an existing purchase order.
         /// </summary>
@@ -104,6 +126,11 @@ namespace TotalAdmin.Service
         public async Task<List<PurchaseOrder>> SearchPurchaseOrdersForSupervisor(POSupervisorFiltersDTO filters)
         {
             return await repo.SearchPOForSupervisor(filters);
+        }
+
+        public async Task<PurchaseOrder> GetPurchaseOrderDetails(int poNumber)
+        {
+            return await repo.GetPurchaseOrderDetails(poNumber);
         }
 
         private bool ValidatePurchaseOrder(PurchaseOrder po)

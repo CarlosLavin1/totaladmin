@@ -53,6 +53,11 @@ namespace TotalAdmin.Service
             return department;
         }
 
+        public bool DeleteDepartment(int departmentId)
+        {
+            return repo.DeleteDepartment(departmentId);
+        }
+
         public async Task<Department?> GetDepartmentForEmployeeAsync(int employeeNumber)
         {
             return await repo.GetDepartmentForEmployeeAsync(employeeNumber);

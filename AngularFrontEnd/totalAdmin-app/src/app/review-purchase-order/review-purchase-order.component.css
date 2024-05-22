@@ -1,3 +1,5 @@
+@import url("https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css");
+
 .mice-p{
     cursor: pointer;
     transition: padding 0.3s ease;
@@ -14,5 +16,19 @@
 .po-text-link:hover {
     color: #ff4805;
     cursor: pointer;
+}
+
+
+.noPo {
+    font-size: 1.14rem;
+    opacity: 0.1; 
+    animation: fadeIn 1s ease-in-out forwards;
+}
+
+@keyframes fadeIn {
+    to {
+        font-size: 1.15rem;
+        opacity: 1;  
+    }
 }
 

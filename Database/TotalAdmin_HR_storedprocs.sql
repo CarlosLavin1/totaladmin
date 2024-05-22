@@ -447,6 +447,26 @@ BEGIN
 END
 GO
 
+-- delete department
+CREATE OR ALTER PROC spDeleteDepartment
+	@DepartmentId INT
+AS
+BEGIN
+	BEGIN TRY
+		IF (SELECT COUNT(EmployeeNumber) FROM Employee WHERE DepartmentId = @DepartmentId) > 0
+			BEGIN
+				;THROW 50100, 'This department has associated employees, please remove all employees from department before deleting department', 1;
+			END
+
+		DELETE FROM Department
+		WHERE DepartmentId = @DepartmentId;
+	END TRY
+	BEGIN CATCH
+		;THROW
+	END CATCH
+END
+GO
+
 -- select * from Role
 -- login
 CREATE OR ALTER PROC spLogin
@@ -472,5 +492,446 @@ BEGIN
 	BEGIN CATCH
 		;THROW
 	END CATCH
+END
+GO
+
+-- get reviews for employee
+CREATE OR ALTER PROC spGetReviewsForEmployee
+	@EmployeeNumber INT
+AS
+BEGIN
+	BEGIN TRY	
+		SELECT *
+		FROM Review
+		WHERE EmployeeNumber = @EmployeeNumber
+		ORDER BY ReviewDate DESC
+	END TRY
+	BEGIN CATCH
+		;THROW
+	END CATCH
+END
+GO
+
+--get review reminder date
+CREATE OR ALTER PROC spGetMostRecentReviewReminderDate
+AS
+BEGIN
+	BEGIN TRY	
+		SELECT MAX(DaySent) AS MostRecentDate
+		FROM ReviewReminder
+	END TRY
+	BEGIN CATCH
+		;THROW
+	END CATCH
+END
+GO
+
+-- add review
+CREATE OR ALTER PROC spInsertReview
+	@ReviewId INT OUTPUT,
+	@RatingId INT,
+	@Comment NVARCHAR(MAX),
+	@EmployeeNumber INT,
+	@SupervisorEmployeeNumber INT,
+	@ReviewDate DATETIME2(7),
+	@HasBeenRead BIT
+AS
+BEGIN
+	BEGIN TRY	
+		INSERT INTO Review (
+			ReviewRatingId,
+			Comment,
+			EmployeeNumber,
+			SupervisorEmployeeNumber,
+			ReviewDate,
+			IsRead
+		)
+		VALUES (
+			@RatingId,
+			@Comment,
+			@EmployeeNumber,
+			@SupervisorEmployeeNumber,
+			@ReviewDate,
+			@HasBeenRead
+		)
+		-- Retrieve the last inserted ReviewId
+		SET @ReviewId = SCOPE_IDENTITY()
+	END TRY
+	BEGIN CATCH
+		;THROW
+	END CATCH
+END 
+GO
+
+-- get employees due for review for a supervisor
+CREATE OR ALTER PROC spGetEmployeesDueForReviewForSupervisor
+    @SupervisorEmployeeNumber INT
+AS
+BEGIN
+    BEGIN TRY
+        DECLARE @CurrentDate DATE = GETDATE();
+        DECLARE @StartOfCurrentQuarter DATE;
+        DECLARE @EndOfCurrentQuarter DATE;
+
+        -- Determine the start and end dates of the current quarter
+        SELECT 
+        @StartOfCurrentQuarter = CASE
+            WHEN MONTH(@CurrentDate) IN (1, 2, 3) THEN DATEFROMPARTS(YEAR(@CurrentDate), 1, 1)
+            WHEN MONTH(@CurrentDate) IN (4, 5, 6) THEN DATEFROMPARTS(YEAR(@CurrentDate), 4, 1)
+            WHEN MONTH(@CurrentDate) IN (7, 8, 9) THEN DATEFROMPARTS(YEAR(@CurrentDate), 7, 1)
+            WHEN MONTH(@CurrentDate) IN (10, 11, 12) THEN DATEFROMPARTS(YEAR(@CurrentDate), 10, 1)
+        END,
+        @EndOfCurrentQuarter = CASE
+            WHEN MONTH(@CurrentDate) IN (1, 2, 3) THEN DATEFROMPARTS(YEAR(@CurrentDate), 3, 31)
+            WHEN MONTH(@CurrentDate) IN (4, 5, 6) THEN DATEFROMPARTS(YEAR(@CurrentDate), 6, 30)
+            WHEN MONTH(@CurrentDate) IN (7, 8, 9) THEN DATEFROMPARTS(YEAR(@CurrentDate), 9, 30)
+            WHEN MONTH(@CurrentDate) IN (10, 11, 12) THEN DATEFROMPARTS(YEAR(@CurrentDate), 12, 31)
+        END;
+
+        -- Get employees missing reviews in any quarter from their CompanyStartDate to the current quarter
+        SELECT 
+            E.EmployeeNumber,
+            E.LastName,
+            E.FirstName,
+            E.CompanyStartDate,
+            MISSING_QUARTER.Year,
+            MISSING_QUARTER.Quarter
+        FROM 
+            Employee E
+        CROSS APPLY (
+            SELECT 
+                YEAR(Q.QuarterStart) AS Year, 
+                DATEPART(QUARTER, Q.QuarterStart) AS Quarter
+            FROM (
+                SELECT DISTINCT DATEADD(QUARTER, NUMBER, DATEFROMPARTS(YEAR(E.CompanyStartDate), 1 + 3 * (DATEPART(QUARTER, E.CompanyStartDate) - 1), 1)) AS QuarterStart
+                FROM master..spt_values
+                WHERE TYPE = 'P'
+                AND DATEADD(QUARTER, NUMBER, DATEFROMPARTS(YEAR(E.CompanyStartDate), 1 + 3 * (DATEPART(QUARTER, E.CompanyStartDate) - 1), 1)) <= @EndOfCurrentQuarter
+            ) Q
+            WHERE NOT EXISTS (
+                SELECT 1
+                FROM Review R
+                WHERE R.EmployeeNumber = E.EmployeeNumber
+                AND R.ReviewDate >= Q.QuarterStart
+                AND R.ReviewDate < DATEADD(DAY, 1, DATEADD(MONTH, 3, Q.QuarterStart))
+            )
+        ) AS MISSING_QUARTER
+        WHERE 
+            E.SupervisorEmpNumber = @SupervisorEmployeeNumber
+            AND E.SupervisorEmpNumber != 1
+            AND E.StatusId = 1
+        ORDER BY
+			MISSING_QUARTER.Year,
+            MISSING_QUARTER.Quarter,
+            E.LastName,
+            E.FirstName 
+    END TRY
+    BEGIN CATCH
+        ;THROW
+    END CATCH
+END 
+GO
+--CREATE OR ALTER PROC spGetEmployeesDueForReviewForSupervisor
+--	@SupervisorEmployeeNumber INT
+--AS
+--BEGIN
+--	BEGIN TRY	
+--		DECLARE @CurrentDate DATE = GETDATE();
+--		DECLARE @StartOfQuarter DATE;
+--		DECLARE @EndOfQuarter DATE;
+
+--		-- Determine the start and end dates of the current quarter
+--		SELECT 
+--		@StartOfQuarter = CASE
+--			WHEN MONTH(@CurrentDate) IN (1, 2, 3) THEN DATEFROMPARTS(YEAR(@CurrentDate), 1, 1)
+--			WHEN MONTH(@CurrentDate) IN (4, 5, 6) THEN DATEFROMPARTS(YEAR(@CurrentDate), 4, 1)
+--			WHEN MONTH(@CurrentDate) IN (7, 8, 9) THEN DATEFROMPARTS(YEAR(@CurrentDate), 7, 1)
+--			WHEN MONTH(@CurrentDate) IN (10, 11, 12) THEN DATEFROMPARTS(YEAR(@CurrentDate), 10, 1)
+--		END,
+--		@EndOfQuarter = CASE
+--			WHEN MONTH(@CurrentDate) IN (1, 2, 3) THEN DATEFROMPARTS(YEAR(@CurrentDate), 3, 31)
+--			WHEN MONTH(@CurrentDate) IN (4, 5, 6) THEN DATEFROMPARTS(YEAR(@CurrentDate), 6, 30)
+--			WHEN MONTH(@CurrentDate) IN (7, 8, 9) THEN DATEFROMPARTS(YEAR(@CurrentDate), 9, 30)
+--			WHEN MONTH(@CurrentDate) IN (10, 11, 12) THEN DATEFROMPARTS(YEAR(@CurrentDate), 12, 31)
+--		END;
+--		-- get all employees that don't have a review in this quarter
+--		SELECT 
+--			*
+--		FROM 
+--			Employee
+--		WHERE 
+--			SupervisorEmpNumber = @SupervisorEmployeeNumber
+--			AND SupervisorEmpNumber != 1
+--			AND StatusId = 1
+--			AND NOT EXISTS (
+--				SELECT 1 
+--				FROM Review 
+--				WHERE EmployeeNumber = Employee.EmployeeNumber 
+--				AND ReviewDate <= @EndOfQuarter
+--				AND ReviewDate >= @StartOfQuarter
+--			)
+--		ORDER BY
+--			LastName,
+--			FirstName
+--	END TRY
+--	BEGIN CATCH
+--		;THROW
+--	END CATCH
+--END 
+--GO
+
+-- read review
+CREATE OR ALTER PROC spReadReview
+	@ReviewId INT
+AS
+BEGIN
+	BEGIN TRY	
+		UPDATE 
+			Review
+		SET
+			IsRead = 1
+		WHERE
+			ReviewId = @ReviewId
+	END TRY
+	BEGIN CATCH
+		;THROW
+	END CATCH
+END 
+GO
+
+
+-- get review by id
+CREATE OR ALTER PROC spGetReviewById
+	@ReviewId INT
+AS
+BEGIN
+	BEGIN TRY	
+		SELECT
+			*
+		FROM
+			Review
+		WHERE
+			ReviewId = @ReviewId
+	END TRY
+	BEGIN CATCH
+		;THROW
+	END CATCH
+END 
+GO
+
+-- get all supervisor emails
+CREATE OR ALTER PROC spGetSupervisorEmails
+AS
+BEGIN
+	BEGIN TRY	
+		SELECT
+			*
+		FROM
+			Employee
+		WHERE
+			RoleId = 3
+	END TRY
+	BEGIN CATCH
+		;THROW
+	END CATCH
+END 
+GO
+
+
+-- reviews due in current quarter
+CREATE OR ALTER PROC spGetEmployeeReviewsDueInCurrentQuarter
+	@SupervisorEmployeeNumber INT
+AS
+BEGIN
+	BEGIN TRY	
+		DECLARE @CurrentDate DATE = GETDATE();
+		DECLARE @StartOfQuarter DATE;
+		DECLARE @EndOfQuarter DATE;
+
+		-- Determine the start and end dates of the current quarter
+		SELECT 
+		@StartOfQuarter = CASE
+			WHEN MONTH(@CurrentDate) IN (1, 2, 3) THEN DATEFROMPARTS(YEAR(@CurrentDate), 1, 1)
+			WHEN MONTH(@CurrentDate) IN (4, 5, 6) THEN DATEFROMPARTS(YEAR(@CurrentDate), 4, 1)
+			WHEN MONTH(@CurrentDate) IN (7, 8, 9) THEN DATEFROMPARTS(YEAR(@CurrentDate), 7, 1)
+			WHEN MONTH(@CurrentDate) IN (10, 11, 12) THEN DATEFROMPARTS(YEAR(@CurrentDate), 10, 1)
+		END,
+		@EndOfQuarter = CASE
+			WHEN MONTH(@CurrentDate) IN (1, 2, 3) THEN DATEFROMPARTS(YEAR(@CurrentDate), 3, 31)
+			WHEN MONTH(@CurrentDate) IN (4, 5, 6) THEN DATEFROMPARTS(YEAR(@CurrentDate), 6, 30)
+			WHEN MONTH(@CurrentDate) IN (7, 8, 9) THEN DATEFROMPARTS(YEAR(@CurrentDate), 9, 30)
+			WHEN MONTH(@CurrentDate) IN (10, 11, 12) THEN DATEFROMPARTS(YEAR(@CurrentDate), 12, 31)
+		END;
+		-- get all employees that don't have a review in this quarter
+		SELECT 
+			*
+		FROM 
+			Employee
+		WHERE 
+			SupervisorEmpNumber = @SupervisorEmployeeNumber
+			AND SupervisorEmpNumber != 1
+			AND StatusId = 1
+			AND NOT EXISTS (
+				SELECT 1 
+				FROM Review 
+				WHERE EmployeeNumber = Employee.EmployeeNumber 
+				AND ReviewDate <= @EndOfQuarter
+				AND ReviewDate >= @StartOfQuarter
+			)
+		ORDER BY
+			LastName,
+			FirstName
+	END TRY
+	BEGIN CATCH
+		;THROW
+	END CATCH
+END 
+GO
+
+
+-- update review reminder date
+CREATE OR ALTER PROC spSendReminders
+AS
+BEGIN
+	INSERT INTO 
+		ReviewReminder (DaySent)
+	VALUES
+		(GETDATE())
+END
+GO
+
+-- get hr employee emails
+CREATE OR ALTER PROC spGetHREmployeeEmails
+AS
+BEGIN
+	SELECT
+		*
+	FROM
+		Employee
+	WHERE 
+		RoleId = 4;
+END
+GO
+
+-- get employees with unread reviews for previous quarter
+CREATE OR ALTER PROC spGetEmployeeReviewsPendingFromPreviousQuarter
+    @SupervisorEmployeeNumber INT
+AS
+BEGIN
+    BEGIN TRY    
+        DECLARE @CurrentDate DATE = GETDATE();
+        DECLARE @StartOfPreviousQuarter DATE;
+        DECLARE @EndOfPreviousQuarter DATE;
+
+        -- Determine the start and end dates of the previous quarter
+        SELECT 
+        @StartOfPreviousQuarter = CASE
+            WHEN MONTH(@CurrentDate) IN (1, 2, 3) THEN DATEFROMPARTS(YEAR(@CurrentDate) - 1, 10, 1)
+            WHEN MONTH(@CurrentDate) IN (4, 5, 6) THEN DATEFROMPARTS(YEAR(@CurrentDate), 1, 1)
+            WHEN MONTH(@CurrentDate) IN (7, 8, 9) THEN DATEFROMPARTS(YEAR(@CurrentDate), 4, 1)
+            WHEN MONTH(@CurrentDate) IN (10, 11, 12) THEN DATEFROMPARTS(YEAR(@CurrentDate), 7, 1)
+        END,
+        @EndOfPreviousQuarter = CASE
+            WHEN MONTH(@CurrentDate) IN (1, 2, 3) THEN DATEFROMPARTS(YEAR(@CurrentDate) - 1, 12, 31)
+            WHEN MONTH(@CurrentDate) IN (4, 5, 6) THEN DATEFROMPARTS(YEAR(@CurrentDate), 3, 31)
+            WHEN MONTH(@CurrentDate) IN (7, 8, 9) THEN DATEFROMPARTS(YEAR(@CurrentDate), 6, 30)
+            WHEN MONTH(@CurrentDate) IN (10, 11, 12) THEN DATEFROMPARTS(YEAR(@CurrentDate), 9, 30)
+        END;
+        
+        -- get all employees that don't have a review in the previous quarter
+        SELECT 
+            *
+        FROM 
+            Employee
+        WHERE 
+            SupervisorEmpNumber = @SupervisorEmployeeNumber
+            AND SupervisorEmpNumber != 1
+            AND StatusId = 1
+            AND NOT EXISTS (
+                SELECT 1 
+                FROM Review 
+                WHERE EmployeeNumber = Employee.EmployeeNumber 
+                AND ReviewDate <= @EndOfPreviousQuarter
+                AND ReviewDate >= @StartOfPreviousQuarter
+            )
+        ORDER BY
+            LastName,
+            FirstName
+    END TRY
+    BEGIN CATCH
+        ;THROW
+    END CATCH
+END 
+GO
+--  Counts number of employees supervised
+CREATE OR ALTER PROC spCountEmployeesBySupervisor
+    @SupervisorEmpNumber INT
+AS
+BEGIN
+    SELECT 
+        COUNT(EmployeeNumber) AS NumberOfEmployees
+    FROM 
+        Employee
+    WHERE
+        SupervisorEmpNumber = @SupervisorEmpNumber;
+END
+GO
+
+CREATE OR ALTER PROC spGetUnreadEmployeeReviewsBySupervisor
+    @SupervisorEmpNumber INT
+AS
+BEGIN
+    SELECT 
+        E.EmployeeNumber,
+        E.FirstName,
+        E.LastName,
+        COUNT(R.IsRead) AS UnreadReviews
+    FROM 
+        Employee E
+    LEFT JOIN
+        Review R ON E.EmployeeNumber = R.EmployeeNumber AND R.IsRead = 0
+    WHERE
+        E.SupervisorEmpNumber = @SupervisorEmpNumber
+    GROUP BY
+        E.EmployeeNumber,
+        E.FirstName,
+        E.LastName;
+END
+GO
+
+-- Stored Procedure to get the count of employees a supervisor is supervising
+CREATE OR ALTER PROC spCountEmployeesBySupervisor
+    @SupervisorEmpNumber INT
+AS
+BEGIN
+    SELECT 
+        COUNT(EmployeeNumber) AS NumberOfEmployees
+    FROM 
+        Employee
+    WHERE
+        SupervisorEmpNumber = @SupervisorEmpNumber;
+END
+GO
+
+-- Stored Procedure to get the count of unread reviews for employees in the supervisor's department
+CREATE OR ALTER PROC spGetUnreadEmployeeReviewsByDepartment
+    @DepartmentId INT
+AS
+BEGIN
+    SELECT 
+        E.EmployeeNumber,
+        E.FirstName,
+        E.LastName,
+        COUNT(R.IsRead) AS UnreadReviews
+    FROM 
+        Employee E
+    LEFT JOIN
+        Review R ON E.EmployeeNumber = R.EmployeeNumber AND R.IsRead = 0
+    WHERE
+        E.DepartmentId = @DepartmentId
+    GROUP BY
+        E.EmployeeNumber,
+        E.FirstName,
+        E.LastName;
 END
 GO

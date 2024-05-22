@@ -1,4 +1,5 @@
 ﻿using DAL;
+using Microsoft.Data.SqlClient;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -95,6 +96,8 @@ namespace TotalAdmin.Repository
                                 Justification = row["Justification"].ToString() ?? "UnKnown",
                                 Location = row["ItemLocation"].ToString() ?? "UnKnown",
                                 ItemStatus = row["ItemStatus"].ToString() ?? "UnKnown",
+                                ModifiedReason = row["ModifiedReason"].ToString() ?? "UnKnown",
+                                RejectedReason = row["RejectedReason"].ToString() ?? "UnKnown",
                                 StatusId = Convert.ToInt32(row["ItemStatusId"])
                             }).ToList()
                         };
@@ -149,6 +152,7 @@ namespace TotalAdmin.Repository
                             EmployeeSupervisorName = supervisorName,
                             EmployeeName = employeeName,
                             EmployeeNumber = employeeNumber,
+                            RowVersion = (byte[]?)firstRow["RowVersion"],
 
                             Items = g.Select(row => new Item
                             {
@@ -160,7 +164,8 @@ namespace TotalAdmin.Repository
                                 Justification = row["Justification"].ToString() ?? "UnKnown",
                                 Location = row["ItemLocation"].ToString() ?? "UnKnown",
                                 ItemStatus = row["ItemStatus"].ToString() ?? "UnKnown",
-                                StatusId = Convert.ToInt32(row["ItemStatusId"])
+                                StatusId = Convert.ToInt32(row["ItemStatusId"]),
+                                RowVersion = (byte[])row["RowVersion"],
                             }).ToList()
                         };
 
@@ -176,21 +181,100 @@ namespace TotalAdmin.Repository
             }
         }
 
+        /// <summary>
+        /// Gets the detail of the purchase order based on the provided number
+        /// </summary>
+        /// <param name="poNumber"></param>
+        /// <returns>Results of th epurchase order detail</returns>
+        public async Task<PurchaseOrder> GetPurchaseOrderDetails(int poNumber)
+        {
+            try
+            {
+                PurchaseOrder? po = null;
+                
+                string sql = @"SELECT PurchaseOrder.*, 
+	                                PurchaseOrderStatus.[Name] AS PurchaseOrderStatus
+                                FROM PurchaseOrder 
+	                                INNER JOIN
+                                    PurchaseOrderStatus ON PurchaseOrder.PurchaseOrderStatusId = PurchaseOrderStatus.PoStatusId
+                                WHERE PoNumber = @PoNumber";
+
+                DataTable dt = await db.ExecuteAsync(sql, new List<Parm> { new Parm("@PoNumber", SqlDbType.Int, poNumber) }, CommandType.Text);
+
+              
+                if (dt.Rows.Count == 0)
+                {
+                    return po;
+                }
+
+                // Create a PurchaseOrder object from the result
+                DataRow firstRow = dt.Rows[0];
+                po = new PurchaseOrder
+                {
+                    PoNumber = Convert.ToInt32(firstRow["PoNumber"]),
+                    CreationDate = Convert.ToDateTime(firstRow["CreationDate"]),
+                    EmployeeSupervisorName = await GetSupervisorFullNameForEmployee(Convert.ToInt32(firstRow["EmployeeNumber"])),
+                    FormattedPoNumber = "00001" + firstRow["PoNumber"].ToString().PadLeft(2, '0'),
+                    StatusId = Convert.ToInt32(firstRow["PurchaseOrderStatusId"]),
+                    PurchaseOrderStatus = Convert.ToString(firstRow["PurchaseOrderStatus"]),
+                };
+
+                
+                sql = "SELECT * FROM Item WHERE PoNumber = @PoNumber";
+
+               
+                dt = await db.ExecuteAsync(sql, new List<Parm> { new Parm("@PoNumber", SqlDbType.Int, poNumber) }, CommandType.Text);
+
+                // Add the items to the PurchaseOrder object
+                po.Items = dt.AsEnumerable().Select(row => new Item
+                {
+                    ItemId = Convert.ToInt32(row["ItemId"]),
+                    Name = row["Name"].ToString() ?? "N/A",
+                    Quantity = Convert.ToInt32(row["Quantity"]),
+                    Description = row["Description"].ToString() ?? "N/A",
+                    Price = Convert.ToDecimal(row["Price"]),
+                    Justification = row["Justification"].ToString() ?? "N/A",
+                    Location = row["ItemLocation"].ToString() ?? "N/A",
+                    StatusId = Convert.ToInt32(row["ItemStatusId"])
+                }).ToList();
+
+                return po;
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine(ex.Message);
+                throw;
+            }
+        }
+
+
+        /// <summary>
+        /// Used to close a purchase order based on the PONumber
+        /// </summary>
+        /// <param name="PONumber"></param>
+        /// <returns>Returns the updated po status</returns>
         public async Task<PurchaseOrder> ClosePO(int PONumber)
         {
             try
             {
+                // Fetch the current RowVersion of the purchase order
+                string sql = "SELECT RowVersion FROM PurchaseOrder WHERE PONumber = @PONumber";
+                byte[] rowVersion = (byte[])await db.ExecuteScalarAsync
+                    (sql, new List<Parm> { new Parm("@PONumber", SqlDbType.Int, PONumber) }, CommandType.Text);
+
+
                 List<Parm> parms = new()
                 {
                     new Parm("@PONumber", SqlDbType.Int, PONumber),
+                    new Parm("@RowVersion", SqlDbType.Timestamp,rowVersion)
                 };
 
-                string sql = "UPDATE PurchaseOrder SET PurchaseOrderStatusId = 3 WHERE PONumber = @PONumber";
-                await db.ExecuteNonQueryAsync(sql, parms, CommandType.Text);
 
-                // fetch the updated purchase orders
-                sql = "SELECT * FROM PurchaseOrder WHERE PONumber = @PONumber";
-                DataTable dt = await db.ExecuteAsync(sql, parms, CommandType.Text);
+                // Execute the stored procedure
+                await db.ExecuteNonQueryAsync("spClosePO", parms, CommandType.StoredProcedure);
+
+                // Fetch the updated purchase orders
+                DataTable dt = await db.ExecuteAsync("spClosePO", parms, CommandType.StoredProcedure);
 
                 // Get the employee's email
                 string employeeEmail = await GetEmployeeEmail(PONumber);
@@ -309,6 +393,69 @@ namespace TotalAdmin.Repository
                 {
                     throw new DataException("There was an issue adding the record to the database.");
                 }
+
+                return po;
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine(ex.Message);
+                throw;
+            }
+        }
+
+        /// <summary>
+        /// Modifies employess Purchase Order based on the given id and the pos
+        /// </summary>
+        /// <param name="id"></param>
+        /// <param name="po"></param>
+        /// <returns>The purchase orders Updated</returns>
+        public async Task<PurchaseOrder> UpdatePurchaseOrder(int id, PurchaseOrder po)
+        {
+            try
+            {
+                // Fetch all items from the database
+                var allItems = await GetAllItems();
+
+                // Merge items with the same properties
+                var (mergedItems, hasMergeOccurred) =
+                    await MergeItems(allItems, (po.Items ?? new List<Item>()).ToList(), true);
+
+                // Check if a merge has occurred
+                if (hasMergeOccurred)
+                    po.HasMergeOccurred = true; // set the flag
+
+
+                // Filter out the existing items from the mergedItems list
+                var updatedItems = mergedItems
+                    .Where(item => allItems
+                    .Any(existingItem => existingItem.ItemId == item.ItemId))
+                    .ToList();
+
+                // Check if updatedItems list is empty
+                if (!updatedItems.Any())
+                    return po; // return the PurchaseOrder object as is
+              
+
+                // Create a DataTable for the PO items
+                var poItemsTable = await CreatePoItemsDataTableAsync(updatedItems);
+
+                
+                List<Parm> parms = new()
+                {
+                    new("@PoNumber", SqlDbType.Int, po.PoNumber),
+                    new("@RowVersion", SqlDbType.Timestamp, po.RowVersion, 0, ParameterDirection.InputOutput),
+                    new("@CreationDate", SqlDbType.DateTime2, po.CreationDate, 7),
+                    new("@PurchaseOrderStatusId", SqlDbType.Int, po.StatusId),
+                    new("@EmployeeNumber", SqlDbType.Int, po.EmployeeNumber),
+                    new("@POItems", SqlDbType.Structured, poItemsTable)
+                };
+
+               
+                if (await db.ExecuteNonQueryAsync("spUpdatePurchaseOrder", parms) > 0)
+                    po.RowVersion = (byte[]?)parms.FirstOrDefault(p => p.Name == "@RowVersion")!.Value;
+                else
+                    throw new DataException("There was an issue updating the record in the database.");
+               
 
                 return po;
             }
@@ -454,51 +601,7 @@ namespace TotalAdmin.Repository
             }
         }
 
-        private async Task<ICollection<Item>> LoadItemsForPurchaseOrder(int poNumber)
-        {
-            try
-            {
-                // Define the parameters
-                List<Parm> parms = new()
-                {
-                    new Parm("@PoNumber", SqlDbType.Int, poNumber)
-                };
 
-                string sql = "SELECT * FROM Item WHERE PoNumber = @PoNumber";
-
-                // Call the procedure and pass in the parameters
-                DataTable dt = await db.ExecuteAsync(sql, parms, CommandType.Text);
-
-                // If no rows found return null
-                if (dt.Rows.Count == 0)
-                    return null;
-
-                // Map the data table to a list of Item objects
-                var items = dt.AsEnumerable().Select(row =>
-                {
-                    return new Item
-                    {
-                        ItemId = Convert.ToInt32(row["ItemId"]),
-                        Name = row["Name"].ToString(),
-                        Quantity = Convert.ToInt32(row["Quantity"]),
-                        Description = row["Description"].ToString(),
-                        Price = Convert.ToDecimal(row["Price"]),
-                        Justification = row["Justification"].ToString(),
-                        Location = row["ItemLocation"].ToString(),
-                        RejectedReason = row["RejectedReason"].ToString(),
-                        StatusId = Convert.ToInt32(row["ItemStatusId"])
-                    };
-                });
-
-                // Return the list of items
-                return items.ToList();
-            }
-            catch (Exception ex)
-            {
-                Debug.WriteLine(ex.Message);
-                throw;
-            }
-        }
 
 
         /// <summary>
@@ -524,6 +627,63 @@ namespace TotalAdmin.Repository
                         Location = row["ItemLocation"].ToString() ?? "UnKnown",
                         StatusId = Convert.ToInt32(row["ItemStatusId"])
                     }).ToList();
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine(ex.Message);
+                throw;
+            }
+        }
+
+        /// <summary>
+        /// Get a specific purchase order by its number
+        /// </summary>
+        /// <param name="poNumber">The number of the purchase order</param>
+        /// <returns></returns>
+        public async Task<PurchaseOrder> GetExistingPurchaseOrder(int poNumber)
+        {
+            try
+            {
+                string sql = @"SELECT p.*, i.*
+                       FROM 
+                            PurchaseOrder p
+                       LEFT JOIN
+                            Item i ON p.PoNumber = i.PoNumber
+                       WHERE p.PoNumber = @PoNumber";
+
+                List<Parm> parameters = new List<Parm> { new Parm("@PoNumber", SqlDbType.Int, poNumber) };
+                DataTable dt = await db.ExecuteAsync(sql, parameters, CommandType.Text);
+
+                PurchaseOrder purchaseOrder = null;
+                foreach (DataRow row in dt.Rows)
+                {
+                    if (purchaseOrder == null)
+                    {
+                        purchaseOrder = new PurchaseOrder
+                        {
+                            PoNumber = Convert.ToInt32(row["PoNumber"]),
+                            CreationDate = Convert.ToDateTime(row["CreationDate"]),
+                            StatusId = Convert.ToInt32(row["PurchaseOrderStatusId"]),
+                            EmployeeNumber = Convert.ToInt32(row["EmployeeNumber"]),
+                            RowVersion = (byte[])row["RowVersion"],
+                            Items = new List<Item>()
+                        };
+                    }
+
+                    purchaseOrder.Items.Add(new Item
+                    {
+                        ItemId = Convert.ToInt32(row["ItemId"]),
+                        Name = row["Name"].ToString(),
+                        Quantity = Convert.ToInt32(row["Quantity"]),
+                        Description = row["Description"].ToString(),
+                        Price = Convert.ToDecimal(row["Price"]),
+                        Justification = row["Justification"].ToString(),
+                        Location = row["ItemLocation"].ToString(),
+                        StatusId = Convert.ToInt32(row["ItemStatusId"]),
+                    });
+                }
+
+                return purchaseOrder;
             }
             catch (Exception ex)
             {
@@ -704,6 +864,53 @@ namespace TotalAdmin.Repository
         }
 
 
+        private async Task<ICollection<Item>> LoadItemsForPurchaseOrder(int poNumber)
+        {
+            try
+            {
+                // Define the parameters
+                List<Parm> parms = new()
+                {
+                    new Parm("@PoNumber", SqlDbType.Int, poNumber)
+                };
+
+                string sql = "SELECT * FROM Item WHERE PoNumber = @PoNumber";
+
+                // Call the procedure and pass in the parameters
+                DataTable dt = await db.ExecuteAsync(sql, parms, CommandType.Text);
+
+                // If no rows found return null
+                if (dt.Rows.Count == 0)
+                    return null;
+
+                // Map the data table to a list of Item objects
+                var items = dt.AsEnumerable().Select(row =>
+                {
+                    return new Item
+                    {
+                        ItemId = Convert.ToInt32(row["ItemId"]),
+                        Name = row["Name"].ToString() ?? "N/A",
+                        Quantity = Convert.ToInt32(row["Quantity"]),
+                        Description = row["Description"].ToString() ?? "N/A",
+                        Price = Convert.ToDecimal(row["Price"]),
+                        Justification = row["Justification"].ToString() ?? "N/A",
+                        Location = row["ItemLocation"].ToString() ?? "N/A",
+                        RejectedReason = row["RejectedReason"].ToString(),
+                        StatusId = Convert.ToInt32(row["ItemStatusId"])
+                    };
+                });
+
+                // Return the list of items
+                return items.ToList();
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine(ex.Message);
+                throw;
+            }
+        }
+
+
         /// <summary>
         /// Get the department name for a given purchase order number
         /// </summary>
@@ -730,7 +937,7 @@ namespace TotalAdmin.Repository
             if (dt.Rows.Count > 0)
             {
                 DataRow row = dt.Rows[0];
-                string departmentName = row["Name"].ToString();
+                var departmentName = row["Name"].ToString();
                 return departmentName;
             }
             else
@@ -762,12 +969,13 @@ namespace TotalAdmin.Repository
         }
 
         /// <summary>
-        /// Merges new items with existing items based on their properties
+        /// Merges new items with existing items based on their properties.
+        /// If updating a PO it checks for status if pending or approve
         /// </summary>
         /// <param name="existingItems"></param>
         /// <param name="newItems"></param>
         /// <returns>A tuple containing the list of merged items and a boolean indicating if a merge has occurred</returns>
-        private async Task<(List<Item>, bool)> MergeItems(List<Item> existingItems, List<Item> newItems)
+        private async Task<(List<Item>, bool)> MergeItems(List<Item> existingItems, List<Item> newItems, bool isUpdate = false)
         {
             var result = new List<Item>();
             bool hasMergeOccurred = false;
@@ -777,11 +985,13 @@ namespace TotalAdmin.Repository
             {
                 // Find an existing item that matches the new item based on their properties
                 var existingItem = existingItems.FirstOrDefault(item =>
+                  (!isUpdate || item.ItemId == newItem.ItemId) &&
                   item.Name.ToLower().ToLowerInvariant().Trim() == newItem.Name.ToLower().ToLowerInvariant().Trim() &&
                   item.Description.ToLower().ToLowerInvariant().Trim() == newItem.Description.ToLower().ToLowerInvariant().Trim() &&
                   item.Price == newItem.Price &&
                   item.Justification.ToLower().ToLowerInvariant().Trim() == newItem.Justification.ToLower().ToLowerInvariant().Trim() &&
-                  item.Location.ToLower().ToLowerInvariant().Trim() == newItem.Location.ToLower().ToLowerInvariant().Trim());
+                  item.Location.ToLower().ToLowerInvariant().Trim() == newItem.Location.ToLower().ToLowerInvariant().Trim() &&
+                  (!isUpdate || (item.StatusId != 2 && item.StatusId != 3))); // Check status only if it's an update operation
 
                 if (existingItem != null)
                 {
@@ -821,6 +1031,7 @@ namespace TotalAdmin.Repository
             dt.Columns.Add("ItemJust", typeof(string));
             dt.Columns.Add("ItemLoc", typeof(string));
             dt.Columns.Add("RejectedReason", typeof(string));
+            dt.Columns.Add("ModifiedReason", typeof(string));
             dt.Columns.Add("ItemStatus", typeof(int));
 
             foreach (var item in items)
@@ -834,6 +1045,7 @@ namespace TotalAdmin.Repository
                     item.Justification,
                     item.Location,
                     item.RejectedReason,
+                    item.ModifiedReason,
                     item.StatusId);
             }
 
@@ -858,6 +1070,7 @@ namespace TotalAdmin.Repository
             dt.Columns.Add("ItemJust", typeof(string));
             dt.Columns.Add("ItemLoc", typeof(string));
             dt.Columns.Add("RejectedReason", typeof(string));
+            dt.Columns.Add("ModifiedReason", typeof(string));
             dt.Columns.Add("ItemStatus", typeof(int));
 
             dt.Rows.Add(
@@ -869,6 +1082,7 @@ namespace TotalAdmin.Repository
                 item.Justification,
                 item.Location,
                 item.RejectedReason,
+                item.ModifiedReason,
                 item.StatusId);
 
             return Task.FromResult(dt);
@@ -885,6 +1099,8 @@ namespace TotalAdmin.Repository
                 Price = existingItem.Price,
                 Justification = existingItem.Justification,
                 Location = existingItem.Location,
+                RejectedReason = existingItem.RejectedReason,
+                ModifiedReason = existingItem.ModifiedReason,
                 ItemStatus = existingItem.ItemStatus,
                 StatusId = existingItem.StatusId,
                 RowVersion = existingItem.RowVersion,

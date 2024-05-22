@@ -1,0 +1,9 @@
+<div class="container">
+    <h3>Are you sure you want to delete department?</h3>
+    <h5>This action cannot be undone</h5>
+    <app-errors [messages]="errors"></app-errors>
+    <p><strong>Name:</strong> {{ department.name }}</p>
+    <p><strong>Invocation Date:</strong> {{ invocationDate | date }}</p>
+    <p><strong>Description:</strong> {{ department.description }}</p>
+    <button (click)="onDeleteDepartment()" class="btn btn-danger">Delete</button>
+</div>

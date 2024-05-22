@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:totaladmin/employee_search.dart';
 import 'package:totaladmin/login.dart';
+import 'package:totaladmin/search_purchase_order.dart';
 import 'dart:io';
 
 import 'package:totaladmin/services/auth_service.dart';
@@ -122,6 +123,18 @@ class _HomePageState extends State<HomePage> {
                 ),
               ],
               ListTile(
+                leading: const Icon(Icons.receipt),
+                title: const Text('View Purchase Orders'),
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => SearchPo(),
+                    ),
+                  );
+                },
+              ),
+              ListTile(
                 leading: const Icon(Icons.exit_to_app),
                 title: const Text('Logout'),
                 onTap: () {
@@ -145,6 +158,14 @@ class _HomePageState extends State<HomePage> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: <Widget>[
+                Image.asset(
+                  'assets/logo.png',
+                  height: 150,
+                  width: 150,
+                ),
+                const SizedBox(
+                  height: 10,
+                ),
                 const Center(
                   child: Text(
                     "Home",

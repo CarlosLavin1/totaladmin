@@ -1,4 +1,5 @@
 ﻿using DAL;
+using Microsoft.Data.SqlClient;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -48,23 +49,78 @@ namespace TotalAdmin.Repository
             return item;
         }
 
-        public async Task<bool> UpdateItem(int itemId, int newItemStatus, string? reason = null)
+        public async Task<Item> UpdateItem(Item i)
         {
             try
             {
                 List<Parm> parms = new()
                 {
-                    new Parm("@ItemId", SqlDbType.Int, itemId),
-                    new Parm("@NewStatusId", SqlDbType.Int, newItemStatus),
-                    new Parm("@Reason", SqlDbType.NVarChar, reason),
+                    new Parm("@ItemId", SqlDbType.Int, i.ItemId),
+                    new Parm("@NewStatusId", SqlDbType.Int, i.StatusId),
+                    new Parm("@Reason", SqlDbType.NVarChar, i.RejectedReason),
+                    new Parm("@Quantity", SqlDbType.Int, i.Quantity),
+                    new Parm("@Price", SqlDbType.Decimal, i.Price),
+                    new Parm("@Description", SqlDbType.NVarChar, i.Description),
+                    new Parm("@Location", SqlDbType.NVarChar, i.Location),
+                    new Parm("@ModifiedReason", SqlDbType.NVarChar, i.ModifiedReason),
+                    new Parm("@RowVersion", SqlDbType.Timestamp, i.RowVersion, 0, ParameterDirection.InputOutput)
                 };
 
-                string sql = "UPDATE Item SET ItemStatusId  = @NewStatusId, RejectedReason = @Reason WHERE ItemId = @ItemId";
-                int rowsAffected = await db.ExecuteNonQueryAsync(sql, parms, CommandType.Text);
+                // Execute the stored procedure and check the result
+                int results = await db.ExecuteNonQueryAsync("spUpdateItem", parms);
+                if (results > 0)
+                    i.RowVersion = (byte[]?)parms.FirstOrDefault(p => p.Name == "@RowVersion")!.Value;
+                else
+                    throw new DataException("There was an issue updating the record in the database.");
 
-                return rowsAffected > 0;
+                return i;
             }
             catch (Exception ex)
+            {
+                Debug.WriteLine(ex.Message);
+                throw;
+            }
+        }
+
+        public async Task<Item> GetItemById(int id)
+        {
+            try
+            {
+                string sql = "SELECT * FROM Item WHERE ItemId = @ID";
+
+                List<Parm> parms = new() 
+                {
+                    new Parm("@ID", SqlDbType.Int, id)
+                };
+
+                DataTable dt = await db.ExecuteAsync(sql, parms, CommandType.Text);
+
+                Item? item = null;
+
+                foreach (DataRow row in dt.Rows)
+                {
+                    if (item == null)
+                    {
+                        item = new Item
+                        {
+                            ItemId = Convert.ToInt32(row["ItemId"]),
+                            Name = Convert.ToString(row["Name"]),
+                            Quantity = Convert.ToInt32(row["Quantity"]),
+                            Description = Convert.ToString(row["Description"]),
+                            Price = Convert.ToDecimal(row["Price"]),
+                            Justification = Convert.ToString(row["Justification"]),
+                            Location = Convert.ToString(row["ItemLocation"]),
+                            RejectedReason = row["RejectedReason"] as string,
+                            ModifiedReason = row["ModifiedReason"] as string,
+                            StatusId = Convert.ToInt32(row["ItemStatusId"]),
+                            RowVersion = (byte[])row["RowVersion"]
+                        };
+                    }
+                }
+
+                return item;
+            }
+            catch(Exception ex)
             {
                 Debug.WriteLine(ex.Message);
                 throw;
